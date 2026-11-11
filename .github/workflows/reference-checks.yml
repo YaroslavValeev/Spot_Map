@@ -1,0 +1,23 @@
+name: Reference checks
+on:
+  push:
+  pull_request:
+jobs:
+  scorer-and-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: SpotScore reference unit tests
+        run: python -m unittest discover -s reference/scoring -p "test_*.py" -v
+      - name: Parse JSON Schema contracts
+        run: |
+          python -m json.tool contracts/jsonschema/SpotMap_Wakesurf_Passport_v1.schema.json > /dev/null
+          python -m json.tool contracts/jsonschema/SpotMap_Cable_Installation_v1.schema.json > /dev/null
+      - name: Install API test deps
+        run: pip install -r services/api/requirements.txt
+      - name: Staging import + map policy unit tests
+        working-directory: services/api
+        run: python -m unittest discover -s tests -p "test_*.py" -v

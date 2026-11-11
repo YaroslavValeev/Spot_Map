@@ -1,0 +1,42 @@
+# Local configuration / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# Private input data and unverified candidates
+/data/raw_private/
+/data/staging/*.csv
+
+# Local extract/cache of original packages (keep source zips out of Git by choice)
+/_workspace_extract/
+/_blueprint_extract/
+*.zip
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+*.egg-info/
+
+# JS build
+node_modules/
+.next/
+dist/
+build/
+coverage/
+
+# Local databases and temp
+*.sqlite3
+*.db
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
+.tmp/

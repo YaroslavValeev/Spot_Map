@@ -1,0 +1,3 @@
+legacy_row_id,name,address_from_source,sport_terms_from_source,candidate_installations_quantity,map_geo_status,operation_status,source_url,verification_action
+CAB-SYN-1,Synthetic Two-Tower North,Test Region,wakeboard cable,2,missing,unknown,https://example.test/cable,manual_geo_check
+CAB-SYN-2,Synthetic Circuit South,Test Region,электротяга,1,missing,unknown,https://example.test/cable,manual_geo_check

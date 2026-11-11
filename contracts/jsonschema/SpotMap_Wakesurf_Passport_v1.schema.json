@@ -1,0 +1,1072 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spotmap.example/schema/wakesurf-passport/1.0.0",
+  "title": "SpotMap Wakesurf Passport v1",
+  "description": "Read model, not storage model. Coordinates cannot be fabricated. Unknown != false.",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "spot": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 200
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "waterbody",
+            "wakepark",
+            "pool",
+            "other"
+          ]
+        },
+        "country_code": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$"
+        },
+        "region": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "locality": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "address": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "location": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "type": {
+              "const": "Point"
+            },
+            "coordinates": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "number",
+                  "minimum": -180,
+                  "maximum": 180
+                },
+                {
+                  "type": "number",
+                  "minimum": -90,
+                  "maximum": 90
+                }
+              ],
+              "items": false,
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "type",
+            "coordinates"
+          ],
+          "additionalProperties": false
+        },
+        "geo_status": {
+          "type": "string",
+          "enum": [
+            "missing",
+            "approximate",
+            "verified",
+            "disputed"
+          ]
+        },
+        "geo_verified_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "operation_status": {
+          "type": "string",
+          "enum": [
+            "open",
+            "seasonal_closed",
+            "temporarily_closed",
+            "permanently_closed",
+            "planned",
+            "unknown"
+          ]
+        },
+        "waterbody_type": {
+          "type": "string",
+          "enum": [
+            "lake",
+            "reservoir",
+            "river",
+            "bay",
+            "artificial",
+            "other",
+            "unknown"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "kind",
+        "country_code",
+        "geo_status",
+        "operation_status",
+        "waterbody_type"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "geo_status": {
+                "const": "verified"
+              }
+            },
+            "required": [
+              "geo_status"
+            ]
+          },
+          "then": {
+            "required": [
+              "location",
+              "geo_verified_at"
+            ],
+            "properties": {
+              "location": {
+                "type": "object"
+              },
+              "geo_verified_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "club": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 200
+        },
+        "operation_status": {
+          "type": "string",
+          "enum": [
+            "open",
+            "seasonal_closed",
+            "temporarily_closed",
+            "permanently_closed",
+            "planned",
+            "unknown"
+          ]
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "claimed": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "operation_status"
+      ],
+      "additionalProperties": false
+    },
+    "disciplines": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "wakesurf",
+          "wakeskim"
+        ]
+      }
+    },
+    "boats": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "manufacturer": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "model": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "manufacture_year": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1950,
+            "maximum": 2100
+          },
+          "surf_system": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ballast_description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "wave_side": {
+            "type": "string",
+            "enum": [
+              "regular",
+              "goofy",
+              "both",
+              "unknown"
+            ]
+          },
+          "wave_level": {
+            "type": "string",
+            "enum": [
+              "beginner",
+              "intermediate",
+              "advanced",
+              "all",
+              "unknown"
+            ]
+          },
+          "wave_adjustable": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "max_passengers": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1,
+            "maximum": 100
+          },
+          "available": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "verified_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "wave_side",
+          "wave_level"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "trainers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 2
+          },
+          "levels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "beginner",
+                "intermediate",
+                "advanced",
+                "pro"
+              ]
+            }
+          },
+          "specializations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "children_min_age": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 18
+          },
+          "child_training": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "public_profile_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "verified_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "offers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "service_type": {
+            "type": "string",
+            "enum": [
+              "ride_set",
+              "training",
+              "boat_rental",
+              "intro",
+              "package",
+              "other"
+            ]
+          },
+          "discipline": {
+            "type": "string",
+            "enum": [
+              "wakesurf",
+              "wakeskim"
+            ]
+          },
+          "boat_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "duration_minutes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1,
+            "maximum": 1440
+          },
+          "price": {
+            "type": "object",
+            "properties": {
+              "amount_minor": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "currency": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "current_verified",
+                  "current_unverified",
+                  "historical",
+                  "expired",
+                  "quote_only"
+                ]
+              },
+              "valid_from": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "valid_to": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "amount_minor",
+              "currency",
+              "status"
+            ],
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "enum": [
+                        "current_verified",
+                        "current_unverified"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "amount_minor": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "includes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "booking_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cancellation_policy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field_path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "source_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "source_url": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "verified_at": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high"
+                  ]
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "proposed",
+                    "accepted",
+                    "rejected",
+                    "superseded",
+                    "disputed"
+                  ]
+                }
+              },
+              "required": [
+                "field_path",
+                "source_id",
+                "confidence",
+                "status"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "id",
+          "service_type",
+          "discipline",
+          "price"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "amenities": {
+      "type": "object",
+      "properties": {
+        "parking": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "shower": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "changing_room": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "toilet": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "cafe": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "restaurant": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "beach": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "lounge": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "kids_area": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "wifi": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "equipment_storage": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "accommodation_nearby": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "wheelchair_access": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "contacts": {
+      "type": "object",
+      "properties": {
+        "website": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uri"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "phone_e164": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^\\+[1-9][0-9]{6,14}$"
+        },
+        "telegram_url": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uri"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "vk_url": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uri"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "booking_url": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uri"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "timezone": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "arrival_instructions": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "website",
+        "phone_e164",
+        "telegram_url"
+      ],
+      "additionalProperties": false
+    },
+    "water": {
+      "type": "object",
+      "properties": {
+        "boat_traffic": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "unknown"
+          ]
+        },
+        "protected_wind_directions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "N",
+              "NE",
+              "E",
+              "SE",
+              "S",
+              "SW",
+              "W",
+              "NW"
+            ]
+          }
+        },
+        "exposed_wind_directions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "N",
+              "NE",
+              "E",
+              "SE",
+              "S",
+              "SW",
+              "W",
+              "NW"
+            ]
+          }
+        },
+        "water_current": {
+          "type": "string",
+          "enum": [
+            "none",
+            "weak",
+            "moderate",
+            "strong",
+            "unknown"
+          ]
+        },
+        "depth_min_m": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 2000
+        },
+        "hazards": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "navigation_restrictions": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "boat_traffic",
+        "protected_wind_directions"
+      ],
+      "additionalProperties": false
+    },
+    "trust": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 100
+        },
+        "score_status": {
+          "type": "string",
+          "enum": [
+            "unrated",
+            "preliminary",
+            "verified",
+            "restricted"
+          ]
+        },
+        "score_formula_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "coverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "last_substantive_verification_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field_path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "source_url": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "verified_at": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "proposed",
+                  "accepted",
+                  "rejected",
+                  "superseded",
+                  "disputed"
+                ]
+              }
+            },
+            "required": [
+              "field_path",
+              "source_id",
+              "confidence",
+              "status"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "score",
+        "score_status",
+        "confidence",
+        "coverage",
+        "last_substantive_verification_at",
+        "evidence"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "score_status": {
+                "enum": [
+                  "unrated",
+                  "restricted"
+                ]
+              }
+            },
+            "required": [
+              "score_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "score": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "score_status": {
+                "enum": [
+                  "preliminary",
+                  "verified"
+                ]
+              }
+            },
+            "required": [
+              "score_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "score": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100
+              }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "public_status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published",
+        "hidden"
+      ]
+    },
+    "last_content_check_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "spot",
+    "club",
+    "disciplines",
+    "boats",
+    "trainers",
+    "offers",
+    "amenities",
+    "contacts",
+    "water",
+    "trust",
+    "public_status",
+    "last_content_check_at"
+  ],
+  "additionalProperties": false
+}

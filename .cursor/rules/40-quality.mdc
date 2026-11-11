@@ -1,0 +1,11 @@
+---
+description: "Testing, deployment constraints and engineering workflow"
+globs: "**/*.py,**/*.sql,**/*.json,**/*.yml,**/*.yaml"
+alwaysApply: false
+---
+# Engineering quality
+- Determine actual dependency/config state before inventing commands or adding a framework.
+- Preserve backward compatibility unless an ADR explicitly authorizes breaking changes.
+- No prod changes; use migrations, staging fixtures and rollback plans.
+- Never copy user-specific tokens or private Telegram identifiers into tests or output logs.
+- Run relevant focused tests; report exactly which checks passed/failed/not executed.

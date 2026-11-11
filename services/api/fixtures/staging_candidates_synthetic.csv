@@ -1,0 +1,4 @@
+legacy_row_id,raw_name,raw_segment,raw_region,raw_address,raw_category,raw_disciplines,official_or_public_website,public_telegram_url,geo_status,operation_status,source_url,candidate_kind,source_snapshot,source_sha256
+SYN-001,Synthetic Lake Alpha,wakesurf,Test Region,nowhere,club,"wakesurf",https://example.test,,,missing,unknown,https://example.test/source,spot_or_club,synthetic_fixture,aaa
+SYN-002,Synthetic Cable Park Beta,cable,Test Region,nowhere,park,"wakeboard_cable",https://example.test,,,missing,unknown,https://example.test/source,spot_or_club,synthetic_fixture,bbb
+SYN-001,Synthetic Lake Alpha DUPLICATE,wakesurf,Test Region,nowhere,club,"wakesurf",https://example.test,,,missing,unknown,https://example.test/source,spot_or_club,synthetic_fixture,aaa

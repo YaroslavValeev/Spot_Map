@@ -1,0 +1,12 @@
+---
+description: "SpotMap ingestion, OSINT, coordinate verification, provenance, moderation and trust"
+globs: "data/**,database/**,contracts/**,**/*import*.py,**/*geo*.py"
+alwaysApply: false
+---
+# Data integrity
+- Preserve Spot, Club, Boat, Trainer, Cable Installation as distinct entities; multiple cable installations under one Spot/Club.
+- Every imported value must retain provenance, observation timestamp, verification state and uncertainty.
+- `unknown` is not `false`, not `0` and not `closed`.
+- No fabricated latitude/longitude; only confirmed coordinates become public map pins.
+- Treat 80 candidates and six cable matches as incomplete staging. Audit duplicates by source and identity, not by name alone.
+- Test spatial queries, constraints, FK and RLS before merging changes.

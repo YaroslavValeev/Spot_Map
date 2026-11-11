@@ -1,0 +1,22 @@
+# Disposable SpotMap PostGIS for local/dev/test. Not production.
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: spotmap-postgis
+    environment:
+      POSTGRES_DB: spotmap
+      POSTGRES_USER: spotmap
+      POSTGRES_PASSWORD: spotmap_dev_only
+    ports:
+      - "5432:5432"
+    volumes:
+      - spotmap_pgdata:/var/lib/postgresql/data
+      - ../database/migrations/001_sprint01_baseline.sql:/docker-entrypoint-initdb.d/001_sprint01_baseline.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spotmap -d spotmap"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  spotmap_pgdata:

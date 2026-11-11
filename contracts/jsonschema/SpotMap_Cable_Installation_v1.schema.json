@@ -1,0 +1,403 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spotmap.example/schema/cable-installation/1.0.0",
+  "title": "SpotMap Cable Installation Passport v1",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "installation_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "spot_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "operator_club_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 2
+    },
+    "installation_type": {
+      "type": "string",
+      "enum": [
+        "full_size_circuit",
+        "two_tower_reversible",
+        "multi_tower_other",
+        "pool_cable",
+        "portable_other",
+        "unknown"
+      ]
+    },
+    "location": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "type": {
+          "const": "Point"
+        },
+        "coordinates": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "number",
+              "minimum": -180,
+              "maximum": 180
+            },
+            {
+              "type": "number",
+              "minimum": -90,
+              "maximum": 90
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2,
+          "items": false
+        }
+      },
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "additionalProperties": false
+    },
+    "geo_status": {
+      "type": "string",
+      "enum": [
+        "missing",
+        "approximate",
+        "verified",
+        "disputed"
+      ]
+    },
+    "geo_verified_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "operation_status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "seasonal_closed",
+        "temporarily_closed",
+        "permanently_closed",
+        "planned",
+        "unknown"
+      ]
+    },
+    "operation_verified_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "public_access_status": {
+      "type": "string",
+      "enum": [
+        "public",
+        "members_only",
+        "private",
+        "unknown"
+      ]
+    },
+    "disciplines": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "wakeboard_cable",
+          "wakeskate_cable",
+          "waterski_cable"
+        ]
+      }
+    },
+    "spec": {
+      "type": "object",
+      "properties": {
+        "tower_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "track_length_m": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "cable_height_m": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "max_riders": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "carrier_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "clockwise",
+            "counterclockwise",
+            "bidirectional",
+            "reversible",
+            "unknown"
+          ]
+        },
+        "speed_min_kmh": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "speed_max_kmh": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "start_type": {
+          "type": "string",
+          "enum": [
+            "dock",
+            "ramp",
+            "pool",
+            "other",
+            "unknown"
+          ]
+        },
+        "beginner_mode": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "night_riding": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "winter_indoor": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "requires_helmet": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "requires_lifejacket": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "direction"
+      ],
+      "additionalProperties": false
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "feature_type": {
+            "type": "string",
+            "enum": [
+              "kicker",
+              "box",
+              "rail",
+              "slider",
+              "pipe",
+              "funbox",
+              "other"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "skill_level": {
+            "type": "string",
+            "enum": [
+              "beginner",
+              "intermediate",
+              "advanced",
+              "pro",
+              "unknown"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "removed",
+              "damaged",
+              "unknown"
+            ]
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "clockwise",
+              "counterclockwise",
+              "both",
+              "unknown"
+            ]
+          },
+          "last_verified_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "feature_type",
+          "skill_level",
+          "status"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "source_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      }
+    },
+    "score": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 100
+    },
+    "score_status": {
+      "type": "string",
+      "enum": [
+        "unrated",
+        "preliminary",
+        "verified",
+        "restricted"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "installation_id",
+    "spot_id",
+    "name",
+    "installation_type",
+    "location",
+    "geo_status",
+    "operation_status",
+    "public_access_status",
+    "disciplines",
+    "spec",
+    "features",
+    "source_ids",
+    "score",
+    "score_status"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "geo_status": {
+            "const": "verified"
+          }
+        },
+        "required": [
+          "geo_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "location": {
+            "type": "object"
+          },
+          "geo_verified_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "geo_verified_at"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "score_status": {
+            "enum": [
+              "unrated",
+              "restricted"
+            ]
+          }
+        },
+        "required": [
+          "score_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "score": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,11 @@
+---
+description: "SpotScore math, scoring thresholds, validation, test requirements"
+globs: "reference/scoring/**,docs/03_scoring/**,**/*score*.py"
+alwaysApply: false
+---
+# SpotScore
+- Separate `wakesurf_v1` and `wakeboard_cable_v1` scoring profiles.
+- Data confidence and freshness are separately reported, not covertly purchased as scoring bonuses.
+- A paid business account cannot change organic SpotScore or safety warnings.
+- Rating is provisional until safety gate and evidence minimums are met.
+- Add unit tests for every mathematical change and document formula version changes.

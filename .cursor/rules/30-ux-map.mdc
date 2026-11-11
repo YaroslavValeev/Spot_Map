@@ -1,0 +1,11 @@
+---
+description: "SpotMap map-first UX, PWA interface, filters and honest state display"
+globs: "apps/web/**,frontend/**,**/*.tsx,**/*.jsx"
+alwaysApply: false
+---
+# SpotMap UX
+- Map-first layout; list/map sync; mobile-first PWA; clear Wakesurf/Cable filter state.
+- Distinct installation pins on zoom; cluster only when zoomed out; don't confuse park vs installation count.
+- Show unknown/pending/verified states explicitly. No fake ratings, photos, opening hours or weather.
+- A card should lead to route/contact or save; explain match/rating rather than show unexplained magic numbers.
+- Build accessible, responsive screens with empty, loading, offline and error states.

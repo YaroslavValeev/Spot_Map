@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0.0",
+  "spot": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "name": "Демонстрационная акватория",
+    "kind": "waterbody",
+    "country_code": "RU",
+    "region": null,
+    "locality": null,
+    "address": null,
+    "location": null,
+    "geo_status": "missing",
+    "operation_status": "unknown",
+    "waterbody_type": "unknown"
+  },
+  "club": {
+    "id": "00000000-0000-4000-8000-000000000002",
+    "name": "Демонстрационный клуб",
+    "operation_status": "unknown"
+  },
+  "disciplines": [
+    "wakesurf"
+  ],
+  "boats": [],
+  "trainers": [],
+  "offers": [],
+  "amenities": {},
+  "contacts": {
+    "website": null,
+    "phone_e164": null,
+    "telegram_url": null
+  },
+  "water": {
+    "boat_traffic": "unknown",
+    "protected_wind_directions": []
+  },
+  "trust": {
+    "score": null,
+    "score_status": "unrated",
+    "confidence": "low",
+    "coverage": 0.0,
+    "last_substantive_verification_at": null,
+    "evidence": []
+  },
+  "public_status": "draft",
+  "last_content_check_at": null
+}

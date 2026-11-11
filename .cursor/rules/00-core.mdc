@@ -1,0 +1,11 @@
+---
+description: "SpotMap architecture, source of truth and mandatory workflow"
+alwaysApply: true
+---
+# SpotMap — неизменные правила
+- Communicate in Russian, document implementation changes and tests.
+- MVP P0: **wakesurf + wakeboard_cable**. A physical cable installation is a distinct map entity; a park may contain multiple installations.
+- Source of truth: `docs/00_product/DECISIONS.md` and Blueprint v1.1; historical v1.0 is not canonical.
+- Read `AGENTS.md` and existing files before edits. Plan → small change → tests → summary.
+- Never invent coordinates, prices, working status, verified reviews or SpotScore; staging ≠ production.
+- Never commit secrets/raw private dataset. No production DB changes or deployments without explicit approval.

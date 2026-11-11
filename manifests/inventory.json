@@ -1,0 +1,271 @@
+{
+  "bundle": "SpotMap Cursor Workspace",
+  "built_date": "2026-11-11",
+  "files": [
+    {
+      "path": ".cursor/rules/00-core.mdc",
+      "size_bytes": 781,
+      "sha256": "d785fb125136540d92cdc82d00074f71ad0b9ca99edf8886fae671aa41883554"
+    },
+    {
+      "path": ".cursor/rules/10-data-trust.mdc",
+      "size_bytes": 787,
+      "sha256": "62d7ad311a555c24a5a63b3b7102b0a18a47f8351d39ce69af5c15fe929aa25c"
+    },
+    {
+      "path": ".cursor/rules/20-scoring.mdc",
+      "size_bytes": 587,
+      "sha256": "635226dcb3aecbd5c5edd5c7aa09d5317552ebc08e634baf7239cf3e903e4d22"
+    },
+    {
+      "path": ".cursor/rules/30-ux-map.mdc",
+      "size_bytes": 674,
+      "sha256": "a7ab6dce976a0a9af670cbb8ca0c0266a32c87b786667b2b1afff7988115a6db"
+    },
+    {
+      "path": ".cursor/rules/40-quality.mdc",
+      "size_bytes": 607,
+      "sha256": "3cb59da71dc8967edd45296d7c24ba34f41152586a2559819db005838830cee5"
+    },
+    {
+      "path": ".editorconfig",
+      "size_bytes": 209,
+      "sha256": "02c717195852ed852b00823766fb7eabaebb7430066b94118bd018cb9696eef1"
+    },
+    {
+      "path": ".env.example",
+      "size_bytes": 222,
+      "sha256": "e9cfbed520e324b56ea08ac04f7fad7e5bd681bc29a379ec14e640ede4996ffa"
+    },
+    {
+      "path": ".github/workflows/reference-checks.yml",
+      "size_bytes": 629,
+      "sha256": "7b238bc8eb41ede64a7c764efb01585127dc28c3938ebef7ff5b57b1eaaabbc9"
+    },
+    {
+      "path": ".gitignore",
+      "size_bytes": 399,
+      "sha256": "1f8c16d15d0168797b4e2790f6c488eff5c48fdb105a6463033a82e8cb9aa3e3"
+    },
+    {
+      "path": "AGENTS.md",
+      "size_bytes": 4157,
+      "sha256": "df541c2fced629d3e8e28f462d6a087a1aaf25a05a6d8046d74ef3f140d104b0"
+    },
+    {
+      "path": "DATA_PRIVACY.md",
+      "size_bytes": 1607,
+      "sha256": "b7761294d098b28dd119d0598228a746630142e6d8d75952b74953ab8a9ce6fe"
+    },
+    {
+      "path": "README.md",
+      "size_bytes": 5562,
+      "sha256": "a43b737eb95fe1ff005d81275c1123564877df1a3946663682bd965dca89eeca"
+    },
+    {
+      "path": "START_HERE_CURSOR.md",
+      "size_bytes": 2308,
+      "sha256": "f58c9e796ab7dc7b1b203049766bc93c3a6d717a7120bc91a061f6077516b2e9"
+    },
+    {
+      "path": "archive/README.md",
+      "size_bytes": 334,
+      "sha256": "b016aaba84cf8317069e38f29fe8ae55c6d61be0ead67a8028d8d46753b369f3"
+    },
+    {
+      "path": "archive/packages/SpotMap_Blueprint_Data_Passports_SpotScore_v1_Complete.zip",
+      "size_bytes": 77654,
+      "sha256": "78c910328487c2486d94ac8fcacefc18c5b22c867e92a7813173340bd2b28500"
+    },
+    {
+      "path": "contracts/README.md",
+      "size_bytes": 328,
+      "sha256": "ae187a9bef365a8bee38f6cf843e8b09965ddbe49491caabb60846ab4a0a9527"
+    },
+    {
+      "path": "contracts/jsonschema/SpotMap_Cable_Installation_v1.schema.json",
+      "size_bytes": 7873,
+      "sha256": "aa58e41f0f8cf0f69310df1dfb8116890bee811404eed5320c8fccaa0d67e3fd"
+    },
+    {
+      "path": "contracts/jsonschema/SpotMap_Wakesurf_Passport_v1.schema.json",
+      "size_bytes": 23441,
+      "sha256": "eacd443980451f48bab3cfca78c123b9581ecd2bcf22194e2c30a44ca2f42b34"
+    },
+    {
+      "path": "data/raw_private/MyWave_Wake_Intelligence_V2/MyWave_Wake_Intelligence_V2_PRO_2026-11-08.xlsx",
+      "size_bytes": 487284,
+      "sha256": "52d69a082da0eb8c160ad27834a4fcb3a40fc75da69351b868a0ff110e12539a"
+    },
+    {
+      "path": "data/raw_private/MyWave_Wake_Intelligence_V2/README.md",
+      "size_bytes": 9554,
+      "sha256": "e6c9d093ab10c333ba6e22b57547b165afdfd501634f37e491acf82ef026b43d"
+    },
+    {
+      "path": "data/raw_private/MyWave_Wake_Intelligence_V2/dashboard_preview.png",
+      "size_bytes": 210352,
+      "sha256": "db0d300cbfc8c6498b913e4c01e0ba5889754e95078e750e4df7512090b48b9d"
+    },
+    {
+      "path": "data/raw_private/MyWave_Wake_Intelligence_V2/mywave_refresh_analytics.py",
+      "size_bytes": 10626,
+      "sha256": "b787a33bc2f51819b14a07d636ba5b42b6f5525bfb922d67f9ae2333283ba6ae"
+    },
+    {
+      "path": "data/raw_private/MyWave_Wake_Intelligence_V2/sample_aggregates/by_30d_periods.csv",
+      "size_bytes": 14846,
+      "sha256": "5ba566a9282061b43143a7181daec11a919de0cdf84cbd14cbd73ba1b91df946"
+    },
+    {
+      "path": "data/raw_private/MyWave_Wake_Intelligence_V2/sample_aggregates/by_week.csv",
+      "size_bytes": 1081,
+      "sha256": "00d81575f5ab069e011436db3d2b2d1d6294bd1fea23b0d6249104276d30768d"
+    },
+    {
+      "path": "data/raw_private/MyWave_Wake_Intelligence_V2/sample_aggregates/overlap_aggregate.csv",
+      "size_bytes": 486,
+      "sha256": "a7c83f5968c21b0eb2e1093aaeabdddfc255d2357012363460ac0d840c97f905"
+    },
+    {
+      "path": "data/raw_private/MyWave_Wake_Intelligence_V2/sample_aggregates/qa_report.json",
+      "size_bytes": 688,
+      "sha256": "1e314793d1bb5e02860caaf998617c92a530315075726cd6bc4143078b65c616"
+    },
+    {
+      "path": "data/raw_private/MyWave_Wake_Intelligence_V2/sample_aggregates/summary_channels_120d.csv",
+      "size_bytes": 5364,
+      "sha256": "45e654d53368ca0800cdbf8d41d39abe5c9db920469c6b7ff19607ddb9fbd11d"
+    },
+    {
+      "path": "data/raw_private/MyWave_Wake_Intelligence_V2_Complete_Kit.zip",
+      "size_bytes": 626642,
+      "sha256": "8a8b9e6f71c32e94261a219b16ca1ede7927edd2f44fffe781f941105d707bee"
+    },
+    {
+      "path": "data/raw_private/README.md",
+      "size_bytes": 529,
+      "sha256": "e542ab9607d316b7dee0bedd1126e73c6bcb0ad978a09d68a786e76b57a1a728"
+    },
+    {
+      "path": "data/staging/README.md",
+      "size_bytes": 825,
+      "sha256": "25dcc8ca4d25334f00791e07db10d58eb55347358fa17e67fe4b6864011009dd"
+    },
+    {
+      "path": "data/staging/SpotMap_Cable_Candidates_From_MyWave_V2.csv",
+      "size_bytes": 1853,
+      "sha256": "4d201520121e18de14971b086fcfaa8304ff1de58a84ca55272a3d22984a7890"
+    },
+    {
+      "path": "data/staging/SpotMap_Staging_80_Candidates.csv",
+      "size_bytes": 26199,
+      "sha256": "7c568a6f2b0f86c2418c3694b208a0f565845566584f6a0196128a06c474c4d0"
+    },
+    {
+      "path": "database/README.md",
+      "size_bytes": 395,
+      "sha256": "eb40c5c6b0d20f345c25ce82270ec2d55f777eb89ae2973c758e153d53af4e13"
+    },
+    {
+      "path": "database/schema/SpotMap_Postgres_Schema_v1.sql",
+      "size_bytes": 26713,
+      "sha256": "27418c1effffb92a166f7429a92cc0bd4bc041814c412891214d024bbbee992c"
+    },
+    {
+      "path": "docs/00_product/DECISIONS.md",
+      "size_bytes": 3567,
+      "sha256": "1bcdbebaad093f06508de62ddac708de944267abc3b3827e586d6b00df3c2c1e"
+    },
+    {
+      "path": "docs/00_product/SpotMap_Product_Blueprint_v1.1.md",
+      "size_bytes": 43090,
+      "sha256": "56ab40bd009d2a267f8593786b76a623eae79b93a5701278528f3347d3f9d36c"
+    },
+    {
+      "path": "docs/00_product/archive/SpotMap_Product_Blueprint_v1.0.md",
+      "size_bytes": 33720,
+      "sha256": "342151aaffc6ddcaad6d94a0a70519a7a205843bb94a307d3a85350c5b990c19"
+    },
+    {
+      "path": "docs/01_architecture/SpotMap_Data_Model_v1.md",
+      "size_bytes": 36130,
+      "sha256": "47e068b0b4221b2631c46ce693adccdbeb344706129dd404a25528aa4b673278"
+    },
+    {
+      "path": "docs/02_passports/SpotMap_Cable_Installation_Passport_v1.md",
+      "size_bytes": 14423,
+      "sha256": "885fe0a7df236d8ec56b1246a0791ba991f82f57f97692f79072d4268685918d"
+    },
+    {
+      "path": "docs/02_passports/SpotMap_Spot_Passport_Wakesurf_v1.md",
+      "size_bytes": 20222,
+      "sha256": "af257ba55440a36e361346ea61428ca30f25ee1e3853bf1a8e13fbee9288b5ae"
+    },
+    {
+      "path": "docs/03_scoring/SpotMap_SpotScore_Formula_v1.md",
+      "size_bytes": 25706,
+      "sha256": "c5db792c5c2f92e627a94735ab98d071dfb924c652f28e16cb3de54f5f7abe7d"
+    },
+    {
+      "path": "docs/04_delivery/CURSOR_FIRST_TASK.md",
+      "size_bytes": 3196,
+      "sha256": "9a32a89245f71dd8770cf5fd43915d053681d3c82c824e88f1b1f4386993a549"
+    },
+    {
+      "path": "docs/04_delivery/SpotMap_P0_Implementation_Backlog.md",
+      "size_bytes": 10820,
+      "sha256": "7d1fd48be1bf909d57b4799d7fe18591e14af1df2cd980957c0f7ba940c16e3b"
+    },
+    {
+      "path": "docs/04_delivery/Sprint_01_Foundation_Map.md",
+      "size_bytes": 4167,
+      "sha256": "f282807e68c5c43e985ea90ccea8be1f5ef23291f8797f4f24b8605256cf3f47"
+    },
+    {
+      "path": "docs/05_quality/KNOWN_GAPS.md",
+      "size_bytes": 1623,
+      "sha256": "1f63741a1a7016e1121f680bd47712b4547b01be8ed20ea971ae31db57325688"
+    },
+    {
+      "path": "docs/05_quality/README_SpotMap_Blueprint_Package.md",
+      "size_bytes": 4932,
+      "sha256": "c8bdd94a695de806251ffde46f98bdd616f266d8eca07bf10e16868236b6b9dd"
+    },
+    {
+      "path": "docs/05_quality/SpotMap_QA_Report.md",
+      "size_bytes": 4421,
+      "sha256": "d483aba56157dbafff03e0e7c68963957c705f02129c4191aca0b8bb4e042ff0"
+    },
+    {
+      "path": "examples/synthetic/README.md",
+      "size_bytes": 302,
+      "sha256": "9e3b9e26aa15d508da8f9348bc841b89af3a69f5efa3ccdfcb8c268053283d2c"
+    },
+    {
+      "path": "examples/synthetic/example_wakesurf_passport_synthetic.json",
+      "size_bytes": 1079,
+      "sha256": "f62e9b58142f8a551558ac35c5baa6ca1170e38974c02a6a0cd7ac1a84e0d6d9"
+    },
+    {
+      "path": "reference/scoring/README.md",
+      "size_bytes": 588,
+      "sha256": "81098c0a5d3497f2718c0af505fce850c720a53544eeebce9de3ce1501e96f15"
+    },
+    {
+      "path": "reference/scoring/spotmap_score_v1.py",
+      "size_bytes": 4999,
+      "sha256": "b3ca87592e81b0fdf197ca69645727bebe2e2b2e9cf1cac15073bfde5c08e12f"
+    },
+    {
+      "path": "reference/scoring/test_spotmap_score_v1.py",
+      "size_bytes": 3026,
+      "sha256": "5f388daabd29428de49dc8ef039eed9731313ba3003817fdee887178bfb88db0"
+    },
+    {
+      "path": "tools/validate_contracts.py",
+      "size_bytes": 982,
+      "sha256": "dd5badb53bd7de599dbf97c46219ebb6bc7e8c06355cb6cefac760e1cb40f433"
+    }
+  ]
+}
