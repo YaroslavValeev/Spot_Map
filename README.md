@@ -71,8 +71,10 @@ python tools/validate_contracts.py
 - ADR: `docs/decisions/ADR-001-stack.md`, `ADR-002-map-provider.md`, `ADR-003-tourism-vs-spotmap.md`
 - План среза: `docs/architecture/SPRINT01_VERTICAL_SLICE.md`
 - Disposable PostGIS: `infra/docker-compose.yml` + `database/migrations/001_sprint01_baseline.sql`
-- Safe staging import + read-only API: `services/api/` (пины только `published` + `geo_verified`)
+- Safe staging import + Map API + moderator promote: `services/api/`
+- Minimal map UI: http://127.0.0.1:18080/ (Leaflet, empty state, staging queue)
 
-Ещё **не** создано: frontend карта/PWA, production DB, geo-verified реестр России, booking/оплата/соцсеть.
+Ещё **не** создано: полный passport UI/API, PWA, production DB, geo-verified реестр России, booking/оплата/соцсеть.
+
 
 Remote: https://github.com/YaroslavValeev/Spot_Map.git

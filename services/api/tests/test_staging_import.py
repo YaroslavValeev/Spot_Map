@@ -54,6 +54,22 @@ class StagingImportTests(unittest.TestCase):
         self.assertTrue(all(r.candidate_kind == "cable_installation" for r in rows))
         self.assertTrue(all(r.geo_status == "missing" for r in rows))
 
+    def test_normalize_raw_staging_vocab(self):
+        row = parse_spot_candidate_row(
+            {
+                "legacy_row_id": "X2",
+                "raw_name": "Unclassified Club",
+                "candidate_kind": "unclassified",
+                "geo_status": "requires_verification",
+                "operation_status": "maybe_open",
+            }
+        )
+        assert row is not None
+        self.assertEqual(row.candidate_kind, "other")
+        self.assertEqual(row.geo_status, "missing")
+        self.assertEqual(row.operation_status, "unknown")
+        self.assertEqual(row.as_db_params()["publication_status"], "draft")
+
 
 class GeojsonPolicyTests(unittest.TestCase):
     def test_empty_collection_reason(self):

@@ -1,52 +1,53 @@
-# Sprint 01 — Foundation & First Map (план, не отчёт о выполнении)
+# Sprint 01 — Foundation & First Map
+
+**Статус:** vertical slice выполнен локально (2026-11-14). Полный P0 product scope — нет.
 
 ## Цель
 Получить минимальную проверяемую vertical slice: staging БД → API → карта wakesurf/cable → карточка с источником и статусом, без вымышленных геоточек.
 
 ## Этап 1. Discovery & Architecture
-- [ ] Проверить, есть ли существующие исходники SpotMap; не создавать вторую кодовую базу без аудита.
-- [ ] Сверить `Data Model`, SQL DDL, JSON Schema на противоречия.
-- [ ] Принять ADR для frontend/backend stack, провайдера карты, auth и миграций.
-- [ ] Описать FK, индексную стратегию, права доступа, RLS и seed policy.
+- [x] Проверить, есть ли существующие исходники SpotMap; не создавать вторую кодовую базу без аудита.
+- [x] Сверить `Data Model`, SQL DDL, JSON Schema на противоречия (ADR-003 Tourism vs SpotMap).
+- [x] Принять ADR для frontend/backend stack, провайдера карты, auth и миграций.
+- [ ] Описать полный RLS/RBAC production seed policy (отложено).
 
 **DoD:** согласованная диаграмма и ADR; выявленные несовпадения вынесены в задачи.
 
 ## Этап 2. Database & Pipeline
-- [ ] Тестовый PostgreSQL/PostGIS в изолированном окружении.
-- [ ] Версионированные миграции из проектного DDL (не слепое применение draft SQL).
-- [ ] Import staging CSV с source lineage, статусами и идемпотентным дедупом.
-- [ ] Контрактные проверки паспорта Wakesurf и Cable Installation.
-- [ ] Таблицы / пайплайн проверки координат и подтверждения операционного статуса.
+- [x] Тестовый PostgreSQL/PostGIS в изолированном окружении.
+- [x] Версионированные миграции baseline (`001_sprint01_baseline.sql`).
+- [x] Import staging CSV с lineage/статусами и идемпотентным дедупом.
+- [x] Контрактные проверки паспорта (CI json.tool + reference tests).
+- [x] Пайплайн geo-promote с обязательным evidence (без автогенерации coords).
 
 **DoD:** импорт можно повторить без дублирования; неопределённые записи не появляются на публичной карте.
 
 ## Этап 3. Backend / Map API
-- [ ] `GET /spots` с bbox, filters, pagination.
-- [ ] `GET /spots/{id}` с физическими установками и клубами.
-- [ ] `GET /installations/{id}` отдельный паспорт установки.
-- [ ] Раздельные типы статусов, фильтров и доказательств данных.
-- [ ] API tests на bbox, missing geo, multi-installation и provenance.
+- [x] `GET /v1/map/points` с bbox/discipline/limit.
+- [ ] `GET /spots/{id}` полный паспорт — следующий инкремент.
+- [ ] `GET /installations/{id}` — следующий инкремент.
+- [x] Разделение staging vs published+verified.
+- [x] Unit tests import/policy/moderation validation.
 
-**DoD:** только геопроверенные публичные записи; карта и список согласованы.
+**DoD (среза):** только геопроверенные публичные записи; empty state согласован.
 
-## Этап 4. Frontend / PWA
-- [ ] Адаптивная карта, масштабирование, кластеры.
-- [ ] Фильтры wakesurf/cable, кольцевая/реверсивная.
-- [ ] Отдельные pins нескольких установок одного парка на близком zoom.
-- [ ] Карточка со статусом «достоверность неизвестна» и источниками.
-- [ ] Контакты, ссылка на маршрут, fallback список и пустое состояние.
+## Этап 4. Frontend / Map UI
+- [x] Адаптивная карта (Leaflet + OSM tiles, replaceable later).
+- [x] Фильтры wakesurf/cable (client → API discipline).
+- [ ] Кластеры / multi-install zoom separation — позже, когда появятся verified pins.
+- [x] Empty state + счётчик staging + очередь кандидатов.
+- [ ] Контакты/маршрут на карточке — после первых verified точек.
 
-**DoD:** пользователь проходит «нашёл → изучил → связался/маршрут» на тестовой геопроверенной точке.
+**DoD (среза):** пользователь видит честное пустое состояние и staging queue.
 
 ## Параллельно: реестр России
-- [ ] Региональные OSINT-списки для wakesurf и cable; фиксировать query/sources/updated_at.
-- [ ] Проверять координаты каждой установки и факт её существования.
-- [ ] Разделять `не работает`, `неизвестно`, `временно закрыто`, `действует`.
-- [ ] Ничего из staging не объявлять подтверждённым без доказательства.
+- [ ] Региональные OSINT-списки.
+- [ ] Ручная геопроверка кандидатов (см. `GEO_VERIFICATION_RUNBOOK.md`).
+- [x] Правило: staging ≠ confirmed.
 
 ## Exit criteria
-- [ ] Unit + contract + integration tests зелёные.
-- [ ] Никаких синтетических production pin.
-- [ ] Rollback и схема резервного копирования описаны.
-- [ ] Лог изменений и источников данных есть для новых точек.
-- [ ] Указать явно, что отсутствует (погода, scoring production, booking и т.д.).
+- [x] Unit + reference tests зелёные.
+- [x] Никаких синтетических production pin.
+- [x] Rollback/backup: disposable compose volume; prod не трогаем.
+- [x] Provenance: source_url + evidence_note на promote.
+- [x] Явно отсутствует: погода, SpotScore production UI, booking, Claim.

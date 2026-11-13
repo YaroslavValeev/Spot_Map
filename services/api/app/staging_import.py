@@ -18,6 +18,64 @@ def normalize_text(value: str | None) -> str:
     return text
 
 
+ALLOWED_CANDIDATE_KINDS = frozenset({"spot_or_club", "cable_installation", "other"})
+ALLOWED_GEO_STATUSES = frozenset({"missing", "approximate", "verified", "disputed"})
+ALLOWED_OPERATION_STATUSES = frozenset(
+    {
+        "open",
+        "seasonal_closed",
+        "temporarily_closed",
+        "permanently_closed",
+        "planned",
+        "unknown",
+    }
+)
+
+# Raw staging vocab → schema CHECK values (never invent verified geo).
+GEO_STATUS_ALIASES = {
+    "requires_verification": "missing",
+    "needs_verification": "missing",
+    "unverified": "missing",
+    "pending": "missing",
+    "unknown": "missing",
+    "none": "missing",
+    "": "missing",
+}
+CANDIDATE_KIND_ALIASES = {
+    "unclassified": "other",
+    "unknown": "other",
+    "spot": "spot_or_club",
+    "club": "spot_or_club",
+    "cable": "cable_installation",
+    "installation": "cable_installation",
+    "": "spot_or_club",
+}
+
+
+def normalize_candidate_kind(value: str | None, *, default: str = "spot_or_club") -> str:
+    raw = (value or default).strip().lower()
+    mapped = CANDIDATE_KIND_ALIASES.get(raw, raw)
+    if mapped not in ALLOWED_CANDIDATE_KINDS:
+        return "other"
+    return mapped
+
+
+def normalize_geo_status(value: str | None) -> str:
+    raw = (value or "missing").strip().lower()
+    mapped = GEO_STATUS_ALIASES.get(raw, raw)
+    if mapped not in ALLOWED_GEO_STATUSES:
+        # Never promote unknown labels to verified.
+        return "missing"
+    return mapped
+
+
+def normalize_operation_status(value: str | None) -> str:
+    raw = (value or "unknown").strip().lower()
+    if raw not in ALLOWED_OPERATION_STATUSES:
+        return "unknown"
+    return raw
+
+
 def candidate_fingerprint(
     *,
     legacy_row_id: str | None,
@@ -91,7 +149,7 @@ def parse_spot_candidate_row(row: dict[str, str]) -> StagingRow | None:
     raw_name = _get(row, "raw_name", "name")
     if not raw_name:
         return None
-    kind = _get(row, "candidate_kind") or "spot_or_club"
+    kind = normalize_candidate_kind(_get(row, "candidate_kind"), default="spot_or_club")
     legacy = _get(row, "legacy_row_id")
     region = _get(row, "raw_region")
     fp = candidate_fingerprint(
@@ -115,8 +173,8 @@ def parse_spot_candidate_row(row: dict[str, str]) -> StagingRow | None:
         source_url=_get(row, "source_url"),
         source_snapshot=_get(row, "source_snapshot"),
         source_sha256=_get(row, "source_sha256"),
-        geo_status=_get(row, "geo_status", "map_geo_status") or "missing",
-        operation_status=_get(row, "operation_status") or "unknown",
+        geo_status=normalize_geo_status(_get(row, "geo_status", "map_geo_status")),
+        operation_status=normalize_operation_status(_get(row, "operation_status")),
     )
 
 
@@ -148,8 +206,8 @@ def parse_cable_candidate_row(row: dict[str, str]) -> StagingRow | None:
         source_url=_get(row, "source_url"),
         source_snapshot=_get(row, "verification_action"),
         source_sha256=None,
-        geo_status=_get(row, "map_geo_status", "geo_status") or "missing",
-        operation_status=_get(row, "operation_status") or "unknown",
+        geo_status=normalize_geo_status(_get(row, "map_geo_status", "geo_status")),
+        operation_status=normalize_operation_status(_get(row, "operation_status")),
     )
 
 
