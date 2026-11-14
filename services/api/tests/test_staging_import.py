@@ -78,7 +78,7 @@ class GeojsonPolicyTests(unittest.TestCase):
         payload = rows_to_geojson([], meta={"staging_total": 80})
         self.assertEqual(payload["type"], "FeatureCollection")
         self.assertEqual(payload["features"], [])
-        self.assertEqual(payload["meta"]["empty_reason"], "no_geo_verified_published_points")
+        self.assertEqual(payload["meta"]["empty_reason"], "no_points")
         self.assertEqual(payload["meta"]["staging_total"], 80)
 
 

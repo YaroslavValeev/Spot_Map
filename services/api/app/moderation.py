@@ -17,7 +17,9 @@ SELECT
   operation_status,
   publication_status,
   source_url,
-  raw_disciplines
+  raw_disciplines,
+  (approx_point IS NOT NULL) AS has_approx_point,
+  approx_precision
 FROM staging_candidates
 WHERE (%(kind)s::text IS NULL OR candidate_kind = %(kind)s)
   AND (%(geo_status)s::text IS NULL OR geo_status = %(geo_status)s)
@@ -104,18 +106,81 @@ def list_candidates(
         cur.execute(LIST_CANDIDATES_SQL, params)
         cols = [d.name for d in cur.description]
         items = [dict(zip(cols, row)) for row in cur.fetchall()]
+
+    # Attach suggested geocode query for browser / CLI geocoders.
+    from .geocode import build_geocode_query
+
+    enriched = []
+    for item in items:
+        row = dict(item)
+        try:
+            query, precision = build_geocode_query(
+                row.get("raw_name") or "",
+                row.get("raw_region"),
+                row.get("raw_address"),
+            )
+            row["geocode_query"] = query
+            row["geocode_precision"] = precision
+        except ValueError:
+            row["geocode_query"] = None
+            row["geocode_precision"] = None
+        enriched.append(row)
+
     return {
         "total": total,
         "limit": limit,
         "offset": offset,
-        "items": items,
-        "note": "Moderator queue. Candidates are not map pins until geo-verified and published.",
+        "items": enriched,
+        "note": "Moderator queue. Approximate pins != verified publication.",
     }
 
 
 def validate_wgs84(lat: float, lng: float) -> None:
     if not (-90.0 <= lat <= 90.0 and -180.0 <= lng <= 180.0):
         raise ValueError("coordinates out of WGS84 range")
+
+
+SAVE_APPROX_SQL = """
+UPDATE staging_candidates
+SET
+  approx_point = ST_SetSRID(ST_MakePoint(%(lng)s, %(lat)s), 4326)::geography,
+  approx_precision = %(precision)s,
+  approx_geocode_query = %(query)s,
+  approx_geocoded_at = now(),
+  approx_geocode_provider = %(provider)s,
+  geo_status = CASE WHEN geo_status = 'verified' THEN geo_status ELSE 'approximate' END,
+  updated_at = now()
+WHERE id = %(id)s::uuid
+  AND publication_status <> 'published'
+"""
+
+
+def save_approx_points(conn, points: list[dict[str, Any]]) -> dict[str, int]:
+    saved = 0
+    skipped = 0
+    with conn.cursor() as cur:
+        for point in points:
+            validate_wgs84(float(point["latitude"]), float(point["longitude"]))
+            precision = point.get("precision") or "address"
+            if precision not in {"address", "region", "name_region"}:
+                precision = "address"
+            cur.execute(
+                SAVE_APPROX_SQL,
+                {
+                    "id": point["candidate_id"],
+                    "lat": float(point["latitude"]),
+                    "lng": float(point["longitude"]),
+                    "precision": precision,
+                    "query": (point.get("query") or "")[:500],
+                    "provider": point.get("provider") or "yandex_js_geocode",
+                },
+            )
+            if cur.rowcount:
+                saved += 1
+            else:
+                skipped += 1
+    conn.commit()
+    return {"saved": saved, "skipped": skipped}
 
 
 def promote_candidate_with_geo(

@@ -5,8 +5,8 @@
   const emptyState = document.getElementById("emptyState");
   const mapKeyHint = document.getElementById("mapKeyHint");
   const kindFilter = document.getElementById("kindFilter");
+  const showStaging = document.getElementById("showStaging");
 
-  // Approx. mainland Russia + Kaliningrad / Far East for restrictMapArea.
   const RUSSIA_BOUNDS = [
     [41.2, 19.5],
     [81.9, 190.0],
@@ -17,6 +17,7 @@
   let discipline = "";
   let map = null;
   let placemarks = null;
+  let geocodeInFlight = false;
 
   function setStatus(text, ok) {
     statusPill.textContent = text;
@@ -27,8 +28,8 @@
   function renderStats(meta) {
     const cards = [
       ["Пины на карте", meta.feature_count ?? 0],
-      ["Staging всего", meta.staging_total ?? 0],
-      ["Без гео", meta.staging_geo_missing ?? 0],
+      ["Staging approx", meta.staging_approx_count ?? meta.staging_with_approx_point ?? 0],
+      ["Verified", meta.verified_count ?? 0],
       ["Cable кандидаты", meta.staging_cable_candidates ?? 0],
     ];
     statsEl.innerHTML = cards
@@ -68,7 +69,6 @@
         controls: ["zoomControl", "typeSelector"],
       },
       {
-        // Keep panning focused on Russia (Yandex tiles, no OSM).
         restrictMapArea: RUSSIA_BOUNDS,
         minZoom: 3,
         maxZoom: 18,
@@ -78,24 +78,118 @@
     map.geoObjects.add(placemarks);
   }
 
+  function presetFor(p) {
+    if (p.pin_kind === "staging_approximate") {
+      return p.entity_type === "cable_installation"
+        ? "islands#darkOrangeCircleDotIcon"
+        : "islands#grayCircleDotIcon";
+    }
+    return p.entity_type === "cable_installation"
+      ? "islands#orangeIcon"
+      : "islands#blueIcon";
+  }
+
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async function geocodeMissingStaging() {
+    if (geocodeInFlight || !window.ymaps) return { saved: 0, failed: 0 };
+    geocodeInFlight = true;
+    try {
+      setStatus("геокодирую staging через Яндекс…", true);
+      const res = await fetch("/v1/staging/candidates?limit=200");
+      if (!res.ok) throw new Error(`candidates ${res.status}`);
+      const data = await res.json();
+      const missing = (data.items || []).filter(
+        (item) => !item.has_approx_point && item.geocode_query
+      );
+      if (!missing.length) return { saved: 0, failed: 0 };
+
+      const batch = [];
+      let failed = 0;
+      for (let i = 0; i < missing.length; i += 1) {
+        const item = missing[i];
+        setStatus(`геокод ${i + 1}/${missing.length}: ${item.raw_name}`, true);
+        try {
+          const result = await window.ymaps.geocode(item.geocode_query, {
+            results: 1,
+            boundedBy: RUSSIA_BOUNDS,
+            strictBounds: true,
+          });
+          const first = result.geoObjects.get(0);
+          if (!first) {
+            failed += 1;
+            continue;
+          }
+          const coords = first.geometry.getCoordinates(); // [lat, lng]
+          batch.push({
+            candidate_id: item.id,
+            latitude: coords[0],
+            longitude: coords[1],
+            query: item.geocode_query,
+            precision: item.geocode_precision || "address",
+            provider: "yandex_js_geocode",
+          });
+        } catch (_err) {
+          failed += 1;
+        }
+        await sleep(120);
+      }
+
+      if (!batch.length) return { saved: 0, failed };
+
+      const saveRes = await fetch("/v1/staging/approx-cache", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ points: batch }),
+      });
+      if (!saveRes.ok) throw new Error(`approx-cache ${saveRes.status}`);
+      const saved = await saveRes.json();
+      return { saved: saved.saved || 0, failed };
+    } finally {
+      geocodeInFlight = false;
+    }
+  }
+
   async function loadMap() {
     if (!map || !window.ymaps) return;
 
-    const url = discipline
-      ? `/v1/map/points?discipline=${encodeURIComponent(discipline)}`
-      : "/v1/map/points";
-    const res = await fetch(url);
+    const qs = new URLSearchParams();
+    if (discipline) qs.set("discipline", discipline);
+    qs.set("include_staging", showStaging?.checked ? "true" : "false");
+    const res = await fetch(`/v1/map/points?${qs.toString()}`);
     if (!res.ok) throw new Error(`map ${res.status}`);
     const data = await res.json();
-    const features = data.features || [];
+    let features = data.features || [];
 
-    renderStats(data.meta || {});
+    // If staging should be visible but no approx points yet — geocode in browser.
+    if (
+      showStaging?.checked &&
+      (data.meta?.staging_with_approx_point || 0) < (data.meta?.staging_total || 0)
+    ) {
+      const geo = await geocodeMissingStaging();
+      if (geo.saved > 0) {
+        const reload = await fetch(`/v1/map/points?${qs.toString()}`);
+        if (reload.ok) {
+          const again = await reload.json();
+          features = again.features || [];
+          renderStats(again.meta || {});
+          data.meta = again.meta;
+        }
+      } else if (geo.failed > 0) {
+        setStatus(`геокод: 0 сохранено, ошибок ${geo.failed}`, false);
+      }
+    } else {
+      renderStats(data.meta || {});
+    }
+
     emptyState.hidden = features.length > 0;
     placemarks.removeAll();
 
     if (!features.length) {
       map.setCenter(RUSSIA_CENTER, RUSSIA_ZOOM);
-      setStatus("карта пустая · Яндекс · staging only", true);
+      setStatus("нет пинов на карте", true);
       return;
     }
 
@@ -105,21 +199,19 @@
       const lng = Number(coords[0]);
       const lat = Number(coords[1]);
       const p = feature.properties || {};
+      const isStaging = p.pin_kind === "staging_approximate";
       const mark = new window.ymaps.Placemark(
         [lat, lng],
         {
           balloonContentHeader: p.name || "Spot",
           balloonContentBody:
+            `${isStaging ? "STAGING (approximate)" : "VERIFIED"}<br/>` +
             `${p.entity_type || ""} · ${p.operation_status || "unknown"}<br/>` +
-            `geo: ${p.geo_status || "?"}`,
+            `geo: ${p.geo_status || "?"}` +
+            (p.approx_precision ? `<br/>precision: ${p.approx_precision}` : ""),
           hintContent: p.name || "Spot",
         },
-        {
-          preset:
-            p.entity_type === "cable_installation"
-              ? "islands#orangeIcon"
-              : "islands#blueIcon",
-        }
+        { preset: presetFor(p) }
       );
       placemarks.add(mark);
     });
@@ -128,12 +220,14 @@
     if (bounds) {
       map.setBounds(bounds, { checkZoomRange: true, zoomMargin: 48 });
     }
-    setStatus(`${features.length} verified · Яндекс`, true);
+    const stagingN = data.meta?.staging_approx_count ?? features.length;
+    const verifiedN = data.meta?.verified_count ?? 0;
+    setStatus(`${features.length} пинов · staging ~${stagingN} · verified ${verifiedN}`, true);
   }
 
   async function loadQueue() {
     const kind = kindFilter.value;
-    const qs = new URLSearchParams({ limit: "40", geo_status: "missing" });
+    const qs = new URLSearchParams({ limit: "40" });
     if (kind) qs.set("kind", kind);
     const res = await fetch(`/v1/staging/candidates?${qs.toString()}`);
     if (!res.ok) throw new Error(`queue ${res.status}`);
@@ -179,6 +273,9 @@
 
   kindFilter.addEventListener("change", () => {
     loadQueue().catch((err) => setStatus(`ошибка очереди: ${err.message}`, false));
+  });
+  showStaging?.addEventListener("change", () => {
+    loadMap().catch((err) => setStatus(`ошибка карты: ${err.message}`, false));
   });
 
   (async () => {

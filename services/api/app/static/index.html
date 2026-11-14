@@ -30,7 +30,11 @@
     <aside class="panel">
       <section class="panel-block">
         <h1>Карта</h1>
-        <p class="lede">Подложка — Яндекс.Карты (Россия). Публичные пины только после геопроверки.</p>
+        <p class="lede">Подложка — Яндекс.Карты (Россия). Серые пины = staging approximate (геокод адреса), не verified.</p>
+        <label class="toggle">
+          <input type="checkbox" id="showStaging" checked />
+          Показывать staging на карте
+        </label>
         <div id="stats" class="stats"></div>
         <p id="mapProviderNote" class="provider-note">Картография: Яндекс</p>
       </section>
@@ -52,8 +56,8 @@
     <main class="map-wrap">
       <div id="map" role="application" aria-label="Карта спотов SpotMap"></div>
       <div id="emptyState" class="empty-state" hidden>
-        <p class="empty-title">Пока нет проверенных точек</p>
-        <p class="empty-text">Кандидаты есть в staging, но без verified-координат карта остаётся пустой — это правильно.</p>
+        <p class="empty-title">Пока нет точек для карты</p>
+        <p class="empty-text">Нужен геокод staging (`python -m app.cli_geocode_staging`) или verified-публикация.</p>
       </div>
       <div id="mapKeyHint" class="empty-state key-hint" hidden>
         <p class="empty-title">Нужен ключ Яндекс.Карт</p>

@@ -11,8 +11,13 @@ from pydantic import BaseModel, Field
 
 from .config import settings
 from .db import get_connection
-from .map_queries import fetch_map_points, fetch_staging_stats, rows_to_geojson
-from .moderation import list_candidates, promote_candidate_with_geo
+from .map_queries import (
+    fetch_map_points,
+    fetch_staging_approx_points,
+    fetch_staging_stats,
+    rows_to_geojson,
+)
+from .moderation import list_candidates, promote_candidate_with_geo, save_approx_points
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
@@ -38,6 +43,19 @@ class PromoteGeoBody(BaseModel):
         default=False,
         description="If true, spot becomes visible on public map immediately",
     )
+
+
+class ApproxPointIn(BaseModel):
+    candidate_id: str
+    latitude: float
+    longitude: float
+    query: str = ""
+    precision: str = "address"
+    provider: str = "yandex_js_geocode"
+
+
+class ApproxCacheBody(BaseModel):
+    points: list[ApproxPointIn] = Field(default_factory=list, max_length=200)
 
 
 def _require_moderation_token(token: str | None) -> None:
@@ -90,9 +108,13 @@ def map_points(
         default=None,
         description="Optional filter: wakesurf | wakeboard_cable | ...",
     ),
+    include_staging: bool = Query(
+        default=True,
+        description="Include staging approximate geocoded pins (not verified).",
+    ),
     limit: int = Query(default=500, ge=1, le=2000),
 ):
-    """Public map pins only. Staging candidates never appear here."""
+    """Verified published pins + optional staging approximate preview."""
     min_lng = min_lat = max_lng = max_lat = None
     if bbox:
         parts = [p.strip() for p in bbox.split(",")]
@@ -125,6 +147,17 @@ def map_points(
                 discipline=discipline,
                 limit=limit,
             )
+            if include_staging:
+                staging_rows = fetch_staging_approx_points(
+                    conn,
+                    min_lng=min_lng,
+                    min_lat=min_lat,
+                    max_lng=max_lng,
+                    max_lat=max_lat,
+                    discipline=discipline,
+                    limit=limit,
+                )
+                rows = rows + staging_rows
             stats = fetch_staging_stats(conn)
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(
@@ -169,6 +202,26 @@ def staging_candidates(
                 limit=limit,
                 offset=offset,
             )
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(
+            status_code=503,
+            detail=f"database unavailable: {type(exc).__name__}",
+        ) from exc
+
+
+@app.post("/v1/staging/approx-cache")
+def staging_approx_cache(body: ApproxCacheBody):
+    """Store browser/JS geocoder approximate points. Never sets verified/published."""
+    if not body.points:
+        return {"saved": 0, "skipped": 0}
+    try:
+        with get_connection() as conn:
+            return save_approx_points(
+                conn,
+                [p.model_dump() for p in body.points],
+            )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(
             status_code=503,
