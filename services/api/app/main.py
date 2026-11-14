@@ -51,6 +51,19 @@ def _require_moderation_token(token: str | None) -> None:
         raise HTTPException(status_code=401, detail="invalid moderation token")
 
 
+@app.get("/v1/config/public")
+def public_config() -> dict:
+    """Non-secret UI config. Maps key is referrer-restricted in Yandex cabinet."""
+    return {
+        "map_provider": "yandex",
+        "yandex_maps_api_key": settings.yandex_maps_api_key or "",
+        "map_lang": "ru_RU",
+        "default_center": [61.524, 105.318],
+        "default_zoom": 3,
+        "attribution": "Яндекс.Карты",
+    }
+
+
 @app.get("/health")
 def health() -> dict:
     payload = {"status": "ok", "app_env": settings.app_env}

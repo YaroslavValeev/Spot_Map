@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     app_env: str = "development"
     # Required for write moderation endpoints. Empty => promote disabled.
     moderation_token: str = ""
+    # Browser Maps JS API key (restrict by HTTP referrer in Yandex cabinet).
+    yandex_maps_api_key: str = ""
 
 
 settings = Settings()

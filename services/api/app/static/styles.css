@@ -189,15 +189,20 @@ body {
   letter-spacing: -0.03em;
 }
 .empty-text { margin: 0; color: var(--muted); font-size: 0.88rem; line-height: 1.4; }
-
-.leaflet-container { font: 500 0.85rem var(--font-body); background: #0b1820; }
-.leaflet-popup-content-wrapper {
-  background: #0d1f2a;
-  color: var(--ink);
-  border-radius: 0.75rem;
-  border: 1px solid var(--line);
+.empty-text code {
+  font-size: 0.8em;
+  color: #b9f3f8;
 }
-.leaflet-popup-tip { background: #0d1f2a; }
+.empty-text a { color: var(--accent); }
+.key-hint { top: auto; bottom: 1.2rem; border-color: rgba(240, 180, 41, 0.45); }
+.provider-note {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+/* Yandex Maps root fills the panel */
+#map > ymaps { width: 100% !important; height: 100% !important; }
 
 @media (max-width: 860px) {
   .shell {

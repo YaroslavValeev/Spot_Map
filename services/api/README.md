@@ -36,3 +36,7 @@ python -m uvicorn app.main:app --host 127.0.0.1 --port 18080
 
 Geo-promote (только с реальными координатами модератора): см. `docs/04_delivery/GEO_VERIFICATION_RUNBOOK.md`.
 
+Карта UI: **Яндекс.Карты** (не OSM). Нужен `YANDEX_MAPS_API_KEY` в `.env` —
+ключ на https://developer.tech.yandex.ru/, referrer например `http://127.0.0.1:18080/*`.
+
+

@@ -7,7 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
@@ -17,7 +16,7 @@
         <div class="brand-mark" aria-hidden="true"></div>
         <div>
           <p class="brand-name">SpotMap</p>
-          <p class="brand-sub">wakesurf · wakeboard cable · Russia</p>
+          <p class="brand-sub">wakesurf · wakeboard cable · Россия</p>
         </div>
       </div>
       <div class="filters" role="group" aria-label="Фильтры дисциплин">
@@ -31,8 +30,9 @@
     <aside class="panel">
       <section class="panel-block">
         <h1>Карта</h1>
-        <p class="lede">Публичные пины только после геопроверки. Staging не рисуется как факты.</p>
+        <p class="lede">Подложка — Яндекс.Карты (Россия). Публичные пины только после геопроверки.</p>
         <div id="stats" class="stats"></div>
+        <p id="mapProviderNote" class="provider-note">Картография: Яндекс</p>
       </section>
 
       <section class="panel-block">
@@ -55,10 +55,13 @@
         <p class="empty-title">Пока нет проверенных точек</p>
         <p class="empty-text">Кандидаты есть в staging, но без verified-координат карта остаётся пустой — это правильно.</p>
       </div>
+      <div id="mapKeyHint" class="empty-state key-hint" hidden>
+        <p class="empty-title">Нужен ключ Яндекс.Карт</p>
+        <p class="empty-text">Добавьте <code>YANDEX_MAPS_API_KEY</code> в <code>services/api/.env</code> (ключ с <a href="https://developer.tech.yandex.ru/" target="_blank" rel="noopener noreferrer">developer.tech.yandex.ru</a>) и перезапустите API.</p>
+      </div>
     </main>
   </div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="/static/app.js"></script>
 </body>
 </html>
