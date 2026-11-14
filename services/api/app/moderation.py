@@ -183,6 +183,46 @@ def save_approx_points(conn, points: list[dict[str, Any]]) -> dict[str, int]:
     return {"saved": saved, "skipped": skipped}
 
 
+def apply_region_centroids(conn, *, force: bool = False) -> dict[str, int]:
+    """Place missing staging rows on known region centroids (approximate only)."""
+    from .region_centroids import display_jitter, resolve_region_centroid
+
+    where = "TRUE" if force else "approx_point IS NULL"
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""
+            SELECT id::text, raw_region, raw_address
+            FROM staging_candidates
+            WHERE {where}
+            """
+        )
+        rows = cur.fetchall()
+
+    points: list[dict[str, Any]] = []
+    unresolved = 0
+    for cand_id, region, address in rows:
+        hit = resolve_region_centroid(region, address)
+        if hit is None:
+            unresolved += 1
+            continue
+        lat, lng, key = hit
+        jlat, jlng = display_jitter(cand_id, lat, lng)
+        points.append(
+            {
+                "candidate_id": cand_id,
+                "latitude": jlat,
+                "longitude": jlng,
+                "query": f"region_centroid:{key}",
+                "precision": "region",
+                "provider": "region_centroid_v1",
+            }
+        )
+    result = save_approx_points(conn, points) if points else {"saved": 0, "skipped": 0}
+    result["unresolved"] = unresolved
+    result["candidates_seen"] = len(rows)
+    return result
+
+
 def promote_candidate_with_geo(
     conn,
     *,

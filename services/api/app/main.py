@@ -17,7 +17,12 @@ from .map_queries import (
     fetch_staging_stats,
     rows_to_geojson,
 )
-from .moderation import list_candidates, promote_candidate_with_geo, save_approx_points
+from .moderation import (
+    apply_region_centroids,
+    list_candidates,
+    promote_candidate_with_geo,
+    save_approx_points,
+)
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
@@ -222,6 +227,19 @@ def staging_approx_cache(body: ApproxCacheBody):
             )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(
+            status_code=503,
+            detail=f"database unavailable: {type(exc).__name__}",
+        ) from exc
+
+
+@app.post("/v1/staging/approx-from-regions")
+def staging_approx_from_regions(force: bool = Query(default=False)):
+    """Fallback: map staging rows to known RF region centroids (approximate only)."""
+    try:
+        with get_connection() as conn:
+            return apply_region_centroids(conn, force=force)
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(
             status_code=503,

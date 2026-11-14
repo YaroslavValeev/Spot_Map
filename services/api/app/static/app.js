@@ -114,8 +114,6 @@
         try {
           const result = await window.ymaps.geocode(item.geocode_query, {
             results: 1,
-            boundedBy: RUSSIA_BOUNDS,
-            strictBounds: true,
           });
           const first = result.geoObjects.get(0);
           if (!first) {
@@ -163,22 +161,26 @@
     const data = await res.json();
     let features = data.features || [];
 
-    // If staging should be visible but no approx points yet — geocode in browser.
+    // If staging visible but approx points missing — try JS geocode, then region centroids.
     if (
       showStaging?.checked &&
       (data.meta?.staging_with_approx_point || 0) < (data.meta?.staging_total || 0)
     ) {
+      setStatus("расставляю staging-пины…", true);
       const geo = await geocodeMissingStaging();
-      if (geo.saved > 0) {
-        const reload = await fetch(`/v1/map/points?${qs.toString()}`);
-        if (reload.ok) {
-          const again = await reload.json();
-          features = again.features || [];
-          renderStats(again.meta || {});
-          data.meta = again.meta;
+      if (geo.saved === 0) {
+        const regionRes = await fetch("/v1/staging/approx-from-regions", { method: "POST" });
+        if (regionRes.ok) {
+          const regionStats = await regionRes.json();
+          setStatus(`region fallback: ${regionStats.saved || 0}`, true);
         }
-      } else if (geo.failed > 0) {
-        setStatus(`геокод: 0 сохранено, ошибок ${geo.failed}`, false);
+      }
+      const reload = await fetch(`/v1/map/points?${qs.toString()}`);
+      if (reload.ok) {
+        const again = await reload.json();
+        features = again.features || [];
+        renderStats(again.meta || {});
+        data.meta = again.meta;
       }
     } else {
       renderStats(data.meta || {});
