@@ -30,11 +30,12 @@
     <aside class="panel">
       <section class="panel-block">
         <h1>Карта</h1>
-        <p class="lede">Подложка — Яндекс.Карты (Россия). Серые пины = staging approximate (геокод адреса), не verified.</p>
+        <p class="lede">Подложка — Яндекс.Карты. Серые пины = staging approximate по адресу/региону, не verified.</p>
         <label class="toggle">
           <input type="checkbox" id="showStaging" checked />
           Показывать staging на карте
         </label>
+        <button type="button" id="regeocodeBtn" class="chip" style="margin:0 0 0.85rem">Уточнить координаты по адресам</button>
         <div id="stats" class="stats"></div>
         <p id="mapProviderNote" class="provider-note">Картография: Яндекс</p>
       </section>

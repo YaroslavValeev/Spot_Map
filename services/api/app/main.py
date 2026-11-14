@@ -17,6 +17,7 @@ from .map_queries import (
     fetch_staging_stats,
     rows_to_geojson,
 )
+from .geocode_staging import run_address_geocode
 from .moderation import (
     apply_region_centroids,
     list_candidates,
@@ -244,6 +245,32 @@ def staging_approx_from_regions(force: bool = Query(default=False)):
         raise HTTPException(
             status_code=503,
             detail=f"database unavailable: {type(exc).__name__}",
+        ) from exc
+
+
+@app.post("/v1/staging/approx-geocode-addresses")
+def staging_approx_geocode_addresses(
+    force: bool = Query(default=True),
+    provider: str = Query(default="nominatim"),
+):
+    """Geocode staging by street address (RU). Long-running; approximate only."""
+    if provider not in {"nominatim", "yandex"}:
+        raise HTTPException(status_code=400, detail="provider must be nominatim|yandex")
+    try:
+        with get_connection() as conn:
+            return run_address_geocode(
+                conn,
+                provider=provider,
+                force=force,
+                limit=200,
+                sleep_s=1.1 if provider == "nominatim" else 0.2,
+                yandex_api_key=(settings.yandex_maps_api_key or "").strip(),
+                progress=False,
+            )
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(
+            status_code=503,
+            detail=f"geocode failed: {type(exc).__name__}",
         ) from exc
 
 

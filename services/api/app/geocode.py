@@ -90,7 +90,52 @@ def geocode_yandex(
     lng = float(lng_s)
     if not (-90 <= lat <= 90 and -180 <= lng <= 180):
         return None
-    return GeocodeHit(lat=lat, lng=lng, precision="address", query=query)
+    return GeocodeHit(
+        lat=lat,
+        lng=lng,
+        precision="address",
+        query=query,
+        provider="yandex_geocoder",
+    )
+
+
+def geocode_nominatim(query: str, *, timeout: float = 30.0) -> GeocodeHit | None:
+    """Address geocoding only (not map tiles). Restricted to Russia via countrycodes=ru."""
+    params = urllib.parse.urlencode(
+        {
+            "q": query,
+            "format": "json",
+            "limit": "1",
+            "countrycodes": "ru",
+            "addressdetails": "0",
+        }
+    )
+    url = f"https://nominatim.openstreetmap.org/search?{params}"
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "SpotMap/0.2 (local staging address geocode; Russia-only)",
+            "Accept-Language": "ru",
+        },
+    )
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        payload = json.loads(resp.read().decode("utf-8"))
+    if not payload:
+        return None
+    lat = float(payload[0]["lat"])
+    lng = float(payload[0]["lon"])
+    if not (-90 <= lat <= 90 and -180 <= lng <= 180):
+        return None
+    # Keep results inside a coarse Russia bbox.
+    if not (41.0 <= lat <= 82.0 and 19.0 <= lng <= 191.0):
+        return None
+    return GeocodeHit(
+        lat=lat,
+        lng=lng,
+        precision="address",
+        query=query,
+        provider="nominatim_ru",
+    )
 
 
 _SPACE_RE = re.compile(r"\s+")
@@ -98,3 +143,10 @@ _SPACE_RE = re.compile(r"\s+")
 
 def normalize_query(text: str) -> str:
     return _SPACE_RE.sub(" ", text).strip()
+
+
+def is_weak_address(raw_address: str | None) -> bool:
+    address = (raw_address or "").strip().lower()
+    if not address:
+        return True
+    return any(m in address for m in USELESS_ADDRESS_MARKERS)

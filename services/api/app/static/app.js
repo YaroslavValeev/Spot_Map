@@ -280,6 +280,26 @@
     loadMap().catch((err) => setStatus(`ошибка карты: ${err.message}`, false));
   });
 
+  document.getElementById("regeocodeBtn")?.addEventListener("click", async () => {
+    try {
+      setStatus("запрос перегеокода на сервере…", true);
+      // Force server-side address geocode (Nominatim RU) via dedicated endpoint.
+      const res = await fetch("/v1/staging/approx-geocode-addresses?force=true", {
+        method: "POST",
+      });
+      if (!res.ok) throw new Error(`geocode ${res.status}`);
+      const stats = await res.json();
+      setStatus(
+        `геокод ok=${stats.ok || 0} region=${stats.region || 0} fail=${stats.fail || 0}`,
+        true
+      );
+      await loadMap();
+      await loadQueue();
+    } catch (err) {
+      setStatus(`ошибка перегеокода: ${err.message}`, false);
+    }
+  });
+
   (async () => {
     try {
       const [health, config] = await Promise.all([
