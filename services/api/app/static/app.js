@@ -425,7 +425,7 @@
 
   async function loadQueue() {
     const kind = kindFilter.value;
-    const qs = new URLSearchParams({ limit: "40" });
+    const qs = new URLSearchParams({ limit: "80" });
     if (kind) qs.set("kind", kind);
     const res = await fetch(`/v1/staging/candidates?${qs.toString()}`);
     if (!res.ok) throw new Error(`queue ${res.status}`);
@@ -433,13 +433,18 @@
     queueEl.innerHTML = (data.items || [])
       .map((item) => {
         const region = item.raw_region || "регион не указан";
+        const legacy = item.legacy_row_id ? ` · ${item.legacy_row_id}` : "";
         const src = item.source_url
           ? `<a href="${item.source_url}" target="_blank" rel="noopener noreferrer">источник</a>`
           : "источник не указан";
+        const onMap = item.has_approx_point
+          ? '<span class="tag tag-ok">на карте</span>'
+          : '<span class="tag tag-warn">нужен GPS</span>';
         return `<li>
           <p class="name">${escapeHtml(item.raw_name)}</p>
-          <p class="meta">${escapeHtml(region)} · ${escapeHtml(item.candidate_kind)} · ${src}</p>
+          <p class="meta">${escapeHtml(region)}${escapeHtml(legacy)} · ${escapeHtml(item.candidate_kind)} · ${src}</p>
           <span class="tag">geo: ${escapeHtml(item.geo_status)}</span>
+          ${onMap}
         </li>`;
       })
       .join("");

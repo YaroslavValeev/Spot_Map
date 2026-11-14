@@ -23,7 +23,11 @@ SELECT
 FROM staging_candidates
 WHERE (%(kind)s::text IS NULL OR candidate_kind = %(kind)s)
   AND (%(geo_status)s::text IS NULL OR geo_status = %(geo_status)s)
-ORDER BY imported_at ASC, raw_name ASC
+ORDER BY
+  CASE WHEN approx_point IS NULL THEN 0 ELSE 1 END,
+  CASE WHEN legacy_row_id LIKE 'NEW-%%' THEN 0 ELSE 1 END,
+  imported_at DESC,
+  raw_name ASC
 LIMIT %(limit)s OFFSET %(offset)s
 """
 

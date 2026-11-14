@@ -16,10 +16,14 @@
 - Не авто-мержить Go Wake ↔ Go Wake Park и Local Surf ↔ Ламишино.
 - Nested электротяги без GPS опор — только annotation / groups в research-листе.
 
+## Ручной GPS backlog
+- `data/imports/SpotMap_Research_Moscow_MO_2026-11-14/NEW_missing_gps_for_manual.csv` — 29 NEW-* без координат (нужен lat/lng или подтверждённый адрес).
+
 ## Команды
 ```bash
 cd services/api
 python -m app.cli_import_research
 python -m app.cli_research_followup
+python -m app.cli_apply_owner_registry
 python -m unittest discover -s tests -p "test_*.py" -v
 ```

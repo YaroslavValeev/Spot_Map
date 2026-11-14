@@ -155,11 +155,20 @@ body {
 .tag {
   display: inline-block;
   margin-top: 0.4rem;
+  margin-right: 0.25rem;
   font-size: 0.7rem;
   border-radius: 999px;
   padding: 0.15rem 0.45rem;
   border: 1px solid var(--line);
   color: var(--accent-2);
+}
+.tag-ok {
+  color: #9be7c8;
+  border-color: rgba(155, 231, 200, 0.35);
+}
+.tag-warn {
+  color: #f0b429;
+  border-color: rgba(240, 180, 41, 0.45);
 }
 
 .map-wrap {

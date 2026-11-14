@@ -1,0 +1,30 @@
+﻿legacy_row_id,raw_name,raw_region,raw_address,raw_disciplines,source_url,geo_status,needed
+NEW-001,Wave Motion,Мытищи,"д. Подрезово, Прибрежная, вл.5 стр.3",WAKEBOARD_BOAT,https://welcome.mosreg.ru/stories/wake-board-podmoskovie,missing,manual lat/lng or confirmed address
+NEW-002,DolWake,Долгопрудный,"Флотская ул., 2А, Котовский залив",CABLE_REVERSE,https://welcome.mosreg.ru/stories/wake-board-podmoskovie,missing,manual lat/lng or confirmed address
+NEW-004,WakeTime,Мытищи / Болтино,"Пироговское вдхр., д. Болтино, Ореховая бухта",WAKESURF;WAKEBOARD_BOAT,https://welcome.mosreg.ru/ideas/vejk-klub-waketime,missing,manual lat/lng or confirmed address
+NEW-005,Wakers Club,Красногорск,"Soho Country Club, 1-й км Новорижского шоссе",WAKESURF;WAKEBOARD_BOAT,https://welcome.mosreg.ru/stories/wake-board-podmoskovie,missing,manual lat/lng or confirmed address
+NEW-006,Wake Park «Высокий полёт»,Серпухов,"парк-отель Воздвиженское, п. д/о Авангард",CABLE_REVERSE,https://welcome.mosreg.ru/stories/wake-board-podmoskovie,missing,manual lat/lng or confirmed address
+NEW-009,Jolie Wake Club,Мытищи / Пирогово,"Пироговский залив, пляж «Дубрава»",WAKESURF;WAKEBOARD_BOAT,https://welcome.mosreg.ru/stories/wake-board-podmoskovie,missing,manual lat/lng or confirmed address
+NEW-012,GreenWood Wake Park,Люберцы,Наташинский парк,WAKE_TYPE_UNCONFIRMED,https://yandex.com/maps/search/GreenWood%20Wake%20Park%20Люберцы/,missing,manual lat/lng or confirmed address
+NEW-013,Вейк-парк «На Волне» — Коломна,Коломна,"район Городищи, берег реки Коломенки",CABLE_REVERSE,https://yandex.com/maps/org/veyk_park_na_volne/105183986858/,missing,manual lat/lng or confirmed address
+NEW-014,ВейкПриют,Егорьевский округ,"д. Семёновская, КП «Любляна»",WAKE_TYPE_UNCONFIRMED,https://yandex.com/maps/search/ВейкПриют%20Егорьевск/,missing,manual lat/lng or confirmed address
+NEW-015,Wake Park Rade & Wabe,Павлово-Посадский округ,"Большие Дворы, озеро Байкал",CABLE_REVERSE,https://yandex.com/maps/org/wake_park_rade_wabe/183437519611/reviews/,missing,manual lat/lng or confirmed address
+NEW-016,Red Wake,Красногорск,пруд «Старая Плотина»,CABLE_REVERSE,https://yandex.com/maps/search/Red%20Wake%20Старая%20Плотина/,missing,manual lat/lng or confirmed address
+NEW-017,Tony Wake,Раменский округ / Верхнее Мячково,"д. Верхнее Мячково, Набережная, 39",WAKESURF;WAKEBOARD_BOAT,https://yandex.com/maps/search/Tony%20Wake%20Верхнее%20Мячково/,missing,manual lat/lng or confirmed address
+NEW-018,Wake Adventure,Мытищи / Федоскино,с. Федоскино,WAKESURF;WAKEBOARD_BOAT;WATER_SKI,https://yandex.com/maps/search/Wake%20Adventure%20Федоскино/,missing,manual lat/lng or confirmed address
+NEW-019,KRK Wake,Пушкино / Правдинский,пос. Правдинский,WAKE_TYPE_UNCONFIRMED,https://yandex.com/maps/search/KRK%20вейк%20Правдинский/,missing,manual lat/lng or confirmed address
+NEW-021,SigmaWave,Москва / Строгино,"Исаковского, 37к1с2, причальный домик №14",WAKESURF;WAKEBOARD_BOAT,https://yandex.com/maps/search/SigmaWave%20Исаковского%2037/,missing,manual lat/lng or confirmed address
+NEW-022,EasyWake,Мытищи,Новоалександровский залив,WAKESURF;WAKEBOARD_BOAT,https://yandex.com/maps/search/EasyWake%20Новоалександровский/,missing,manual lat/lng or confirmed address
+NEW-023,WakeStar,Мытищи,"территория «Мегаспорт», 1/4",WAKESURF;WAKEBOARD_BOAT,https://yandex.com/maps/search/Wakestar%20Мытищи/,missing,manual lat/lng or confirmed address
+NEW-027,Парк-отель «Остров Русский» / Дракино,Серпухов / Дракино,"Дракино, парк-отель «Остров Русский»",WAKEBOARD_BOAT;WAKESURF,https://yandex.com/maps/search/Остров%20Русский%20Дракино%20вейкборд/,missing,manual lat/lng or confirmed address
+NEW-028,Водный Яркопарк,Владимир,"Загородный парк, г. Владимир",WAKE_TYPE_UNCONFIRMED,https://yandex.com/maps/org/vodny_yarkopark/182394553152/,missing,manual lat/lng or confirmed address
+NEW-029,Wake Park — Машково,Жуковский район Калужской области,дер. Машково,WAKE_TYPE_UNCONFIRMED,https://yandex.com/maps/org/veyk_park/63761747362/,missing,manual lat/lng or confirmed address
+NEW-030,Вейк-парк «Орловский»,Ленинский округ / Дальние Прудищи,"Орловский проезд, 12",WAKE_TYPE_UNCONFIRMED,https://yandex.com/maps/org/veyk_park_orlovskiy/35000274925/,missing,manual lat/lng or confirmed address
+NEW-031,Пляж Горчухино — вейк,Наро-Фоминский округ,"дер. Горчухино, пляж",WAKE_TYPE_UNCONFIRMED,https://welcome.mosreg.ru/stories/wake-board-podmoskovie,missing,manual lat/lng or confirmed address
+NEW-032,Wake Fly Park,Люберцы / Малаховка,"Малаховка, Спортивная, 9",WAKE_TYPE_UNCONFIRMED,https://yandex.com/maps/search/Wake%20Fly%20Park%20Малаховка/,missing,manual lat/lng or confirmed address
+NEW-033,We-Wake / «Белые Орлы»,Щёлковский округ,"Медвежьи Озёра, д.65А",CABLE_REVERSE,https://yandex.com/maps/search/We-Wake%20Медвежьи%20Озера/,missing,manual lat/lng or confirmed address
+NEW-034,Surfphoria,Красногорск / Мякинино,"66 км МКАД, к5, Shore House",WAKESURF;WAKEBOARD_BOAT,https://yandex.com/maps/search/Surfphoria%20Shore%20House/,missing,manual lat/lng or confirmed address
+NEW-035,Barmaley Surf Club,Мытищи / Троицкое,"Троицкое, вл.7Б, причал №5",WAKESURF;WAKEBOARD_BOAT,https://yandex.com/maps/search/Barmaley%20Surf%20Club%20Троицкое/,missing,manual lat/lng or confirmed address
+NEW-036,HomeSpot,Мытищи,"городской округ Мытищи, точный пирс неизвестен",WAKESURF;WAKEBOARD_BOAT,https://yandex.com/maps/search/HomeSpot%20Мытищи%20вейк/,missing,manual lat/lng or confirmed address
+NEW-037,Local Surf Club — Ламишино,Истринский округ,"д. Ламишино, Истринское вдхр.",WAKESURF;WAKEBOARD_BOAT,https://yandex.com/maps/search/Local%20Surf%20Club%20Ламишино/,missing,manual lat/lng or confirmed address
+NEW-039,Wake Park «Добрый»,Ковровский округ / Доброград,"Доброград, Владимирская область",CABLE_CIRCUIT;CABLE_REVERSE,https://yandex.com/maps/search/Добрый%20вейк%20парк%20Доброград/,missing,manual lat/lng or confirmed address
