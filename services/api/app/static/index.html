@@ -19,23 +19,28 @@
           <p class="brand-sub">wakesurf · wakeboard cable · Россия</p>
         </div>
       </div>
-      <div class="filters" role="group" aria-label="Фильтры дисциплин">
-        <button type="button" class="chip active" data-discipline="">Все P0</button>
-        <button type="button" class="chip" data-discipline="wakesurf">Wakesurf</button>
-        <button type="button" class="chip" data-discipline="wakeboard_cable">Электротяга</button>
-      </div>
+      <label class="search">
+        <span class="sr-only">Поиск</span>
+        <input id="searchInput" type="search" placeholder="Найти спот, клуб или локацию…" autocomplete="off" />
+      </label>
       <div id="statusPill" class="status-pill">загрузка…</div>
     </header>
 
     <aside class="panel">
       <section class="panel-block">
         <h1>Карта</h1>
-        <p class="lede">Подложка — Яндекс.Карты. Серые пины = staging approximate по адресу/региону, не verified.</p>
+        <p class="lede">Пиктограммы дисциплин на маркерах. Фильтр слева обновляет карту без перезагрузки. Staging approximate · verified 0.</p>
+
+        <div class="discipline-block">
+          <h2>Дисциплины</h2>
+          <div id="disciplineFilters" class="discipline-list" role="group" aria-label="Фильтр дисциплин"></div>
+          <p class="hint" id="disciplineHint">Показаны все дисциплины</p>
+        </div>
+
         <label class="toggle">
           <input type="checkbox" id="showStaging" checked />
           Показывать staging на карте
         </label>
-        <button type="button" id="regeocodeBtn" class="chip" style="margin:0 0 0.85rem">Уточнить координаты по адресам</button>
         <div id="stats" class="stats"></div>
         <p id="mapProviderNote" class="provider-note">Картография: Яндекс</p>
       </section>
@@ -57,16 +62,19 @@
     <main class="map-wrap">
       <div id="map" role="application" aria-label="Карта спотов SpotMap"></div>
       <div id="emptyState" class="empty-state" hidden>
-        <p class="empty-title">Пока нет точек для карты</p>
-        <p class="empty-text">Нужен геокод staging (`python -m app.cli_geocode_staging`) или verified-публикация.</p>
+        <p class="empty-title">Нет объектов для выбранных дисциплин</p>
+        <p class="empty-text">Снимите фильтр или выберите другую дисциплину.</p>
       </div>
       <div id="mapKeyHint" class="empty-state key-hint" hidden>
         <p class="empty-title">Нужен ключ Яндекс.Карт</p>
-        <p class="empty-text">Добавьте <code>YANDEX_MAPS_API_KEY</code> в <code>services/api/.env</code> (ключ с <a href="https://developer.tech.yandex.ru/" target="_blank" rel="noopener noreferrer">developer.tech.yandex.ru</a>) и перезапустите API.</p>
+        <p class="empty-text">Добавьте <code>YANDEX_MAPS_API_KEY</code> в <code>services/api/.env</code> и перезапустите API.</p>
       </div>
+      <div id="spotCard" class="spot-card" hidden></div>
     </main>
   </div>
 
+  <!-- SVG sprite loaded for panel + map markers -->
+  <object id="iconSprite" data="/static/icons/disciplines.svg" type="image/svg+xml" hidden aria-hidden="true"></object>
   <script src="/static/app.js"></script>
 </body>
 </html>

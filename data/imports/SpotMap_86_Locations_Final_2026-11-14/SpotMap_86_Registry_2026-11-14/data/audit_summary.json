@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-14",
+  "source_rows": 80,
+  "nested_installation_rows": 6,
+  "total_register_rows": 86,
+  "rows_with_any_coordinate": 56,
+  "review_geojson_features": 40,
+  "distinct_geojson_coordinates": 22,
+  "without_coordinates": 30,
+  "verified_coordinates": 0,
+  "statuses": {
+    "review_pin": 38,
+    "hold_recheck": 18,
+    "exclude_non_spot": 8,
+    "hold_closed_listing": 1,
+    "hold_split": 1,
+    "geo_pending": 10,
+    "review_street_only": 1,
+    "review_merge": 1,
+    "hold_merge": 1,
+    "hold_season_status": 1,
+    "nested_only": 6
+  },
+  "all_86_physical_places": false
+}

@@ -29,6 +29,11 @@ SET
   updated_at = now()
 WHERE id = %(id)s::uuid
   AND publication_status <> 'published'
+  AND (
+    approx_geocode_provider IS NULL
+    OR approx_geocode_provider NOT LIKE 'owner_registry%%'
+    OR %(provider)s LIKE 'owner_registry%%'
+  )
 """
 
 
@@ -49,6 +54,10 @@ def run_address_geocode(
             SELECT id::text, raw_name, raw_region, raw_address
             FROM staging_candidates
             WHERE {where}
+              AND (
+                approx_geocode_provider IS NULL
+                OR approx_geocode_provider NOT LIKE 'owner_registry%%'
+              )
             ORDER BY imported_at ASC
             LIMIT %s
             """,

@@ -1,0 +1,1011 @@
+{
+  "type": "FeatureCollection",
+  "name": "SpotMap_ResearchPins_not_verified_2026-11-14",
+  "metadata": {
+    "warning": "All positions approximate; source-point, address or venue only. Map review candidate, not verified operating business.",
+    "count": 40,
+    "source_master": "SpotMap_Master_86_2026-11-14.csv"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "SM-001",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.414502,
+          55.824575
+        ]
+      },
+      "properties": {
+        "record_id": "SM-001",
+        "name": "Wake People River Spot",
+        "entity_type": "source_candidate",
+        "address": "Москва, Лётная 99А",
+        "geo_status": "approximate",
+        "coordinate_scope": "venue_address",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://parohodoff.ru/lodochnaya-stanciya-vsk-burevestnik-moskva.html",
+        "review_action": "verify_operation_and_pin",
+        "note": "Общая адресная координата; отдельный пирс не определён. Территория на Лётной 99А; несколько операторов, индивидуальные пирсы не определены."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-002",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.44806,
+          55.806338
+        ]
+      },
+      "properties": {
+        "record_id": "SM-002",
+        "name": "ВейкШанс",
+        "entity_type": "source_candidate",
+        "address": "Москва, Авиационная 79к1с2, яхт-клуб River Club",
+        "geo_status": "approximate",
+        "coordinate_scope": "listing_point",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://mayak.app/@veyk-klub-veykshans-v-moskva-voda",
+        "review_action": "verify_operation_and_pin",
+        "note": "A1: яхт-клуб River Club / ЖК Алые Паруса, Авиационная 79к1с2. Общая территория River Club/Алые Паруса, не конкретный причал."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-003",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          36.8181,
+          56.003585
+        ]
+      },
+      "properties": {
+        "record_id": "SM-003",
+        "name": "OneWake Club",
+        "entity_type": "source_candidate",
+        "address": "МО, Истринское вдхр., база «Весёлый ветер»",
+        "geo_status": "approximate",
+        "coordinate_scope": "parent_base_point",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://katalogturbaz.ru/russia/moskovskaja-oblast/veseliy-veter",
+        "review_action": "verify_operation_and_pin",
+        "note": "A10: привязка к базе «Весёлый ветер», не к OneWake pontoon. Координаты базы Весёлый ветер; OneWake pier не подтверждён."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-004",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.207788,
+          53.335907
+        ]
+      },
+      "properties": {
+        "record_id": "SM-004",
+        "name": "OneWave Surf Club",
+        "entity_type": "source_candidate",
+        "address": "Брянск / Брянская область",
+        "geo_status": "approximate",
+        "coordinate_scope": "linked_map_marker",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://glamprussia.ru/glamping/glemping-onewave-syorf/",
+        "review_action": "verify_operation_and_pin",
+        "note": "A13: исправлен ошибочный геокод «Сибирь»; Брянск. Брянск; координаты места из ссылочной карты, не в Сибири."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-005",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.461454,
+          55.772083
+        ]
+      },
+      "properties": {
+        "record_id": "SM-005",
+        "name": "BestWave",
+        "entity_type": "source_candidate",
+        "address": "Москва, Карамышевская наб. 13",
+        "geo_status": "approximate",
+        "coordinate_scope": "building_address",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://yandex.com/maps/213/moscow/house/karamyshevskaya_naberezhnaya_13k2s1/Z04YcgFhTUADQFtvfXt2c3xrZg%3D%3D/",
+        "review_action": "verify_operation_and_pin",
+        "note": "Оператор на Карамышевской; общий адрес нескольких компаний. Адресный ориентир Карамышевская набережная 13к2с1; индивидуальные клубные пирсы не подтверждены."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-006",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.4482,
+          55.8048
+        ]
+      },
+      "properties": {
+        "record_id": "SM-006",
+        "name": "Wakephoria",
+        "entity_type": "source_candidate",
+        "address": "Москва, Авиационная улица, 79к1с3",
+        "geo_status": "approximate",
+        "coordinate_scope": "directory_point",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://www.bebeshka.info/moskva/veykforiya-567456/",
+        "review_action": "verify_operation_and_pin",
+        "note": "WAKEPHORIA: справочник указывает Авиационную 79к1с3 и GPS 55.8048, 37.4482. Прежняя общая точка River Club 79к1с2 была неточна; точный пирс пока не подтверждён. Адрес Wakephoria Авиационная 79к1с3 и точка из каталога; не измеренный пирс."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-007",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.377,
+          55.8127
+        ]
+      },
+      "properties": {
+        "record_id": "SM-007",
+        "name": "Malibu Wake Club / Малибу",
+        "entity_type": "source_candidate",
+        "address": "МО, Красногорск, парк Рублёво, ул. Согласия 13",
+        "geo_status": "approximate",
+        "coordinate_scope": "parent_yacht_club",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://www.bebeshka.info/krasnogorsk/yaht-klub-1150695/",
+        "review_action": "verify_operation_and_pin",
+        "note": "Официальный переезд клуба в Парк Рублёво, ул. Согласия 13. Координаты яхт-клуба Парк Рублево, не точный причал Малибу; официальный клуб подтверждает адрес."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-010",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.4347647,
+          55.760167
+        ]
+      },
+      "properties": {
+        "record_id": "SM-010",
+        "name": "WakeStyle Spot (Крылатское)",
+        "entity_type": "source_candidate",
+        "address": "Москва, Крылатская, 8к1, три реверсивных установки",
+        "geo_status": "approximate",
+        "coordinate_scope": "venue_navigation",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://wakestylespot.ru/",
+        "review_action": "verify_specific_berth_or_device",
+        "note": "A5-семейство WAKESTYLE: здесь 3 отдельные реверсивные линии; катер и indoor-пул — другие площадки. Общая точка парка на Крылатской 8к1, а не координаты каждой опоры."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-011",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.453028,
+          55.789922
+        ]
+      },
+      "properties": {
+        "record_id": "SM-011",
+        "name": "WAKESTYLE — бассейн «Энигма»",
+        "entity_type": "source_candidate",
+        "address": "Москва, Живописная, 21с1, бассейн Энигма",
+        "geo_status": "approximate",
+        "coordinate_scope": "building_address",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://yandex.com/maps/213/moscow/house/zhivopisnaya_ulitsa_21s1/Z04YcgJjSUcPQFtvfXt5eHVhZg%3D%3D/inside/",
+        "review_action": "verify_specific_berth_or_device",
+        "note": "A5: Бассейн Энигма, один сезонный indoor-рeверс Spin по соцканалу, дубли staging объединить. Бассейн Живописная 21с1; кабельная система Spin внутри здания."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-012",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.4481,
+          55.805
+        ]
+      },
+      "properties": {
+        "record_id": "SM-012",
+        "name": "Line Up MSC",
+        "entity_type": "source_candidate",
+        "address": "Москва (ранее Double Up Wake)",
+        "geo_status": "approximate",
+        "coordinate_scope": "directory_point",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://www.bebeshka.info/moskva/line-up-1133039/",
+        "review_action": "verify_operation_and_pin",
+        "note": "A14: возможное старое название Double Up Wake. Каталожная точка, не пирс. Каталожная точка общей территории, возможна устаревшая привязка."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-013",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.461454,
+          55.772083
+        ]
+      },
+      "properties": {
+        "record_id": "SM-013",
+        "name": "FENIX Wake & Surf School",
+        "entity_type": "source_candidate",
+        "address": "Москва, Карамышевская наб., 13",
+        "geo_status": "approximate",
+        "coordinate_scope": "building_address",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://yandex.com/maps/213/moscow/house/karamyshevskaya_naberezhnaya_13k2s1/Z04YcgFhTUADQFtvfXt2c3xrZg%3D%3D/",
+        "review_action": "verify_operation_and_pin",
+        "note": "Адресный ориентир Карамышевская набережная 13к2с1; индивидуальные клубные пирсы не подтверждены."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-014",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.448281,
+          55.805221
+        ]
+      },
+      "properties": {
+        "record_id": "SM-014",
+        "name": "Moscow Wake School",
+        "entity_type": "source_candidate",
+        "address": "Москва, Строгино / Авиационная, 79",
+        "geo_status": "approximate",
+        "coordinate_scope": "operator_navigation",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://www.wakestrogino.ru/contact",
+        "review_action": "verify_operation_and_pin",
+        "note": "A2: клубный навигатор Яндекс; отдельный въезд/причал. Точка навигации школы, не точный причал."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-015",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.677014,
+          55.723577
+        ]
+      },
+      "properties": {
+        "record_id": "SM-015",
+        "name": "SportStation",
+        "entity_type": "source_candidate",
+        "address": "Москва, Новоостаповская ул., 5",
+        "geo_status": "approximate",
+        "coordinate_scope": "building_address",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://yandex.com/maps/213/moscow/house/novoostapovskaya_ulitsa_5s2/Z04YcABnSUQDQFtvfXtzcnlkYw%3D%3D/",
+        "review_action": "verify_operation_and_pin",
+        "note": "Тренировки indoor/электротяга; проверить точное здание и актуальность работы. Адресная точка Новоостаповская 5с2; indoor equipment not surveyed."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-018",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.44806,
+          55.806338
+        ]
+      },
+      "properties": {
+        "record_id": "SM-018",
+        "name": "Wakestyle Club",
+        "entity_type": "source_candidate",
+        "address": "Москва, Авиационная, 79к1с2, катер WAKESTYLE",
+        "geo_status": "approximate",
+        "coordinate_scope": "listing_point",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://mayak.app/@veyk-klub-veykshans-v-moskva-voda",
+        "review_action": "verify_specific_berth_or_device",
+        "note": "A5: WAKESTYLE катер в яхт-клубе на Авиационной 79, отдельный объект от 3 лебёдок и indoor-пула. Общая территория River Club/Алые Паруса, не конкретный причал."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-020",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.414502,
+          55.824575
+        ]
+      },
+      "properties": {
+        "record_id": "SM-020",
+        "name": "Wave Hunters",
+        "entity_type": "source_candidate",
+        "address": "Москва, ул. Лётная, 99 стр.1, ВСК «Буревестник» (по официальному сайту)",
+        "geo_status": "approximate",
+        "coordinate_scope": "venue_address",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://parohodoff.ru/lodochnaya-stanciya-vsk-burevestnik-moskva.html",
+        "review_action": "verify_operation_and_pin",
+        "note": "ОФИЦИАЛЬНЫЙ сайт Wave Hunters (проверен 14.11.2026) указывает Лётная 99 стр.1 / ВСК Буревестник, соответствует исходной карточке. Старый материал об Авиационной — исторический, не перенесён на карту. Территория на Лётной 99А; несколько операторов, индивидуальные пирсы не определены."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-021",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.426878,
+          55.804324
+        ]
+      },
+      "properties": {
+        "record_id": "SM-021",
+        "name": "Строгино Wake Park",
+        "entity_type": "source_candidate",
+        "address": "Москва, ул. Исаковского, 37 к2",
+        "geo_status": "approximate",
+        "coordinate_scope": "building_address",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://yandex.com/maps/213/moscow/house/ulitsa_isakovskogo_37k2s1/Z04YcgVmQUIPQFtvfXRxdX9hYA%3D%3D/",
+        "review_action": "verify_operation_and_pin",
+        "note": "Парк на улице Исаковского, но исходный адрес 37к2 отличается от детализированного 37к2с1: оператору подтвердить. Адрес 37к2с1, не координата понтона."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-022",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.383705,
+          55.821401
+        ]
+      },
+      "properties": {
+        "record_id": "SM-022",
+        "name": "GOOD WAVES Moscow",
+        "entity_type": "source_candidate",
+        "address": "Москва / 66-й км МКАД, к5 (граница с МО)",
+        "geo_status": "approximate",
+        "coordinate_scope": "site_map_center",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://yandex.com/maps/org/good_waves_moscow/8616013988/?ll=37.383705%2C55.821401&z=16.65",
+        "review_action": "verify_operation_and_pin",
+        "note": "A7 пользователь подтвердил локацию Shore House/66 км МКАД; координаты — центр карты, не пирс. Площадка Shore House, НЕ доказанная индивидуальная швартовка."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-023",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.382988,
+          55.822706
+        ]
+      },
+      "properties": {
+        "record_id": "SM-023",
+        "name": "RiverClubSurf",
+        "entity_type": "source_candidate",
+        "address": "Мякинино / Крокус, МКАД 66 км к5",
+        "geo_status": "approximate",
+        "coordinate_scope": "operator_navigation",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://riverclubsurf.ru/contacts/",
+        "review_action": "verify_operation_and_pin",
+        "note": "A8 пользователь подтвердил текущий Shore House/Мякинино; старые справочники указывали Авиационную — не использовать их для переноса. Навигационная точка из контактов оператора; причал №4 нуждается в полевой сверке."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-024",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.707271,
+          55.98655
+        ]
+      },
+      "properties": {
+        "record_id": "SM-024",
+        "name": "Flat Wake Park",
+        "entity_type": "source_candidate",
+        "address": "МО, Пирогово",
+        "geo_status": "approximate",
+        "coordinate_scope": "published_gps_point",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://mytischiriamo.ru/articles/stati/velomarshrut-cherez-mytischinskij-lesopark-konnyj-klub-plyazhi-i-vejk-park/",
+        "review_action": "verify_operation_and_pin",
+        "note": "GPS приведены в РИАМО; 2 реверсивных лебёдки, точные отдельно не установлены. Публикация с GPS вейк-парка, актуальность схемы установок уточнять."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-025",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.54515,
+          55.972298
+        ]
+      },
+      "properties": {
+        "record_id": "SM-025",
+        "name": "Reef Surf Club",
+        "entity_type": "source_candidate",
+        "address": "МО, Грибки, Адмиральская 9Б",
+        "geo_status": "approximate",
+        "coordinate_scope": "building_address",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://yandex.com/maps/1/moscow-and-moscow-oblast/house/admiralskaya_ulitsa_9b/Z04YcwNlSEAHQFtvfXV2c35qYw%3D%3D/",
+        "review_action": "verify_operation_and_pin",
+        "note": "Reef Surf Club: Грибки, Адмиральская 9Б; катер + лебёдка по каналу. Точка здания Адмиральская 9Б, не точная лебёдка/причал."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-026",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.7121,
+          55.9735
+        ]
+      },
+      "properties": {
+        "record_id": "SM-026",
+        "name": "Surf It",
+        "entity_type": "source_candidate",
+        "address": "МО, Мытищи/Подрезово, Прибрежная 17Б",
+        "geo_status": "approximate",
+        "coordinate_scope": "directory_point_legacy_alias",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://www.bebeshka.info/mytishchi/ollie-wake-1133821/",
+        "review_action": "verify_operation_and_pin",
+        "note": "Телефон и адрес совпадают у Surf It и старой карточки Ollie Wake; приёмку координат дополнить проверкой переименования. Каталожная координата Ollie Wake; совпадают контактный телефон и адрес Surf It; проверить реорганизацию."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-030",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.733123,
+          55.931789
+        ]
+      },
+      "properties": {
+        "record_id": "SM-030",
+        "name": "Полати Кровати",
+        "entity_type": "source_candidate",
+        "address": "МО, Мытищи, мкр. 17А, Большой Рупасовский пруд, Проектируемый проезд №6446",
+        "geo_status": "approximate",
+        "coordinate_scope": "street_center",
+        "verification_level": "approximate",
+        "map_status": "review_street_only",
+        "operation_status": "temporarily_closed_seasonal_listing",
+        "reference_url": "https://yandex.com/maps/10740/mytischi/geo/proyektiruyemy_proyezd_6446/6799095864/",
+        "review_action": "verify_specific_berth_or_device",
+        "note": "A11: Большой Рупасовский пруд, мкр. 17А. 1 кольцевая + 2 реверсивных; координаты ЦЕНТРА ул. №6446, НЕ точной установки. ЦЕНТР проезда №6446 из карты, связанной с карточкой клуба; НЕ координата пирса/кольца. БОЛЬШОЙ РУПАСОВСКИЙ ПРУД."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-031",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.612227,
+          55.834199
+        ]
+      },
+      "properties": {
+        "record_id": "SM-031",
+        "name": "Connect Wake Park / Wake Connect",
+        "entity_type": "source_candidate",
+        "address": "Москва, ВДНХ, просп. Мира 119",
+        "geo_status": "approximate",
+        "coordinate_scope": "building_address",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://yandex.com/maps/213/moscow/house/prospekt_mira_119s27a/Z04YcAZiS0cAQFtvfXRydX1qbQ%3D%3D/",
+        "review_action": "verify_operation_and_pin",
+        "note": "A6: адресная точка павильона ВДНХ, не самой электротяги. Ориентир павильон 119с27А, не геометрия лебёдки."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-034",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.383705,
+          55.821401
+        ]
+      },
+      "properties": {
+        "record_id": "SM-034",
+        "name": "EpicSurf",
+        "entity_type": "source_candidate",
+        "address": "Москва, геолокация не проверена",
+        "geo_status": "approximate",
+        "coordinate_scope": "site_map_center",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://yandex.com/maps/org/good_waves_moscow/8616013988/?ll=37.383705%2C55.821401&z=16.65",
+        "review_action": "verify_operation_and_pin",
+        "note": "EpicSurf отмечен на базе Shore House в исторических каталогах; актуальность требует проверки. Площадка Shore House, НЕ доказанная индивидуальная швартовка."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-040",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.461454,
+          55.772083
+        ]
+      },
+      "properties": {
+        "record_id": "SM-040",
+        "name": "Loaded Spot",
+        "entity_type": "source_candidate",
+        "address": "Москва, Карамышевская наб. 13",
+        "geo_status": "approximate",
+        "coordinate_scope": "building_address",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://yandex.com/maps/213/moscow/house/karamyshevskaya_naberezhnaya_13k2s1/Z04YcgFhTUADQFtvfXt2c3xrZg%3D%3D/",
+        "review_action": "verify_operation_and_pin",
+        "note": "Адресный ориентир Карамышевская набережная 13к2с1; индивидуальные клубные пирсы не подтверждены."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-041",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.479682,
+          55.834915
+        ]
+      },
+      "properties": {
+        "record_id": "SM-041",
+        "name": "Maria Water Club",
+        "entity_type": "source_candidate",
+        "address": "Москва, Ленинградское ш. 39",
+        "geo_status": "approximate",
+        "coordinate_scope": "published_location_point",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://www.sputnik8.com/ru/moscow/pages/gde-pokatatsya-na-katere-v-moskve",
+        "review_action": "verify_operation_and_pin",
+        "note": "GPS Royal Yacht Club/Ленинградское 39с6; не точный причал оператора."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-042",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.383705,
+          55.821401
+        ]
+      },
+      "properties": {
+        "record_id": "SM-042",
+        "name": "NaVolne",
+        "entity_type": "source_candidate",
+        "address": "Москва, Shore House",
+        "geo_status": "approximate",
+        "coordinate_scope": "site_map_center",
+        "verification_level": "approximate",
+        "map_status": "review_merge",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://yandex.com/maps/org/good_waves_moscow/8616013988/?ll=37.383705%2C55.821401&z=16.65",
+        "review_action": "verify_operation_and_pin",
+        "note": "На волне, Shore House. Возможный дубликат #43 Navolne Project. Площадка Shore House, НЕ доказанная индивидуальная швартовка."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-044",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.383705,
+          55.821401
+        ]
+      },
+      "properties": {
+        "record_id": "SM-044",
+        "name": "NinjaWake",
+        "entity_type": "source_candidate",
+        "address": "Москва, Shore House",
+        "geo_status": "approximate",
+        "coordinate_scope": "site_map_center",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://yandex.com/maps/org/good_waves_moscow/8616013988/?ll=37.383705%2C55.821401&z=16.65",
+        "review_action": "verify_operation_and_pin",
+        "note": "Площадка Shore House, НЕ доказанная индивидуальная швартовка."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-047",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.461454,
+          55.772083
+        ]
+      },
+      "properties": {
+        "record_id": "SM-047",
+        "name": "Relaxica Surf",
+        "entity_type": "source_candidate",
+        "address": "Москва, Карамышевская наб. 13",
+        "geo_status": "approximate",
+        "coordinate_scope": "building_address",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://yandex.com/maps/213/moscow/house/karamyshevskaya_naberezhnaya_13k2s1/Z04YcgFhTUADQFtvfXt2c3xrZg%3D%3D/",
+        "review_action": "verify_operation_and_pin",
+        "note": "Адресный ориентир Карамышевская набережная 13к2с1; индивидуальные клубные пирсы не подтверждены."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-050",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.426878,
+          55.804324
+        ]
+      },
+      "properties": {
+        "record_id": "SM-050",
+        "name": "SurfJam Moscow",
+        "entity_type": "source_candidate",
+        "address": "Москва, улица Исаковского, 37к2с1",
+        "geo_status": "approximate",
+        "coordinate_scope": "building_address",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://yandex.com/maps/213/moscow/house/ulitsa_isakovskogo_37k2s1/Z04YcgVmQUIPQFtvfXRxdX9hYA%3D%3D/",
+        "review_action": "verify_operation_and_pin",
+        "note": "A3: по указанию пользователя выбрать Исаковского 37к2с1; подтверждено карточкой SurfJam в Яндекс.Картах. Старую точку Авиационная не импортировать. Адрес 37к2с1, не координата понтона."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-051",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.461454,
+          55.772083
+        ]
+      },
+      "properties": {
+        "record_id": "SM-051",
+        "name": "TS Surfing",
+        "entity_type": "source_candidate",
+        "address": "Москва, Карамышевская наб. 13",
+        "geo_status": "approximate",
+        "coordinate_scope": "building_address",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://yandex.com/maps/213/moscow/house/karamyshevskaya_naberezhnaya_13k2s1/Z04YcgFhTUADQFtvfXt2c3xrZg%3D%3D/",
+        "review_action": "verify_operation_and_pin",
+        "note": "Адресный ориентир Карамышевская набережная 13к2с1; индивидуальные клубные пирсы не подтверждены."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-052",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.44806,
+          55.806338
+        ]
+      },
+      "properties": {
+        "record_id": "SM-052",
+        "name": "Wake Best",
+        "entity_type": "source_candidate",
+        "address": "Москва, Авиационная 79",
+        "geo_status": "approximate",
+        "coordinate_scope": "listing_point",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://mayak.app/@veyk-klub-veykshans-v-moskva-voda",
+        "review_action": "verify_operation_and_pin",
+        "note": "Общая территория River Club/Алые Паруса, не конкретный причал."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-053",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.461454,
+          55.772083
+        ]
+      },
+      "properties": {
+        "record_id": "SM-053",
+        "name": "Wake City",
+        "entity_type": "source_candidate",
+        "address": "Москва, Карамышевская наб. 13",
+        "geo_status": "approximate",
+        "coordinate_scope": "building_address",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://yandex.com/maps/213/moscow/house/karamyshevskaya_naberezhnaya_13k2s1/Z04YcgFhTUADQFtvfXt2c3xrZg%3D%3D/",
+        "review_action": "verify_operation_and_pin",
+        "note": "Адресный ориентир Карамышевская набережная 13к2с1; индивидуальные клубные пирсы не подтверждены."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-055",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.44806,
+          55.806338
+        ]
+      },
+      "properties": {
+        "record_id": "SM-055",
+        "name": "WakeDaSurf",
+        "entity_type": "source_candidate",
+        "address": "Москва, Авиационная 79",
+        "geo_status": "approximate",
+        "coordinate_scope": "listing_point",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://mayak.app/@veyk-klub-veykshans-v-moskva-voda",
+        "review_action": "verify_operation_and_pin",
+        "note": "Общая территория River Club/Алые Паруса, не конкретный причал."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-056",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.44806,
+          55.806338
+        ]
+      },
+      "properties": {
+        "record_id": "SM-056",
+        "name": "Wakein",
+        "entity_type": "source_candidate",
+        "address": "Москва, Авиационная 79",
+        "geo_status": "approximate",
+        "coordinate_scope": "listing_point",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://mayak.app/@veyk-klub-veykshans-v-moskva-voda",
+        "review_action": "verify_operation_and_pin",
+        "note": "Общая территория River Club/Алые Паруса, не конкретный причал."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-057",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.414502,
+          55.824575
+        ]
+      },
+      "properties": {
+        "record_id": "SM-057",
+        "name": "WakeStart",
+        "entity_type": "source_candidate",
+        "address": "Москва, Лётная 99А",
+        "geo_status": "approximate",
+        "coordinate_scope": "venue_address",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://parohodoff.ru/lodochnaya-stanciya-vsk-burevestnik-moskva.html",
+        "review_action": "verify_operation_and_pin",
+        "note": "Территория на Лётной 99А; несколько операторов, индивидуальные пирсы не определены."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-058",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.479682,
+          55.834915
+        ]
+      },
+      "properties": {
+        "record_id": "SM-058",
+        "name": "Waketeam",
+        "entity_type": "source_candidate",
+        "address": "Москва, Ленинградское шоссе",
+        "geo_status": "approximate",
+        "coordinate_scope": "published_location_point",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://www.sputnik8.com/ru/moscow/pages/gde-pokatatsya-na-katere-v-moskve",
+        "review_action": "verify_operation_and_pin",
+        "note": "Ленинградское 39с6 общий Royal Yacht Club, не конкретный клубный катер. GPS Royal Yacht Club/Ленинградское 39с6; не точный причал оператора."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-061",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.44806,
+          55.806338
+        ]
+      },
+      "properties": {
+        "record_id": "SM-061",
+        "name": "Xstarclub",
+        "entity_type": "source_candidate",
+        "address": "Москва, Авиационная 79",
+        "geo_status": "approximate",
+        "coordinate_scope": "listing_point",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://mayak.app/@veyk-klub-veykshans-v-moskva-voda",
+        "review_action": "verify_operation_and_pin",
+        "note": "Общая территория River Club/Алые Паруса, не конкретный причал."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-064",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.461454,
+          55.772083
+        ]
+      },
+      "properties": {
+        "record_id": "SM-064",
+        "name": "Порт Москва",
+        "entity_type": "source_candidate",
+        "address": "Москва, Карамышевская наб. 13",
+        "geo_status": "approximate",
+        "coordinate_scope": "building_address",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://yandex.com/maps/213/moscow/house/karamyshevskaya_naberezhnaya_13k2s1/Z04YcgFhTUADQFtvfXt2c3xrZg%3D%3D/",
+        "review_action": "verify_operation_and_pin",
+        "note": "Адресный ориентир Карамышевская набережная 13к2с1; индивидуальные клубные пирсы не подтверждены."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SM-065",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.383401,
+          55.821375
+        ]
+      },
+      "properties": {
+        "record_id": "SM-065",
+        "name": "Lawave",
+        "entity_type": "source_candidate",
+        "address": "Москва, 66-й км МКАД",
+        "geo_status": "approximate",
+        "coordinate_scope": "directory_point",
+        "verification_level": "approximate",
+        "map_status": "review_pin",
+        "operation_status": "not_confirmed_live",
+        "reference_url": "https://msk.spravker.ru/veik-kluby/",
+        "review_action": "verify_operation_and_pin",
+        "note": "A9 пользователь подтвердил район Shore House; GPS каталога, не конкретный причал. Каталожная/предыдущая навигационная точка, точный причал не подтверждён."
+      }
+    }
+  ]
+}

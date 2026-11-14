@@ -152,6 +152,12 @@ SET
   updated_at = now()
 WHERE id = %(id)s::uuid
   AND publication_status <> 'published'
+  AND (
+    -- Owner research registry wins until explicitly replaced by another owner_registry* write.
+    approx_geocode_provider IS NULL
+    OR approx_geocode_provider NOT LIKE 'owner_registry%%'
+    OR %(provider)s LIKE 'owner_registry%%'
+  )
 """
 
 
@@ -187,6 +193,7 @@ def apply_region_centroids(conn, *, force: bool = False) -> dict[str, int]:
     """Place missing staging rows on known region centroids (approximate only)."""
     from .region_centroids import display_jitter, resolve_region_centroid
 
+    # Never invent region pins on top of owner research (including intentional clears).
     where = "TRUE" if force else "approx_point IS NULL"
     with conn.cursor() as cur:
         cur.execute(
@@ -194,6 +201,10 @@ def apply_region_centroids(conn, *, force: bool = False) -> dict[str, int]:
             SELECT id::text, raw_region, raw_address
             FROM staging_candidates
             WHERE {where}
+              AND (
+                approx_geocode_provider IS NULL
+                OR approx_geocode_provider NOT LIKE 'owner_registry%%'
+              )
             """
         )
         rows = cur.fetchall()

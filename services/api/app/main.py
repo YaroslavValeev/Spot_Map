@@ -112,7 +112,11 @@ def map_points(
     ),
     discipline: str | None = Query(
         default=None,
-        description="Optional filter: wakesurf | wakeboard_cable | ...",
+        description="Legacy single filter alias (wakesurf, wakeboard_cable, ...).",
+    ),
+    disciplines: str | None = Query(
+        default=None,
+        description="Comma-separated: waterski,wakesurf_skim,wakeboard,cable_ring,cable_reverse,cable_pool",
     ),
     include_staging: bool = Query(
         default=True,
@@ -121,6 +125,8 @@ def map_points(
     limit: int = Query(default=500, ge=1, le=2000),
 ):
     """Verified published pins + optional staging approximate preview."""
+    from .disciplines import SLUGS
+
     min_lng = min_lat = max_lng = max_lat = None
     if bbox:
         parts = [p.strip() for p in bbox.split(",")]
@@ -131,7 +137,7 @@ def map_points(
         except ValueError as exc:
             raise HTTPException(status_code=400, detail="bbox values must be numbers") from exc
 
-    if discipline and discipline not in {
+    legacy_ok = {
         "wakesurf",
         "wakeskim",
         "wakeboard_cable",
@@ -139,8 +145,17 @@ def map_points(
         "wakeskate_cable",
         "waterski_boat",
         "waterski_cable",
-    }:
+        *SLUGS,
+    }
+    if discipline and discipline not in legacy_ok:
         raise HTTPException(status_code=400, detail="unknown discipline slug")
+
+    discipline_list: list[str] = []
+    if disciplines:
+        discipline_list = [p.strip() for p in disciplines.split(",") if p.strip()]
+        bad = [d for d in discipline_list if d not in SLUGS]
+        if bad:
+            raise HTTPException(status_code=400, detail=f"unknown disciplines: {bad}")
 
     try:
         with get_connection() as conn:
@@ -151,6 +166,7 @@ def map_points(
                 max_lng=max_lng,
                 max_lat=max_lat,
                 discipline=discipline,
+                disciplines=discipline_list or None,
                 limit=limit,
             )
             if include_staging:
@@ -161,6 +177,7 @@ def map_points(
                     max_lng=max_lng,
                     max_lat=max_lat,
                     discipline=discipline,
+                    disciplines=discipline_list or None,
                     limit=limit,
                 )
                 rows = rows + staging_rows

@@ -1,0 +1,31 @@
+﻿record_id,name,location_description,map_status,source_url,review_action,note
+SM-008,WakeHome,"МО, Красногорск, Мякининское ш. 1",hold_recheck,https://wakehome.ru/,verify_operator_and_business,Точный пункт Myakinskoye Highway 1c3 не найден; адресную точку не придумывать.
+SM-009,Ocean Wave (не идентифицирован),Москва? Не подтверждено,exclude_non_spot,https://msk.spravker.ru/veik-kluby/,verify_operator_and_business,Название не идентифицировано; не считать спортобъектом без доп. подтверждения.
+SM-016,WakeDivision,"Москва, Рублёво-Архангельское, квартал №120, 22к1, Ривер Спейс, берег Москвы-реки",hold_recheck,https://wakedivision.ru/wakedivision-sbercity,verify_exact_shoreline,A4: ИМЕННО на береговой линии River Space после квартала В10; точные GPS берега/пирса отсутствуют; центр карты ll на сайте НЕ является pin.
+SM-019,Wakesurfclub Endless Summer,"Москва, Крылатское, ул. Островная, 2",hold_recheck,https://t.me/s/wakesurfclubES,verify_operator_and_business,"Крылатское Островная 2, не переносить ошибочно на Крылатская 8к1."
+SM-027,Wake Surf Camp (Мытищи),"МО, г. Мытищи (старый каталог)",hold_closed_listing,https://osintmonster.com/tg-stat/index?page=12&per-page=1000&sort=-channel_id,verify_operator_and_business,По прежней карточке Яндекс — закрыт; статус требует перепроверки. Не публиковать.
+SM-028,Wakesummer Park,"КОНФЛИКТ: Москва, Борисовские пруды, Наташинская (Wakesummer Park); МО, Болтино, Туристическая 10 (Wakesummer boat)",hold_split,https://wakesummer-park.ru/,verify_operator_and_business,"КОНФЛИКТ исходника: WAKESUMMER PARK — Борисовские пруды/Наташинская, WAKESUMMER boat — Болтино/Новый Берег (официально); это отдельные площадки. Запись требует разбиения."
+SM-029,XWAVE.SURF,"МО, Долгопрудный, Старое Дмитровское ш., 1",geo_pending,https://xwave.surf/xwavemoscow,verify_operation_and_pin,
+SM-036,Gloria Wake Park,"Новая Москва, Проектируемый пр. 389",geo_pending,https://msk.spravker.ru/veik-kluby/,verify_operation_and_pin,
+SM-037,Go Wake,Москва / МО,geo_pending,https://actiongid.com/ru/listing-category/wakesurf/,verify_operation_and_pin,
+SM-045,OceanSpirit,"Москва, Исаковского 37",hold_recheck,https://msk.spravker.ru/veik-kluby/,verify_operator_and_business,"OceanSpirit: Исаковского 37к1с1, НЕ 37к2с1; координат именно его здания нет."
+SM-048,Sportstation Sokolniki,"Москва, парк Сокольники",hold_recheck,https://msk.spravker.ru/veik-kluby/,verify_operator_and_business,Объект в Сокольниках; нет подтверждения конкретного бассейна/водоёма.
+SM-054,Wake Station Sokolniki,"Москва, парк Сокольники",hold_recheck,https://msk.spravker.ru/veik-kluby/,verify_operator_and_business,"Возможное название одной площадки Sportstation Sokolniki (#48), проверка дубля."
+SM-059,WakeTeamPool,"Москва, Сиреневый б-р 2",hold_season_status,https://www.waketeampool.ru/,verify_operator_and_business,"Отдельный бассейн РГУФК, Сиреневый 2с1А/2с1Б — подтверждать вход/корпус."
+SM-060,WakeUpMoscow,"Москва, Строгинский мост",hold_recheck,https://msk.spravker.ru/veik-kluby/,verify_operator_and_business,Указание «Строгинский мост» слишком общее; точных координат нет.
+SM-062,Вейксерф клуб Локал / Local Surf,"Москва, Строгинский мост",hold_recheck,https://msk.spravker.ru/veik-kluby/,verify_operator_and_business,"Local Surf, ориентир Строгинский мост, конфликтуют иные адресные упоминания; не ставить неопределённый pin."
+SM-066,Riversurf,"Москва и МО, несколько спотов",exclude_non_spot,https://surfaward.com/,verify_operator_and_business,"МУЛЬТИСПОТ/агрегатор, не отдельная геоточка."
+SM-067,ISTRAWAKE,"МО, Солнечногорск",geo_pending,https://actiongid.com/ru/listing-category/wakesurf/,verify_operation_and_pin,
+SM-068,Moswake,"МО, Мытищи, с. Троицкое",geo_pending,https://trenera.ru/mytishchi/klub/moswake-selo-troitskoe-ul-sviatotroItskaia-d-7b,verify_operation_and_pin,
+SM-069,Revolver Wake Park,"МО, Мытищи",hold_recheck,https://primewaketech.com/customers,verify_operator_and_business,Упоминание у производителя оборудования не даёт надёжной текущей координаты.
+SM-070,TeoWake,"МО, Дмитров",geo_pending,https://welcome.mosreg.ru/,verify_operation_and_pin,
+SM-071,Wake4You,"МО, Лыткарино",geo_pending,https://welcome.mosreg.ru/,verify_operation_and_pin,
+SM-072,WakeJump,"МО, Солнечногорск",geo_pending,https://welcome.mosreg.ru/,verify_operation_and_pin,
+SM-073,WakeSurfStar,"МО, Серпухов",geo_pending,https://welcome.mosreg.ru/,verify_operation_and_pin,
+SM-074,Waveriders,"МО, Пирогово",geo_pending,https://waveriders.ru/,verify_operation_and_pin,
+SM-075,SURF BROTHERS,"Москва, Сколково, Большой бульвар, 40, БЦ «Амальтея» — искусственная волна, не wake",exclude_non_spot,https://skolkovo.surfbrothers.ru/contacts,verify_operator_and_business,"РЕАЛЬНЫЙ центр Surf Brothers — Сколково, Большой бульвар 40: искусственная волна для СЁРФИНГА, не катерный вейксёрф и не электротяговый вейкборд. Сохранить для будущей отдельной дисциплины; не в wake-слое."
+SM-076,Остров Мечты,"Москва, просп. Андропова, 1",exclude_non_spot,https://t.me/s/dreamislandmsk?after=544,verify_operator_and_business,"Бренд/комплекс «Остров Мечты», а не доказанный wake-спот; кандидат для связывания с #33, не pin."
+SM-077,Prowakesurf,Россия / Москва (рынок wake),exclude_non_spot,https://prowakesurf.ru/,verify_operator_and_business,"Отраслевой канал/медиа, не площадка."
+SM-078,Wakeboard Teacher,РФ / не один клуб,exclude_non_spot,https://t.me/wakeboardteacher,verify_operator_and_business,"Преподавательская сеть/канал, не один физический клуб."
+SM-079,ВЕЙКСЕРФ & БОРД ЛЫЖЕБОРДЕРОВ,"Россия, открытая группа",exclude_non_spot,https://t.me/skiboardSURFING,verify_operator_and_business,"Публичная группа, не физическая площадка."
+SM-080,WakeWeekend,Москва / серия событий,exclude_non_spot,https://lineupmsc.ru/,verify_operator_and_business,"Серия мероприятий, не место."

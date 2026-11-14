@@ -4,6 +4,14 @@ from __future__ import annotations
 
 from typing import Any
 
+from .disciplines import (
+    CABLE_SLUGS,
+    DISCIPLINE_CATALOG,
+    count_disciplines,
+    enrich_row_disciplines,
+    row_matches_discipline_filter,
+)
+
 
 MAP_POINTS_SQL_BASELINE = """
 SELECT
@@ -14,6 +22,8 @@ SELECT
   s.operation_status,
   s.geo_status,
   NULL::text AS approx_precision,
+  NULL::text AS raw_disciplines,
+  NULL::text AS raw_address,
   ST_Y(s.point::geometry) AS lat,
   ST_X(s.point::geometry) AS lng
 FROM spots s
@@ -33,13 +43,14 @@ SELECT
   c.operation_status,
   c.geo_status,
   NULL::text AS approx_precision,
+  'wakeboard cable'::text AS raw_disciplines,
+  NULL::text AS raw_address,
   ST_Y(c.point::geometry) AS lat,
   ST_X(c.point::geometry) AS lng
 FROM cable_installations c
 WHERE c.publication_status = 'published'
   AND c.geo_status = 'verified'
   AND c.point IS NOT NULL
-  AND (%(discipline)s::text IS NULL OR %(discipline)s = 'wakeboard_cable')
   AND (
     %(min_lng)s::float8 IS NULL
     OR c.point && ST_MakeEnvelope(%(min_lng)s, %(min_lat)s, %(max_lng)s, %(max_lat)s, 4326)::geography
@@ -57,32 +68,15 @@ SELECT
   sc.operation_status,
   sc.geo_status,
   sc.approx_precision,
+  sc.raw_disciplines,
+  sc.raw_address,
   ST_Y(sc.approx_point::geometry) AS lat,
   ST_X(sc.approx_point::geometry) AS lng
 FROM staging_candidates sc
 WHERE sc.approx_point IS NOT NULL
   AND sc.publication_status IN ('draft', 'pending', 'hidden')
-  AND (
-    %(discipline)s::text IS NULL
-    OR (
-      %(discipline)s = 'wakeboard_cable'
-      AND (
-        sc.candidate_kind = 'cable_installation'
-        OR coalesce(sc.raw_disciplines, '') ILIKE '%%cable%%'
-        OR coalesce(sc.raw_disciplines, '') ILIKE '%%электро%%'
-        OR coalesce(sc.raw_disciplines, '') ILIKE '%%лебёд%%'
-        OR coalesce(sc.raw_disciplines, '') ILIKE '%%лебед%%'
-      )
-    )
-    OR (
-      %(discipline)s = 'wakesurf'
-      AND (
-        coalesce(sc.raw_disciplines, '') ILIKE '%%wakesurf%%'
-        OR coalesce(sc.raw_disciplines, '') ILIKE '%%вейкс%%'
-        OR coalesce(sc.raw_disciplines, '') ILIKE '%%серф%%'
-      )
-    )
-  )
+  -- Region-centroid jitter is not a real place; hide from map layer.
+  AND coalesce(sc.approx_geocode_provider, '') <> 'region_centroid_v1'
   AND (
     %(min_lng)s::float8 IS NULL
     OR sc.approx_point && ST_MakeEnvelope(%(min_lng)s, %(min_lat)s, %(max_lng)s, %(max_lat)s, 4326)::geography
@@ -90,6 +84,25 @@ WHERE sc.approx_point IS NOT NULL
 ORDER BY sc.raw_name
 LIMIT %(limit)s
 """
+
+
+def _normalize_selected(discipline: str | None, disciplines: list[str] | None) -> set[str]:
+    selected: set[str] = set()
+    if disciplines:
+        selected.update(d for d in disciplines if d)
+    if discipline:
+        # Legacy aliases from older UI chips.
+        if discipline in {"wakesurf", "wakeskim"}:
+            selected.add("wakesurf_skim")
+        elif discipline == "wakeboard_boat":
+            selected.add("wakeboard")
+        elif discipline == "wakeboard_cable":
+            selected.update(CABLE_SLUGS)
+        elif discipline in {"waterski_boat", "waterski_cable"}:
+            selected.add("waterski")
+        else:
+            selected.add(discipline)
+    return selected
 
 
 def fetch_map_points(
@@ -100,6 +113,7 @@ def fetch_map_points(
     max_lng: float | None = None,
     max_lat: float | None = None,
     discipline: str | None = None,
+    disciplines: list[str] | None = None,
     limit: int = 500,
 ) -> list[dict[str, Any]]:
     params = {
@@ -107,13 +121,14 @@ def fetch_map_points(
         "min_lat": min_lat,
         "max_lng": max_lng,
         "max_lat": max_lat,
-        "discipline": discipline,
         "limit": limit,
     }
     with conn.cursor() as cur:
         cur.execute(MAP_POINTS_SQL_BASELINE, params)
         cols = [d.name for d in cur.description]
-        return [dict(zip(cols, row)) for row in cur.fetchall()]
+        rows = [enrich_row_disciplines(dict(zip(cols, row))) for row in cur.fetchall()]
+    selected = _normalize_selected(discipline, disciplines)
+    return [r for r in rows if row_matches_discipline_filter(r, selected)]
 
 
 def fetch_staging_approx_points(
@@ -124,6 +139,7 @@ def fetch_staging_approx_points(
     max_lng: float | None = None,
     max_lat: float | None = None,
     discipline: str | None = None,
+    disciplines: list[str] | None = None,
     limit: int = 500,
 ) -> list[dict[str, Any]]:
     params = {
@@ -131,13 +147,14 @@ def fetch_staging_approx_points(
         "min_lat": min_lat,
         "max_lng": max_lng,
         "max_lat": max_lat,
-        "discipline": discipline,
         "limit": limit,
     }
     with conn.cursor() as cur:
         cur.execute(STAGING_APPROX_SQL, params)
         cols = [d.name for d in cur.description]
-        return [dict(zip(cols, row)) for row in cur.fetchall()]
+        rows = [enrich_row_disciplines(dict(zip(cols, row))) for row in cur.fetchall()]
+    selected = _normalize_selected(discipline, disciplines)
+    return [r for r in rows if row_matches_discipline_filter(r, selected)]
 
 
 def fetch_staging_stats(conn) -> dict[str, Any]:
@@ -189,6 +206,11 @@ def rows_to_geojson(rows: list[dict[str, Any]], meta: dict[str, Any]) -> dict[st
                     "operation_status": row["operation_status"],
                     "geo_status": row["geo_status"],
                     "approx_precision": row.get("approx_precision"),
+                    "disciplines": row.get("disciplines") or [],
+                    "primary_discipline": row.get("primary_discipline"),
+                    "discipline_color": row.get("discipline_color"),
+                    "discipline_symbol": row.get("discipline_symbol"),
+                    "discipline_label": row.get("discipline_label"),
                 },
             }
         )
@@ -204,5 +226,7 @@ def rows_to_geojson(rows: list[dict[str, Any]], meta: dict[str, Any]) -> dict[st
             "verified_count": verified,
             "staging_approx_count": staging,
             "empty_reason": empty_reason,
+            "discipline_catalog": DISCIPLINE_CATALOG,
+            "discipline_counts": count_disciplines(rows),
         },
     }

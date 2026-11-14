@@ -210,6 +210,215 @@ body {
 }
 .toggle input { accent-color: var(--accent); }
 
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0);
+  border: 0;
+}
+.search { flex: 1; min-width: 160px; max-width: 420px; }
+.search input {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.04);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+  font: 500 0.9rem var(--font-body);
+}
+.search input::placeholder { color: var(--muted); }
+
+.discipline-block { margin: 0 0 1.1rem; }
+.discipline-list {
+  display: grid;
+  gap: 0.4rem;
+}
+.discipline-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.45rem 0.55rem 0.45rem 0.45rem;
+  cursor: pointer;
+  font: 500 0.86rem var(--font-body);
+  transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+.discipline-row:hover { background: rgba(255,255,255,0.04); }
+.discipline-row.active {
+  background: rgba(25, 183, 199, 0.16);
+  border-color: rgba(25, 183, 199, 0.4);
+}
+.discipline-row.is-all.active {
+  background: rgba(231, 242, 246, 0.12);
+  border-color: rgba(231, 242, 246, 0.22);
+}
+.discipline-row .glyph {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.65rem;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--disc-color, var(--accent));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14);
+}
+.discipline-row .glyph svg { width: 1.2rem; height: 1.2rem; }
+.discipline-row .glyph.all {
+  background: linear-gradient(145deg, #19b7c7, #1d4ed8);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.72rem;
+}
+.discipline-row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.discipline-row .count {
+  min-width: 1.6rem;
+  text-align: right;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.82rem;
+}
+.discipline-row.active .count { color: #b9f3f8; }
+.hint { margin: 0.55rem 0 0; color: var(--muted); font-size: 0.75rem; }
+
+.spot-pin {
+  position: relative;
+  width: 36px;
+  height: 44px;
+  transform: translate(-50%, -100%);
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35));
+  cursor: pointer;
+}
+.spot-pin .pin-body {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  border-radius: 18px 18px 18px 4px;
+  transform: rotate(-45deg);
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+.spot-pin .pin-face {
+  position: absolute;
+  left: 50%;
+  top: 7px;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--disc-color, #64748b);
+}
+.spot-pin .pin-face svg { width: 14px; height: 14px; }
+.spot-pin.is-active .pin-body {
+  box-shadow: 0 0 0 2px var(--disc-color, var(--accent)), inset 0 0 0 1px rgba(15,23,42,0.08);
+}
+.spot-pin.is-hover { filter: drop-shadow(0 6px 12px rgba(0,0,0,0.45)); transform: translate(-50%, -100%) scale(1.06); }
+
+/* CIAN-like count badge for co-located clubs */
+.spot-cluster {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid #3b82f6;
+  color: #0f172a;
+  display: grid;
+  place-items: center;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.28);
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: -0.02em;
+}
+.spot-cluster-count { line-height: 1; }
+.spot-cluster.is-hover,
+.spot-cluster.is-active {
+  transform: translate(-50%, -50%) scale(1.08);
+  border-color: #1d4ed8;
+  box-shadow: 0 6px 16px rgba(29, 78, 216, 0.35);
+}
+
+.spot-card {
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 520;
+  width: min(320px, calc(100% - 2rem));
+  padding: 0.85rem 0.95rem;
+  border-radius: 1rem;
+  background: rgba(7, 20, 28, 0.94);
+  border: 1px solid rgba(25, 183, 199, 0.35);
+  box-shadow: var(--shadow);
+}
+.spot-card h3 {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: -0.03em;
+}
+.spot-card .meta { margin: 0; color: var(--muted); font-size: 0.8rem; line-height: 1.4; }
+.spot-card .tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.55rem; }
+.spot-card .chip-tag {
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.72rem;
+  border: 1px solid color-mix(in srgb, var(--disc-color, var(--accent)) 55%, transparent);
+  color: #e7f2f6;
+  background: color-mix(in srgb, var(--disc-color, var(--accent)) 22%, transparent);
+}
+.spot-card .close {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.65rem;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1rem;
+}
+.cluster-list {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.65rem;
+  max-height: 220px;
+  overflow: auto;
+}
+.cluster-item {
+  display: grid;
+  gap: 0.1rem;
+  text-align: left;
+  width: 100%;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.03);
+  color: var(--ink);
+  border-radius: 0.7rem;
+  padding: 0.5rem 0.65rem;
+  cursor: pointer;
+  font: 500 0.82rem var(--font-body);
+}
+.cluster-item:hover {
+  border-color: rgba(25, 183, 199, 0.45);
+  background: rgba(25, 183, 199, 0.1);
+}
+.cluster-item-name { font-weight: 600; }
+.cluster-item-meta { color: var(--muted); font-size: 0.72rem; }
+
+@media (max-width: 860px) {
+  .search { max-width: none; }
+  .discipline-row { border-radius: 0.85rem; }
+}
+
 /* Yandex Maps root fills the panel */
 #map > ymaps { width: 100% !important; height: 100% !important; }
 
