@@ -101,13 +101,11 @@ def _contacts_from_profile(row: dict[str, Any] | None) -> dict[str, Any]:
     }
 
 
-def _route_url(lat: float | None, lng: float | None, name: str) -> str | None:
+def _route_url(lat: float | None, lng: float | None, _name: str = "") -> str | None:
     if lat is None or lng is None:
         return None
-    # Yandex constructor — open point; user builds route in Maps UI.
-    from urllib.parse import quote
-
-    return f"https://yandex.ru/maps/?pt={lng},{lat}&z=15&l=map&text={quote(name)}"
+    # Empty origin (~lat,lng) → Yandex opens route builder to the spot.
+    return f"https://yandex.ru/maps/?rtext=~{lat},{lng}&rtt=auto"
 
 
 def fetch_public_place(
