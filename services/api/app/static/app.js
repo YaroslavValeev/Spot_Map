@@ -693,16 +693,17 @@ import { createOwnerAdmin } from "./modules/owner-admin.js";
     if (!spotCard) return;
     const disciplines = detail?.disciplines || base.disciplines || [];
     // Prefer install facets + primary sports; hide noisy co-located duplicates in UI chips.
+    // Cable facets/sports first so boat tags never crowd a winch-only passport.
     const prefer = [
       "cable_ring",
       "cable_reverse",
       "cable_pool",
+      "wakeboard_cable",
+      "waterski_cable",
+      "wakeskate",
       "wakesurf",
       "wakeboard_boat",
-      "wakeboard_cable",
-      "wakeskate",
       "waterski_slalom",
-      "waterski_cable",
     ];
     const shown = [];
     for (const slug of prefer) {
