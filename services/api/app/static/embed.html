@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SpotMap — карта</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body class="embed-mode" data-mode="embed" data-host="mywave">
+  <div class="shell embed-shell">
+    <header class="top">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div>
+          <p class="brand-name">SpotMap</p>
+          <p class="brand-sub">вейк-споты на карте</p>
+        </div>
+      </div>
+      <label class="search">
+        <span class="sr-only">Поиск</span>
+        <input id="searchInput" type="search" placeholder="Найти спот или клуб…" autocomplete="off" />
+      </label>
+      <div id="statusPill" class="status-pill" hidden></div>
+    </header>
+
+    <aside class="panel">
+      <section class="panel-block">
+        <h1>Навигатор</h1>
+        <p class="lede">Фильтр ведёт по карте. Паспорт — по клику на пин.</p>
+        <div class="discipline-block">
+          <h2>Дисциплины</h2>
+          <div id="disciplineFilters" class="discipline-list" role="group" aria-label="Фильтр дисциплин"></div>
+          <p class="hint" id="disciplineHint">Показаны все дисциплины</p>
+        </div>
+        <div class="weather-strip" id="weatherStrip" aria-live="polite">
+          <span>Воздух <b>—</b></span>
+          <span>Ветер <b>—</b></span>
+          <span>Вода <b>нет измерений</b></span>
+        </div>
+        <p class="hint weather-note">Вода ≠ воздух. Без измерения воды — «нет измерений».</p>
+        <div id="insightPanel" class="insight-panel" aria-live="polite">
+          <div class="insight-stats" id="insightStats"></div>
+          <div class="insight-selected" id="insightSelected" hidden></div>
+          <div class="insight-legend">
+            <h2>Как читать карту</h2>
+            <ul class="legend-list">
+              <li><span class="legend-dot verified" aria-hidden="true"></span>Проверенный GPS</li>
+              <li><span class="legend-dot draft" aria-hidden="true"></span>Черновик</li>
+              <li><span class="legend-dot cluster" aria-hidden="true"></span>Кластер — увеличьте карту</li>
+            </ul>
+          </div>
+          <div class="insight-facts">
+            <h2>Важно</h2>
+            <ul class="facts-list">
+              <li>Спот ≠ клуб ≠ лебёдка</li>
+              <li>Рейтинг не выдумываем</li>
+              <li>«Записаться» ≠ подтверждённая запись</li>
+            </ul>
+          </div>
+        </div>
+        <label class="toggle" hidden>
+          <input type="checkbox" id="showStaging" />
+          Показывать черновики на карте
+        </label>
+        <div id="stats" class="stats" hidden></div>
+        <select id="kindFilter" hidden aria-hidden="true"><option value=""></option></select>
+        <ul id="queue" class="queue" hidden></ul>
+        <p id="mapProviderNote" class="provider-note">Картография: Яндекс · погода: Open-Meteo</p>
+      </section>
+    </aside>
+
+    <main class="map-wrap">
+      <div id="map" role="application" aria-label="Карта спотов SpotMap"></div>
+      <div id="emptyState" class="empty-state" hidden>
+        <p class="empty-title">Нет объектов для выбранных дисциплин</p>
+        <p class="empty-text">Снимите фильтр или выберите другую дисциплину.</p>
+      </div>
+      <div id="mapKeyHint" class="empty-state key-hint" hidden>
+        <p class="empty-title">Карта временно недоступна</p>
+        <p class="empty-text">Проверьте настройки ключа карт у администратора.</p>
+      </div>
+      <div id="spotCard" class="spot-card" hidden></div>
+    </main>
+  </div>
+
+  <object id="iconSprite" data="/static/icons/disciplines.svg" type="image/svg+xml" hidden aria-hidden="true"></object>
+  <script>
+    (function () {
+      const params = new URLSearchParams(location.search);
+      const host = params.get("host") === "fvls" ? "fvls" : "mywave";
+      document.body.dataset.host = host;
+      document.body.classList.add("host-" + host);
+    })();
+  </script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SpotMap — Signal Dock</title>
+  <style>
+    :root {
+      --bg: #07141c; --panel: #0d1f2a; --ink: #e7f2f6; --muted: #8aa3b0;
+      --line: rgba(231,242,246,0.12); --accent: #19b7c7; --warn: #f0b429;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; color: var(--ink); background: var(--bg); }
+    .shell { min-height: 100vh; display: grid; grid-template-rows: 64px 1fr; }
+    .top {
+      display: flex; align-items: center; gap: 1rem; padding: 0 1rem;
+      border-bottom: 1px solid var(--line); background: rgba(7,20,28,0.9);
+    }
+    .brand { font-weight: 800; letter-spacing: -0.03em; }
+    .brand span { display: block; font-size: 0.72rem; color: var(--muted); font-weight: 500; }
+    .search { flex: 1; max-width: 360px; border-radius: 999px; border: 1px solid var(--line); padding: 0.5rem 0.9rem; background: rgba(255,255,255,0.04); }
+    .wrap { position: relative; min-height: calc(100vh - 64px);
+      background: radial-gradient(800px 400px at 20% 0%, rgba(25,183,199,0.2), transparent), #0a1a24;
+    }
+    .chips { position: absolute; left: 1rem; top: 1rem; display: flex; gap: 0.4rem; flex-wrap: wrap; max-width: 70%; }
+    .chips span { background: rgba(13,31,42,0.92); border: 1px solid var(--line); border-radius: 999px; padding: 0.35rem 0.7rem; font-size: 0.78rem; }
+    .chips .on { border-color: var(--accent); color: #b9f3f8; }
+    .card {
+      position: absolute; left: 1rem; bottom: 1rem; width: min(360px, calc(100% - 2rem));
+      background: rgba(13,31,42,0.94); border: 1px solid var(--line); border-radius: 1rem; padding: 1rem;
+    }
+    .card h2 { margin: 0 0 0.3rem; font-size: 1.2rem; }
+    .card p { margin: 0 0 0.7rem; color: var(--muted); font-size: 0.85rem; }
+    .cta { display: block; text-align: center; background: var(--accent); color: #041018; font-weight: 700; text-decoration: none; border-radius: 999px; padding: 0.7rem; }
+    .note { position: absolute; right: 1rem; top: 1rem; max-width: 260px; font-size: 0.8rem; color: var(--muted); background: rgba(7,20,28,0.85); border: 1px solid var(--line); border-radius: 12px; padding: 0.65rem 0.75rem; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="top">
+      <div class="brand">SpotMap<span>Signal Dock — map-first dark</span></div>
+      <div class="search">Поиск…</div>
+    </header>
+    <div class="wrap">
+      <div class="chips"><span class="on">Все</span><span>Вейксерф</span><span>Реверс</span><span>Катер</span></div>
+      <div class="note">Ближе к текущему UI: меньше каталога, карточка поверх карты. Выбрана как запасная концепция.</div>
+      <div class="card">
+        <h2>Flow Moscow</h2>
+        <p>Ставропольская 43 · Citywave. Рейтинг появится позже.</p>
+        <a class="cta" href="#">Записаться у клуба</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

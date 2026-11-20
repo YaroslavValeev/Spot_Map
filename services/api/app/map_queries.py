@@ -13,6 +13,10 @@ from .disciplines import (
 )
 
 
+# Spot + cable_installation from the same promote share identical coords/name.
+# Map shows one pin: keep the installation (cable disciplines), hide parent spot.
+# Discipline tags come from merged staging when available; never invent scores.
+# Fallback to name/address so ring/reverse keywords in titles still classify.
 MAP_POINTS_SQL_BASELINE = """
 SELECT
   s.id::text AS id,
@@ -22,14 +26,32 @@ SELECT
   s.operation_status,
   s.geo_status,
   NULL::text AS approx_precision,
-  NULL::text AS raw_disciplines,
-  NULL::text AS raw_address,
+  COALESCE(
+    (
+      SELECT sc.raw_disciplines
+      FROM staging_candidates sc
+      WHERE sc.publication_status = 'merged'
+        AND lower(trim(sc.raw_name)) = lower(trim(s.display_name))
+      ORDER BY sc.updated_at DESC NULLS LAST
+      LIMIT 1
+    ),
+    s.display_name
+  ) AS raw_disciplines,
+  s.address_text AS raw_address,
   ST_Y(s.point::geometry) AS lat,
   ST_X(s.point::geometry) AS lng
 FROM spots s
 WHERE s.publication_status = 'published'
   AND s.geo_status = 'verified'
   AND s.point IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM cable_installations c
+    WHERE c.spot_id = s.id
+      AND c.publication_status = 'published'
+      AND c.geo_status = 'verified'
+      AND c.point IS NOT NULL
+  )
   AND (
     %(min_lng)s::float8 IS NULL
     OR s.point && ST_MakeEnvelope(%(min_lng)s, %(min_lat)s, %(max_lng)s, %(max_lat)s, 4326)::geography
@@ -43,7 +65,17 @@ SELECT
   c.operation_status,
   c.geo_status,
   NULL::text AS approx_precision,
-  'wakeboard cable'::text AS raw_disciplines,
+  COALESCE(
+    (
+      SELECT sc.raw_disciplines
+      FROM staging_candidates sc
+      WHERE sc.publication_status = 'merged'
+        AND lower(trim(sc.raw_name)) = lower(trim(c.name))
+      ORDER BY sc.updated_at DESC NULLS LAST
+      LIMIT 1
+    ),
+    c.name || ' wakeboard cable'
+  ) AS raw_disciplines,
   NULL::text AS raw_address,
   ST_Y(c.point::geometry) AS lat,
   ST_X(c.point::geometry) AS lng
@@ -74,7 +106,10 @@ SELECT
   ST_X(sc.approx_point::geometry) AS lng
 FROM staging_candidates sc
 WHERE sc.approx_point IS NOT NULL
-  AND sc.publication_status IN ('draft', 'pending', 'hidden')
+  -- draft/pending only: hidden/merged must not reappear as map preview.
+  AND sc.publication_status IN ('draft', 'pending')
+  -- Closed venues must not reappear via staging preview.
+  AND sc.operation_status <> 'permanently_closed'
   -- Region-centroid jitter is not a real place; hide from map layer.
   AND coalesce(sc.approx_geocode_provider, '') <> 'region_centroid_v1'
   AND (
@@ -103,6 +138,39 @@ def _normalize_selected(discipline: str | None, disciplines: list[str] | None) -
         else:
             selected.add(discipline)
     return selected
+
+
+def suppress_staging_near_verified(
+    verified_rows: list[dict[str, Any]],
+    staging_rows: list[dict[str, Any]],
+    *,
+    max_meters: float = 80.0,
+) -> list[dict[str, Any]]:
+    """Hide staging approx pins that sit on top of an already published verified pin."""
+    # Rough degrees→meters at Moscow latitude (~55.7N).
+    lat_m = 111_320.0
+    lng_m = 62_500.0
+    kept: list[dict[str, Any]] = []
+    for st in staging_rows:
+        slat = float(st["lat"])
+        slng = float(st["lng"])
+        too_close = False
+        for vr in verified_rows:
+            dlat = (slat - float(vr["lat"])) * lat_m
+            dlng = (slng - float(vr["lng"])) * lng_m
+            if (dlat * dlat + dlng * dlng) ** 0.5 <= max_meters:
+                too_close = True
+                break
+        if not too_close:
+            kept.append(st)
+    return kept
+
+
+def merge_map_and_staging_rows(
+    verified_rows: list[dict[str, Any]],
+    staging_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    return verified_rows + suppress_staging_near_verified(verified_rows, staging_rows)
 
 
 def fetch_map_points(

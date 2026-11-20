@@ -1,0 +1,13 @@
+{
+  "spot_id": "REPLACE_WITH_REAL_SPOT_ID",
+  "ride_area_id": null,
+  "discipline_id": "REPLACE_WITH_OFFICIAL_DISCIPLINE_ID",
+  "approved": false,
+  "version": "draft-1",
+  "reference": "Профиль конкретного спота/акватории; не распространять на соседние клубы автоматически",
+  "north_convention": "METEOROLOGICAL_FROM_DEGREES",
+  "sectors": [],
+  "notes": "Заполняется Ярославом после ручной оценки направлений, порывов и защищённости",
+  "verified_at": null,
+  "verified_by": null
+}

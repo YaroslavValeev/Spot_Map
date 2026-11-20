@@ -10,6 +10,36 @@
   const disciplineHint = document.getElementById("disciplineHint");
   const spotCard = document.getElementById("spotCard");
   const searchInput = document.getElementById("searchInput");
+  const insightStats = document.getElementById("insightStats");
+  const insightSelected = document.getElementById("insightSelected");
+  const weatherStrip = document.getElementById("weatherStrip");
+  const EMBED_MODE = document.body?.dataset?.mode === "embed";
+  const EMBED_HOST = document.body?.dataset?.host || "mywave";
+
+  function formatWeatherStrip(weather) {
+    if (!weatherStrip) return;
+    const air =
+      weather && weather.status === "ok" && weather.air_c != null
+        ? `${Math.round(weather.air_c)}°C`
+        : "—";
+    const wind =
+      weather && weather.status === "ok" && weather.wind_mps != null
+        ? `${Number(weather.wind_mps).toFixed(1)} м/с`
+        : "—";
+    const water =
+      weather && weather.water_status === "measured" && weather.water_c != null
+        ? `${Math.round(weather.water_c)}°C`
+        : "нет измерений";
+    const layer = weather?.wind_layer?.enabled
+      ? weather.wind_layer.label
+      : "Ветровой слой недоступен";
+    weatherStrip.innerHTML = `
+      <span>Воздух <b>${escapeHtml(air)}</b></span>
+      <span>Ветер <b>${escapeHtml(wind)}</b></span>
+      <span>Вода <b>${escapeHtml(water)}</b></span>
+      <span class="weather-layer">${escapeHtml(layer)}</span>
+    `;
+  }
 
   const RUSSIA_BOUNDS = [
     [41.2, 19.5],
@@ -70,21 +100,18 @@
   }
 
   function setStatus(text, ok) {
-    statusPill.textContent = text;
-    statusPill.classList.toggle("ok", ok === true);
-    statusPill.classList.toggle("bad", ok === false);
+    // Success/idle: hide counters. Show pill only for errors / blocking states.
+    const show = Boolean(text) && ok === false;
+    statusPill.hidden = !show;
+    statusPill.textContent = show ? text : "";
+    statusPill.classList.toggle("ok", false);
+    statusPill.classList.toggle("bad", show);
   }
 
-  function renderStats(meta) {
-    const cards = [
-      ["Пины на карте", meta.feature_count ?? 0],
-      ["Staging approx", meta.staging_approx_count ?? 0],
-      ["Verified", meta.verified_count ?? 0],
-      ["Cable кандидаты", meta.staging_cable_candidates ?? 0],
-    ];
-    statsEl.innerHTML = cards
-      .map(([label, value]) => `<div class="stat"><b>${value}</b><span>${label}</span></div>`)
-      .join("");
+  function renderStats(_meta) {
+    if (!statsEl) return;
+    statsEl.innerHTML = "";
+    statsEl.hidden = true;
   }
 
   function filteredFeatures() {
@@ -112,6 +139,64 @@
       .filter((d) => selectedDisciplines.has(d.slug))
       .map((d) => d.label);
     disciplineHint.textContent = `Фильтр: ${labels.join(" · ")}`;
+  }
+
+  function pluralRu(n, one, few, many) {
+    const abs = Math.abs(n) % 100;
+    const d = abs % 10;
+    if (abs > 10 && abs < 20) return many;
+    if (d === 1) return one;
+    if (d >= 2 && d <= 4) return few;
+    return many;
+  }
+
+  function renderInsightPanel() {
+    const features = filteredFeatures();
+    const verified = features.filter((f) => f.properties?.pin_kind !== "staging_approximate").length;
+    const drafts = features.length - verified;
+    if (insightStats) {
+      if (!features.length) {
+        insightStats.innerHTML = `<p class="insight-empty">На карте нет объектов под текущий фильтр или поиск. Снимите фильтр или измените запрос.</p>`;
+      } else {
+        const totalLabel = pluralRu(features.length, "объект", "объекта", "объектов");
+        const draftNote = drafts
+          ? ` · ${drafts} ${pluralRu(drafts, "черновик", "черновика", "черновиков")}`
+          : "";
+        const searchNote = searchQuery
+          ? `<p class="meta">Поиск: «${escapeHtml(searchQuery)}»</p>`
+          : "";
+        insightStats.innerHTML = `
+          <p class="insight-count"><b>${features.length}</b> ${totalLabel} на карте</p>
+          <p class="meta">${verified} с проверенным GPS${draftNote}</p>
+          ${searchNote}
+        `;
+      }
+    }
+    if (insightSelected) {
+      const hit = selectedPinId
+        ? allFeatures.find((f) => f.properties?.id === selectedPinId)
+        : null;
+      if (!hit) {
+        insightSelected.hidden = true;
+        insightSelected.innerHTML = "";
+      } else {
+        const p = hit.properties || {};
+        const disc = (p.disciplines || [])
+          .map((slug) => disciplineCatalog.find((d) => d.slug === slug)?.label || slug)
+          .filter(Boolean)
+          .slice(0, 3)
+          .join(" · ");
+        const kind =
+          p.pin_kind === "staging_approximate" ? "Черновик на проверке" : "Проверенный паспорт";
+        insightSelected.hidden = false;
+        insightSelected.innerHTML = `
+          <h2>Выбрано на карте</h2>
+          <p class="insight-selected-name">${escapeHtml(p.name || "Спот")}</p>
+          <p class="meta">${escapeHtml(kind)}${disc ? ` · ${escapeHtml(disc)}` : ""}</p>
+          <p class="meta">Полный паспорт — в карточке справа на карте.</p>
+        `;
+      }
+    }
   }
 
   function renderDisciplineFilters() {
@@ -143,6 +228,7 @@
         else selectedDisciplines.add(slug);
         renderDisciplineFilters();
         paintMap(false);
+        renderInsightPanel();
       });
     });
     updateDisciplineHint();
@@ -235,11 +321,20 @@
     if (spotCard) spotCard.hidden = true;
     selectedPinId = null;
     selectedClusterKey = null;
+    renderInsightPanel();
   }
 
-  function openSpotCard(p) {
+  function stateIcon(state) {
+    if (state === "yes") return "✓";
+    if (state === "no") return "—";
+    if (state === "unsupported") return "·";
+    return "?";
+  }
+
+  function renderPlaceCard(base, detail) {
     if (!spotCard) return;
-    const tags = (p.disciplines || [])
+    const disciplines = detail?.disciplines || base.disciplines || [];
+    const tags = disciplines
       .map((slug) => {
         const meta = disciplineCatalog.find((d) => d.slug === slug);
         const color = meta?.color || "#64748b";
@@ -247,19 +342,170 @@
         return `<span class="chip-tag" style="--disc-color:${color}">${escapeHtml(label)}</span>`;
       })
       .join("");
+    const address = detail?.address_text || detail?.locality || "";
+    const score = detail?.spot_score || {
+      status: "pending",
+      label: "Появится позже",
+      hint: "Собираем отзывы и проверенные факты",
+    };
+    const convenience = detail?.convenience || [];
+    const checklistHtml = convenience.length
+      ? `<ul class="checklist">${convenience
+          .map(
+            (c) =>
+              `<li data-state="${escapeHtml(c.state)}"><span class="ck">${stateIcon(
+                c.state
+              )}</span><span>${escapeHtml(c.label)}</span></li>`
+          )
+          .join("")}</ul>`
+      : "";
+    const lead = detail?.lead_cta;
+    const leadHtml = lead
+      ? `<a class="cta-primary" href="${escapeHtml(lead.href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(
+          lead.label
+        )}</a>`
+      : `<p class="meta">Контакты для записи уточняются</p>`;
+    const secondary = [];
+    if (detail?.route_url) {
+      secondary.push(
+        `<a class="cta-secondary" href="${escapeHtml(detail.route_url)}" target="_blank" rel="noopener noreferrer">Маршрут</a>`
+      );
+    }
+    if (detail?.contacts?.website) {
+      secondary.push(
+        `<a class="cta-secondary" href="${escapeHtml(
+          detail.contacts.website
+        )}" target="_blank" rel="noopener noreferrer">Сайт</a>`
+      );
+    }
+    if (detail?.contacts?.phone) {
+      const tel = String(detail.contacts.phone).replace(/[^\d+]/g, "");
+      secondary.push(
+        `<a class="cta-secondary" href="tel:${escapeHtml(tel)}">${escapeHtml(detail.contacts.phone)}</a>`
+      );
+    }
+    const notes = detail?.contacts?.notes_public
+      ? `<p class="notes">${escapeHtml(detail.contacts.notes_public)}</p>`
+      : "";
+    const draftNote =
+      base.pin_kind === "staging_approximate"
+        ? '<p class="meta">Черновик — координаты ещё уточняются</p>'
+        : '<p class="meta">GPS проверен · факты с датой наблюдения</p>';
+    const wx = detail?.weather;
+    if (wx) formatWeatherStrip(wx);
+    const ride = detail?.rideability || {};
+    const rideHtml = `<div class="score-block">
+        <p class="score-label">Оценка катания (ветер)</p>
+        <p class="score-value">${escapeHtml(ride.label || "Не оценено")}</p>
+        <p class="meta">${escapeHtml(ride.reason || "Нужен утверждённый ветровой профиль")}</p>
+      </div>`;
+    const wxHtml =
+      wx && wx.status === "ok"
+        ? `<div class="score-block">
+        <p class="score-label">Погода на споте</p>
+        <p class="meta">Воздух ${escapeHtml(
+          wx.air_c != null ? `${Math.round(wx.air_c)}°C` : "—"
+        )} · Ветер ${escapeHtml(
+          wx.wind_mps != null ? `${Number(wx.wind_mps).toFixed(1)} м/с` : "—"
+        )} · Порывы ${escapeHtml(
+          wx.gust_mps != null ? `${Number(wx.gust_mps).toFixed(1)} м/с` : "—"
+        )}</p>
+        <p class="meta">Вода: ${escapeHtml(
+          wx.water_status === "measured" && wx.water_c != null
+            ? `${Math.round(wx.water_c)}°C`
+            : "нет измерений"
+        )} · ${escapeHtml(wx.provider || "")}</p>
+      </div>`
+        : `<div class="score-block"><p class="score-label">Погода</p><p class="meta">${escapeHtml(
+            wx?.reason || "Нет данных"
+          )}</p></div>`;
+    const manage = detail?.club_manage;
+    const manageHtml = manage
+      ? `<p class="meta manage-hint">${escapeHtml(manage.cta_label)}: ${escapeHtml(
+          manage.moderator_telegram
+        )} · ${escapeHtml(manage.moderator_email)}</p>`
+      : "";
+    const leadDisclaimer =
+      lead?.disclaimer || lead?.kind === "booking_go"
+        ? `<p class="meta">Вы переходите на сайт клуба — это не подтверждение записи в SpotMap</p>`
+        : "";
     spotCard.hidden = false;
     spotCard.innerHTML = `
       <button type="button" class="close" aria-label="Закрыть">×</button>
-      <h3>${escapeHtml(p.name || "Spot")}</h3>
-      <p class="meta">${escapeHtml(p.pin_kind === "staging_approximate" ? "STAGING · approximate" : "VERIFIED")}
-      · ${escapeHtml(p.entity_type || "")}
-      · geo: ${escapeHtml(p.geo_status || "?")}</p>
+      <h3>${escapeHtml(detail?.name || base.name || "Спот")}</h3>
+      ${address ? `<p class="meta">${escapeHtml(address)}</p>` : ""}
+      ${draftNote}
+      ${notes}
+      <div class="score-block">
+        <p class="score-label">Рейтинг SpotMap</p>
+        <p class="score-value">${escapeHtml(score.label)}</p>
+        <p class="meta">${escapeHtml(score.hint || "")}</p>
+      </div>
+      ${rideHtml}
+      ${wxHtml}
       <div class="tags">${tags || '<span class="chip-tag">дисциплина не указана</span>'}</div>
+      ${checklistHtml ? `<div class="checklist-wrap"><p class="score-label">Удобства</p>${checklistHtml}</div>` : ""}
+      <div class="cta-row">${leadHtml}${secondary.join("")}</div>
+      ${leadDisclaimer}
+      ${manageHtml}
     `;
     spotCard.querySelector(".close")?.addEventListener("click", () => {
       closeSpotCard();
       paintMap(false);
+      renderInsightPanel();
     });
+    renderInsightPanel();
+  }
+
+  async function openSpotCard(p) {
+    if (!spotCard) return;
+    // Staging pins: local card only (not published passport).
+    if (p.pin_kind === "staging_approximate") {
+      renderPlaceCard(p, {
+        name: p.name,
+        disciplines: p.disciplines || [],
+        spot_score: {
+          status: "pending",
+          label: "Появится позже",
+          hint: "Спот ещё на проверке",
+        },
+        convenience: [],
+        lead_cta: null,
+      });
+      return;
+    }
+    renderPlaceCard(p, {
+      name: p.name,
+      disciplines: p.disciplines || [],
+      spot_score: {
+        status: "pending",
+        label: "Появится позже",
+        hint: "Загрузка…",
+      },
+      convenience: [],
+      lead_cta: null,
+    });
+    try {
+      const et = encodeURIComponent(p.entity_type || "spot");
+      const res = await fetch(`/v1/public/places/${encodeURIComponent(p.id)}?entity_type=${et}`);
+      if (!res.ok) throw new Error(`place ${res.status}`);
+      const detail = await res.json();
+      if (selectedPinId !== p.id) return;
+      renderPlaceCard(p, detail);
+    } catch (_err) {
+      if (selectedPinId !== p.id) return;
+      renderPlaceCard(p, {
+        name: p.name,
+        disciplines: p.disciplines || [],
+        spot_score: {
+          status: "pending",
+          label: "Появится позже",
+          hint: "Собираем отзывы и проверенные факты",
+        },
+        convenience: [],
+        lead_cta: null,
+      });
+    }
   }
 
   function openClusterCard(items, key) {
@@ -272,15 +518,15 @@
           .join(", ");
         return `<button type="button" class="cluster-item" data-id="${escapeHtml(p.id)}">
           <span class="cluster-item-name">${escapeHtml(p.name || "Spot")}</span>
-          <span class="cluster-item-meta">${escapeHtml(disc || p.entity_type || "")}</span>
+          <span class="cluster-item-meta">${escapeHtml(disc || "")}</span>
         </button>`;
       })
       .join("");
     spotCard.hidden = false;
     spotCard.innerHTML = `
       <button type="button" class="close" aria-label="Закрыть">×</button>
-      <h3>На площадке: ${props.length}</h3>
-      <p class="meta">Одна координата · клубы остаются отдельными карточками</p>
+      <h3>Несколько клубов здесь</h3>
+      <p class="meta">Выберите карточку</p>
       <div class="cluster-list">${list}</div>
     `;
     spotCard.querySelector(".close")?.addEventListener("click", () => {
@@ -312,7 +558,7 @@
     });
 
     if (!features.length) {
-      setStatus("нет объектов для фильтра", true);
+      setStatus("", true);
       return;
     }
 
@@ -399,17 +645,17 @@
       const bounds = placemarks.getBounds();
       if (bounds) map.setBounds(bounds, { checkZoomRange: true, zoomMargin: 48 });
     }
-    const clusterN = [...groups.values()].filter((g) => g.length > 1).length;
-    setStatus(
-      `${features.length} объектов · ${groups.size} точек · кластеров ${clusterN} · verified ${mapMeta.verified_count ?? 0}`,
-      true
-    );
+    renderInsightPanel();
+    setStatus("", true);
   }
 
   async function loadMapData() {
     if (!map || !window.ymaps) return;
     const qs = new URLSearchParams();
-    qs.set("include_staging", showStaging?.checked ? "true" : "false");
+    qs.set(
+      "include_staging",
+      !EMBED_MODE && showStaging?.checked ? "true" : "false"
+    );
     const res = await fetch(`/v1/map/points?${qs.toString()}`);
     if (!res.ok) throw new Error(`map ${res.status}`);
     const data = await res.json();
@@ -432,30 +678,31 @@
     const data = await res.json();
     queueEl.innerHTML = (data.items || [])
       .map((item) => {
-        const region = item.raw_region || "регион не указан";
-        const legacy = item.legacy_row_id ? ` · ${item.legacy_row_id}` : "";
+        const region = item.raw_region ? escapeHtml(item.raw_region) : "";
         const src = item.source_url
-          ? `<a href="${item.source_url}" target="_blank" rel="noopener noreferrer">источник</a>`
-          : "источник не указан";
+          ? `<a href="${escapeHtml(item.source_url)}" target="_blank" rel="noopener noreferrer">сайт</a>`
+          : "";
         const onMap = item.has_approx_point
           ? '<span class="tag tag-ok">на карте</span>'
           : '<span class="tag tag-warn">нужен GPS</span>';
+        const metaParts = [region, src].filter(Boolean).join(" · ");
         return `<li>
           <p class="name">${escapeHtml(item.raw_name)}</p>
-          <p class="meta">${escapeHtml(region)}${escapeHtml(legacy)} · ${escapeHtml(item.candidate_kind)} · ${src}</p>
-          <span class="tag">geo: ${escapeHtml(item.geo_status)}</span>
+          ${metaParts ? `<p class="meta">${metaParts}</p>` : ""}
           ${onMap}
         </li>`;
       })
       .join("");
     if (!data.items?.length) {
-      queueEl.innerHTML = `<li><p class="meta">Очередь пуста для текущего фильтра.</p></li>`;
+      queueEl.innerHTML = `<li><p class="meta">Пока пусто</p></li>`;
     }
   }
 
-  kindFilter.addEventListener("change", () => {
-    loadQueue().catch((err) => setStatus(`ошибка очереди: ${err.message}`, false));
-  });
+  if (!EMBED_MODE) {
+    kindFilter?.addEventListener("change", () => {
+      loadQueue().catch((err) => setStatus(`ошибка очереди: ${err.message}`, false));
+    });
+  }
   showStaging?.addEventListener("change", () => {
     loadMapData().catch((err) => setStatus(`ошибка карты: ${err.message}`, false));
   });
@@ -465,8 +712,17 @@
     searchTimer = setTimeout(() => {
       searchQuery = (searchInput.value || "").trim();
       paintMap(false);
+      renderInsightPanel();
     }, 180);
   });
+
+  if (EMBED_MODE) {
+    document.body.classList.add(`host-${EMBED_HOST}`);
+    document.querySelector(".panel-block:last-of-type")?.setAttribute("hidden", "");
+    const stagingToggle = document.querySelector("label.toggle");
+    if (stagingToggle) stagingToggle.hidden = true;
+    if (showStaging) showStaging.checked = false;
+  }
 
   (async () => {
     try {
@@ -482,14 +738,16 @@
         mapKeyHint.hidden = false;
         emptyState.hidden = true;
         setStatus("нужен YANDEX_MAPS_API_KEY", false);
-        await loadQueue();
+        if (!EMBED_MODE) await loadQueue();
         return;
       }
 
       mapKeyHint.hidden = true;
       const ymaps = await loadYmapsScript(apiKey);
       createMap(ymaps);
-      await Promise.all([loadMapData(), loadQueue()]);
+      const jobs = [loadMapData()];
+      if (!EMBED_MODE) jobs.push(loadQueue());
+      await Promise.all(jobs);
     } catch (err) {
       setStatus(`не удалось загрузить: ${err.message}`, false);
       emptyState.hidden = false;

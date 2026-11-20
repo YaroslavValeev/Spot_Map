@@ -16,20 +16,20 @@
         <div class="brand-mark" aria-hidden="true"></div>
         <div>
           <p class="brand-name">SpotMap</p>
-          <p class="brand-sub">wakesurf · wakeboard cable · Россия</p>
+          <p class="brand-sub">паспорта водноспортивных спотов</p>
         </div>
       </div>
       <label class="search">
         <span class="sr-only">Поиск</span>
         <input id="searchInput" type="search" placeholder="Найти спот, клуб или локацию…" autocomplete="off" />
       </label>
-      <div id="statusPill" class="status-pill">загрузка…</div>
+      <div id="statusPill" class="status-pill" hidden></div>
     </header>
 
     <aside class="panel">
       <section class="panel-block">
-        <h1>Карта</h1>
-        <p class="lede">Пиктограммы дисциплин на маркерах. Фильтр слева обновляет карту без перезагрузки. Staging approximate · verified 0.</p>
+        <h1>Навигатор</h1>
+        <p class="lede">Фильтр и поиск ведут по карте. Паспорт открывается по клику на пин — без выдуманных рейтингов и координат.</p>
 
         <div class="discipline-block">
           <h2>Дисциплины</h2>
@@ -37,25 +37,59 @@
           <p class="hint" id="disciplineHint">Показаны все дисциплины</p>
         </div>
 
-        <label class="toggle">
-          <input type="checkbox" id="showStaging" checked />
-          Показывать staging на карте
-        </label>
-        <div id="stats" class="stats"></div>
-        <p id="mapProviderNote" class="provider-note">Картография: Яндекс</p>
-      </section>
-
-      <section class="panel-block">
-        <div class="panel-head">
-          <h2>Очередь staging</h2>
-          <select id="kindFilter" aria-label="Тип кандидата">
-            <option value="">все типы</option>
-            <option value="spot_or_club">spot/club</option>
-            <option value="cable_installation">cable</option>
-            <option value="other">other</option>
-          </select>
+        <div class="weather-strip" id="weatherStrip" aria-live="polite">
+          <span>Воздух <b>—</b></span>
+          <span>Ветер <b>—</b></span>
+          <span>Вода <b>нет измерений</b></span>
         </div>
-        <ul id="queue" class="queue"></ul>
+        <p class="hint weather-note">Вода ≠ воздух. Температура воды только из измерений, иначе «нет измерений».</p>
+
+        <div id="insightPanel" class="insight-panel" aria-live="polite">
+          <div class="insight-stats" id="insightStats"></div>
+          <div class="insight-selected" id="insightSelected" hidden></div>
+          <div class="insight-legend">
+            <h2>Как читать карту</h2>
+            <ul class="legend-list">
+              <li><span class="legend-dot verified" aria-hidden="true"></span>Проверенный GPS — паспорт с фактами</li>
+              <li><span class="legend-dot draft" aria-hidden="true"></span>Черновик — координаты ещё уточняются</li>
+              <li><span class="legend-dot cluster" aria-hidden="true"></span>Кластер — несколько спотов рядом, увеличьте масштаб</li>
+            </ul>
+          </div>
+          <div class="insight-facts">
+            <h2>Важно знать</h2>
+            <ul class="facts-list">
+              <li>Спот ≠ клуб ≠ лебёдка ≠ катер — у каждого свой паспорт</li>
+              <li>MVP сейчас: вейксерф и кабельный вейкборд</li>
+              <li>SpotScore и оценка ветра — только после проверки, иначе «не оценено»</li>
+              <li>«Записаться» ведёт на сайт клуба; клик ≠ подтверждённая запись</li>
+            </ul>
+          </div>
+          <ol class="insight-steps">
+            <li>Выберите дисциплину или найдите название сверху</li>
+            <li>Кликните пин на карте</li>
+            <li>Смотрите контакты, удобства и погоду в паспорте</li>
+          </ol>
+        </div>
+
+        <details class="mod-drawer">
+          <summary>Служебное: модерация</summary>
+          <label class="toggle">
+            <input type="checkbox" id="showStaging" />
+            Показывать черновики на карте
+          </label>
+          <div class="panel-head">
+            <h2>На проверке</h2>
+            <select id="kindFilter" aria-label="Тип кандидата">
+              <option value="">все</option>
+              <option value="spot_or_club">клубы</option>
+              <option value="cable_installation">канатки</option>
+              <option value="other">прочее</option>
+            </select>
+          </div>
+          <ul id="queue" class="queue"></ul>
+        </details>
+        <div id="stats" class="stats" hidden></div>
+        <p id="mapProviderNote" class="provider-note">Картография: Яндекс · погода: Open-Meteo</p>
       </section>
     </aside>
 
