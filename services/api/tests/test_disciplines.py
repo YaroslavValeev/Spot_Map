@@ -92,6 +92,41 @@ class DisciplineClassifyTests(unittest.TestCase):
         self.assertGreaterEqual(counts["cable_ring"], 1)
         self.assertGreaterEqual(counts["wakeskate"], 1)
 
+    def test_cable_only_strips_noisy_boat_tags(self):
+        tags = classify_disciplines(
+            name="WakeHome",
+            raw_disciplines="CABLE_REVERSE;реверсивная лебёдка;WAKESURF;WAKEBOARD_BOAT",
+            candidate_kind="cable_installation",
+        )
+        self.assertIn("cable_reverse", tags)
+        self.assertIn("wakeboard_cable", tags)
+        self.assertIn("waterski_cable", tags)
+        self.assertIn("wakeskate", tags)
+        for boat in ("wakesurf", "wakeskim", "wakesurf_longboard", "wakefoil", "wakeboard_boat"):
+            self.assertNotIn(boat, tags)
+
+    def test_water_ski_on_cable_is_not_classic_club(self):
+        tags = classify_disciplines(
+            name="Вейк-парк Мякинино (Живописная бухта)",
+            raw_disciplines="CABLE_CIRCUIT;кольцевая лебёдка;WAKEBOARD_CABLE;WATER_SKI",
+            candidate_kind="cable_installation",
+        )
+        self.assertIn("cable_ring", tags)
+        self.assertIn("waterski_cable", tags)
+        self.assertNotIn("waterski_slalom", tags)
+        self.assertNotIn("adaptive_waterski", tags)
+
+    def test_hybrid_boat_plus_cable_keeps_boat_sports(self):
+        tags = classify_disciplines(
+            name="Take&Wake Konakovo",
+            raw_disciplines="WAKESURF;WAKEBOARD;катер;реверс",
+            candidate_kind="spot_or_club",
+        )
+        self.assertIn("cable_reverse", tags)
+        self.assertIn("wakeboard_cable", tags)
+        self.assertTrue(WAKESURF_FAMILY.issubset(tags))
+        self.assertIn("wakeboard_boat", tags)
+
 
 if __name__ == "__main__":
     unittest.main()

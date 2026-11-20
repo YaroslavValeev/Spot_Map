@@ -35,8 +35,10 @@ CABLE_SLUGS = frozenset(
 WATERSKI_CLUB_TAGS = frozenset(
     {"waterski_slalom", "waterski_tricks", "waterski_jump", "adaptive_waterski"}
 )
-# Always co-located with wakesurf.
+# Always co-located with wakesurf (boat).
 WAKESURF_FAMILY = frozenset({"wakesurf", "wakeskim", "wakesurf_longboard", "wakefoil"})
+# Boat-only sports — never show on cable-only parks without explicit boat ops.
+BOAT_ONLY_SPORTS = WAKESURF_FAMILY | {"wakeboard_boat"} | WATERSKI_CLUB_TAGS
 
 FILTER_ALIASES: dict[str, frozenset[str]] = {
     "waterski": frozenset(WATERSKI_CLUB_TAGS | {"waterski_cable"}),
@@ -76,25 +78,51 @@ def _blob(*parts: str | None) -> str:
     return " ".join((p or "").lower() for p in parts)
 
 
-def _is_waterski_club(text: str) -> bool:
-    """True for waterski clubs / classic ski venues — not generic wake parks."""
+def _has_explicit_boat_ops(text: str) -> bool:
+    """True only for real boat operations — not noisy WAKEBOARD_BOAT/WAKESURF staging tags."""
+    return any(
+        m in text
+        for m in (
+            "катер",
+            "катерн",
+            "на катере",
+            "tow boat",
+            "surf boat",
+            "boat wake",
+            "катерный",
+        )
+    )
+
+
+def _is_waterski_club(text: str, *, cableish: bool = False) -> bool:
+    """True for classic waterski clubs — not WATER_SKI tags on cable parks."""
     if any(
         m in text
         for m in (
             "воднолыж",
+            "воднолыжный",
+            "water ski club",
+            "waterski club",
+        )
+    ):
+        return True
+    # On cable venues WATER_SKI / waterski means waterski_cable, not classic suite.
+    if cableish:
+        return False
+    if any(
+        m in text
+        for m in (
+            "водные лыжи",
             "water ski",
             "water-ski",
-            "waterski club",
-            "водные лыжи",
+            "water_ski",
             "waterski_slalom",
             "waterski_tricks",
             "waterski_jump",
             "adaptive_waterski",
-            "water_ski",
         )
     ):
         return True
-    # Explicit classic disciplines in raw taxonomy.
     if "waterski" in text and "wakeboard" not in text and "вейк" not in text:
         return True
     return False
@@ -136,34 +164,42 @@ def classify_disciplines(
             "rixen",
         )
     )
+    cable_primary = bool(
+        candidate_kind == "cable_installation" or is_pool or is_ring or is_reverse or is_cableish
+    )
+    boat_ops = _has_explicit_boat_ops(text)
 
-    # --- Waterski clubs: classic trio + adaptive ---
-    if _is_waterski_club(text):
+    # --- Waterski clubs: classic trio + adaptive (never from bare WATER_SKI on cable) ---
+    if _is_waterski_club(text, cableish=cable_primary):
         found.update(WATERSKI_CLUB_TAGS)
 
-    # --- Wakesurf family (skim / longboard / foil co-located) ---
-    if any(m in text for m in ("wakesurf_longboard", "лонгборд", "longboard")):
-        found.add("wakesurf_longboard")
-    if any(m in text for m in ("wakefoil", "вейкфойл", "wake foil", "гидрофойл")):
-        found.add("wakefoil")
-    if any(m in text for m in ("wakeskim", "вейкским", "wake skim")):
-        found.add("wakeskim")
-    if any(m in text for m in ("wakesurf", "вейксерф", "вейксёрф")):
-        found.add("wakesurf")
-    elif (
-        "серф" in text
-        and "искусствен" not in text
-        and not is_cableish
-        and "сап" not in text
-        and "sup" not in text
-    ):
-        found.add("wakesurf")
-    _attach_wakesurf_family(found)
+    # --- Wakesurf family (boat). Skip noisy WAKESURF tags on cable-only parks. ---
+    allow_boat_surf = boat_ops or not cable_primary
+    if allow_boat_surf:
+        if any(m in text for m in ("wakesurf_longboard", "лонгборд", "longboard")):
+            found.add("wakesurf_longboard")
+        if any(m in text for m in ("wakefoil", "вейкфойл", "wake foil", "гидрофойл")):
+            found.add("wakefoil")
+        if any(m in text for m in ("wakeskim", "вейкским", "wake skim")):
+            found.add("wakeskim")
+        if any(m in text for m in ("wakesurf", "вейксерф", "вейксёрф")):
+            found.add("wakesurf")
+        elif (
+            "серф" in text
+            and "искусствен" not in text
+            and not cable_primary
+            and "сап" not in text
+            and "sup" not in text
+        ):
+            found.add("wakesurf")
+        _attach_wakesurf_family(found)
 
-    # --- Boat wakeboard ---
+    # --- Boat / cable wakeboard ---
     if any(m in text for m in ("wakeboard", "вейкборд", "вейк борд", "wakeboard_boat")):
-        if is_cableish or is_pool or is_ring or is_reverse or "cable_" in text:
+        if cable_primary:
             found.add("wakeboard_cable")
+            if boat_ops:
+                found.add("wakeboard_boat")
         else:
             found.add("wakeboard_boat")
 
@@ -200,6 +236,10 @@ def classify_disciplines(
     if not found and candidate_kind != "cable_installation":
         found.update({"wakesurf", "wakeboard_boat"})
         _attach_wakesurf_family(found)
+
+    # Cable-only parks: strip boat sports unless explicit boat ops (катер…).
+    if cable_primary and not boat_ops:
+        found -= BOAT_ONLY_SPORTS
 
     # Never emit removed slugs.
     found.discard("kneeboard")

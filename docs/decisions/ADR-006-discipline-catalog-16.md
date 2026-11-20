@@ -42,11 +42,12 @@
 
 ### C. Правила совместных тегов (classify)
 
-1. Воднолыжный клуб (`воднолыж` / classic waterski) → `waterski_slalom` + `waterski_tricks` + `waterski_jump` + `adaptive_waterski`.
+1. Воднолыжный клуб (`воднолыж` / classic waterski club) → `waterski_slalom` + `waterski_tricks` + `waterski_jump` + `adaptive_waterski`.
 2. Есть `wakesurf` (или семейство) → также `wakeskim` + `wakesurf_longboard` + `wakefoil`.
 3. Кольцо или реверс → `wakeskate` + `wakeboard_cable` + `waterski_cable`.
 4. Любая электротяга или бассейн → `waterski_cable` + `wakeboard_cable`.
 5. SUP не классифицировать.
+6. **Поправка 2026-11-20:** cable-only парк (лебёдка / ring / reverse / pool / `cable_installation`) **без явного катера** (`катер…`) не получает катерные теги: `wakesurf` family, `wakeboard_boat`, classic waterski suite — даже если в staging шумят `WAKESURF` / `WAKEBOARD_BOAT` / `WATER_SKI`. `WATER_SKI` на кабеле = `waterski_cable`, не воднолыжный клуб. Гибрид «катер + лебёдка» сохраняет оба набора.
 
 ### D. Legacy-алиасы фильтров
 
