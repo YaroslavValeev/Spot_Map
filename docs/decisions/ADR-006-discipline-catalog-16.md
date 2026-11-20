@@ -1,38 +1,38 @@
-# ADR-006 — Каталог 16 дисциплин SpotMapExtreme (без SUP)
+# ADR-006 — Каталог дисциплин SpotMapExtreme (без SUP)
 
-**Статус:** принято (2026-11-20)  
-**Контекст:** ТЗ SpotMapExtreme — 14 официальных воднолыжных + вейксерф-лонгборд + вейкфойл; SUP запрещён. Runtime ранее имел 6 агрегированных фильтров.
+**Статус:** принято (2026-11-20), **поправка владельца 2026-11-20**  
+**Контекст:** ТЗ SpotMapExtreme + уточнение Ярослава по совместным тегам и исключениям.
 
 ## Решение
 
-### A. 16 спортивных дисциплин (канон UI/API)
+### A. Спортивные дисциплины (канон UI/API)
 
-| # | slug | Label (ru) | Группа |
-|---|---|---|---|
-| 1 | `waterski_slalom` | Водные лыжи — слалом | waterski |
-| 2 | `waterski_tricks` | Водные лыжи — фигурное | waterski |
-| 3 | `waterski_jump` | Водные лыжи — прыжки | waterski |
-| 4 | `barefoot` | Барефут | waterski |
-| 5 | `wakeboard_boat` | Вейкборд — катер | boat |
-| 6 | `wakeskate` | Вейкскейт | boat |
-| 7 | `kneeboard` | Ниборд | boat |
-| 8 | `wakesurf` | Вейксерф | surf |
-| 9 | `wakeskim` | Вейкским | surf |
-| 10 | `wakeboard_cable` | Вейкборд — электротяга | cable |
-| 11 | `waterski_cable` | Водные лыжи — электротяга | cable |
-| 12 | `wakeskate_cable` | Вейкскейт — электротяга | cable |
-| 13 | `adaptive_waterski` | Адаптивные водные лыжи | waterski |
-| 14 | `show_ski` | Фигурно-показательные лыжи | waterski |
-| 15 | `wakesurf_longboard` | Вейксерф-лонгборд | surf+ |
-| 16 | `wakefoil` | Вейкфойл | surf+ |
+| slug | Label (ru) | Где показывать |
+|---|---|---|
+| `waterski_slalom` | Водные лыжи — слалом | Воднолыжные клубы |
+| `waterski_tricks` | Водные лыжи — фигурное | Воднолыжные клубы |
+| `waterski_jump` | Водные лыжи — прыжки | Воднолыжные клубы |
+| `adaptive_waterski` | Адаптивные водные лыжи | Воднолыжные клубы |
+| `wakeboard_boat` | Вейкборд — катер | Катерные споты |
+| `wakeskate` | Вейкскейт | **Везде, где кольцо или реверс** |
+| `wakesurf` | Вейксерф | Вейксерф-споты |
+| `wakeskim` | Вейкским | **Там же, где вейксерф** |
+| `wakesurf_longboard` | Вейксерф-лонгборд | **Там же, где вейксерф** |
+| `wakefoil` | Вейкфойл | **Там же, где вейксерф** |
+| `wakeboard_cable` | Вейкборд — электротяга | Электротяга / бассейн |
+| `waterski_cable` | Водные лыжи — электротяга | **Везде электротяга + бассейн** |
 
-**SUP / сап / paddleboard — запрещены** (не добавлять slug, не угадывать из текста).
+### A2. Исключены (не в каталоге)
 
-Имена 1–14 — рабочий канон SpotMapExtreme; при официальном перечне ФВЛС допускается rename label без смены slug (отдельный patch).
+| slug | Причина |
+|---|---|
+| `kneeboard` / ниборд | Убрать по решению владельца |
+| `barefoot` / барефут | Убрать по решению владельца |
+| `wakeskate_cable` | Убрать; вейкскейт один slug на кольце/реверсе |
+| `show_ski` | Не в утверждённом списке владельца |
+| `sup` | Запрет ТЗ |
 
-### B. Фасеты установки (не входят в «16»)
-
-Отдельный ряд фильтров карты (тип электротяги), не спортивная дисциплина:
+### B. Фасеты установки
 
 | slug | Label |
 |---|---|
@@ -40,25 +40,25 @@
 | `cable_reverse` | Реверс — электротяга |
 | `cable_pool` | Бассейн — электротяга |
 
-Пины с фасетом `cable_*` также получают спорт-тег `wakeboard_cable` (если нет более точного cable-sport).
+### C. Правила совместных тегов (classify)
 
-### C. Совместимость со старым UI (6 слагов)
+1. Воднолыжный клуб (`воднолыж` / classic waterski) → `waterski_slalom` + `waterski_tricks` + `waterski_jump` + `adaptive_waterski`.
+2. Есть `wakesurf` (или семейство) → также `wakeskim` + `wakesurf_longboard` + `wakefoil`.
+3. Кольцо или реверс → `wakeskate` + `wakeboard_cable` + `waterski_cable`.
+4. Любая электротяга или бассейн → `waterski_cable` + `wakeboard_cable`.
+5. SUP не классифицировать.
 
-| Старый slug | Поведение |
+### D. Legacy-алиасы фильтров
+
+| Старый slug | Раскрывается в |
 |---|---|
-| `waterski` | алиас → любой из waterski_* / barefoot / adaptive / show_ski |
-| `wakesurf_skim` | алиас → `wakesurf` ∪ `wakeskim` ∪ `wakesurf_longboard` |
-| `wakeboard` | алиас → `wakeboard_boat` |
-| `cable_ring` / `cable_reverse` / `cable_pool` | фасеты установки (см. B) |
-
-### D. Анти-правила
-
-- Не смешивать SpotScore и наличие дисциплины.
-- Не назначать дисциплину без текстового/реестрового признака (кроме прежних P0-default только для staging без текста — сузить: не ставить foil/longboard по умолчанию).
-- Installation type ≠ discipline (кроме явного маппинга в B).
+| `waterski` | classic suite + `waterski_cable` |
+| `wakesurf_skim` / `wakesurf` | всё семейство вейксерфа |
+| `wakeboard` | `wakeboard_boat` |
+| `wakeboard_cable` | cable sports + facets + `wakeskate` |
+| `wakeskate_cable` | `wakeskate` + ring/reverse (compat) |
 
 ## Последствия
 
-- Обновить `services/api/app/disciplines.py`, иконки, тесты, UI фильтры.
-- Миграция `disciplines` seed — опционально follow-up; runtime каталог — source of truth для карты.
-- WindProfile.discipline_id использует **спорт-slug** из таблицы A.
+- Runtime: `services/api/app/disciplines.py`
+- Тесты обновлены под co-location и исключения

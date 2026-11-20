@@ -82,12 +82,18 @@
   const RUSSIA_ZOOM = 3;
 
   const FALLBACK_CATALOG = [
+    { slug: "waterski_slalom", label: "Водные лыжи — слалом", short: "Слалом", symbol: "disc-waterski", color: "#7B5CFF", kind: "sport" },
+    { slug: "waterski_tricks", label: "Водные лыжи — фигурное", short: "Фигурное", symbol: "disc-waterski", color: "#8B5CF6", kind: "sport" },
+    { slug: "waterski_jump", label: "Водные лыжи — прыжки", short: "Прыжки", symbol: "disc-waterski", color: "#A78BFA", kind: "sport" },
+    { slug: "adaptive_waterski", label: "Адаптивные водные лыжи", short: "Адаптив", symbol: "disc-waterski", color: "#6366F1", kind: "sport" },
     { slug: "wakesurf", label: "Вейксерф", short: "Вейксерф", symbol: "disc-wakesurf", color: "#14B8A6", kind: "sport" },
+    { slug: "wakeskim", label: "Вейкским", short: "Вейкским", symbol: "disc-wakesurf", color: "#2DD4BF", kind: "sport" },
     { slug: "wakesurf_longboard", label: "Вейксерф-лонгборд", short: "Лонгборд", symbol: "disc-wakesurf", color: "#0D9488", kind: "sport" },
     { slug: "wakefoil", label: "Вейкфойл", short: "Вейкфойл", symbol: "disc-wakesurf", color: "#0F766E", kind: "sport" },
     { slug: "wakeboard_boat", label: "Вейкборд — катер", short: "Вейкборд", symbol: "disc-wakeboat", color: "#1D4ED8", kind: "sport" },
+    { slug: "wakeskate", label: "Вейкскейт", short: "Вейкскейт", symbol: "disc-wakeboat", color: "#2563EB", kind: "sport" },
     { slug: "wakeboard_cable", label: "Вейкборд — электротяга", short: "Кабель-вейк", symbol: "disc-cable-ring", color: "#059669", kind: "sport" },
-    { slug: "waterski_slalom", label: "Водные лыжи — слалом", short: "Слалом", symbol: "disc-waterski", color: "#7B5CFF", kind: "sport" },
+    { slug: "waterski_cable", label: "Водные лыжи — электротяга", short: "Лыжи-кабель", symbol: "disc-cable-ring", color: "#10B981", kind: "sport" },
     { slug: "cable_ring", label: "Кольцо — электротяга", short: "Кольцо", symbol: "disc-cable-ring", color: "#22C55E", kind: "installation" },
     { slug: "cable_reverse", label: "Реверс — электротяга", short: "Реверс", symbol: "disc-cable-reverse", color: "#EC4899", kind: "installation" },
     { slug: "cable_pool", label: "Бассейн — электротяга", short: "Бассейн", symbol: "disc-cable-pool", color: "#38BDF8", kind: "installation" },
