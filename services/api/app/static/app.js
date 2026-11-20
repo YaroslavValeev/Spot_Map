@@ -188,11 +188,6 @@ import { createOwnerAdmin } from "./modules/owner-admin.js";
       getConfig: () => clubManageConfig,
     });
   }
-  let clubManageConfig = {
-    moderator_telegram: "@MyWave23",
-    moderator_email: "y.valeev@gmail.com",
-  };
-  let ownerPrefill = null;
 
   function escapeHtml(value) {
     return String(value ?? "")
