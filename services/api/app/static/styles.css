@@ -350,6 +350,21 @@ body {
 .weather-strip .weather-layer { color: var(--accent-2); }
 .weather-note { margin: -0.55rem 0 1rem; }
 .manage-hint { margin-top: 0.75rem !important; }
+.card-head-meta {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0 0 0.75rem;
+}
+.card-address { margin: 0 !important; }
+.card-route {
+  display: inline-block;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--water);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(11, 61, 74, 0.25);
+}
+.card-route:hover { border-bottom-color: var(--accent); color: var(--accent); }
 
 .insight-panel {
   display: grid;

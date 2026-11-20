@@ -44,17 +44,16 @@
       weather && weather.water_status === "measured" && weather.water_c != null
         ? `${Math.round(weather.water_c)}°C`
         : "нет данных";
-    const attr = weather?.attribution || weather?.provider || "";
     const layer = weather?.wind_layer?.enabled
       ? weather.wind_layer.label || "Ветер — стрелки"
       : "Ветровой слой недоступен";
+    // Attribution not shown in chrome/card (legal credit stays in footer provider-note).
     const html = `
       <span>Воздух <b>${escapeHtml(air)}</b></span>
       <span>Ветер <b>${escapeHtml(windSpeed)}</b> ${escapeHtml(windDir)}</span>
       <span>Порывы <b>${escapeHtml(gust)}</b></span>
       <span>Вода <b>${escapeHtml(water)}</b></span>
       <span class="weather-layer">${escapeHtml(layer)}</span>
-      ${attr ? `<span class="wx-attr">${escapeHtml(attr)}</span>` : ""}
     `;
     if (weatherStrip) weatherStrip.innerHTML = html;
     if (headerWeather) {
@@ -437,53 +436,45 @@
     renderInsightPanel();
   }
 
-  function stateIcon(state) {
-    if (state === "yes") return "✓";
-    if (state === "no") return "—";
-    if (state === "unsupported") return "·";
-    return "?";
-  }
-
   function renderPlaceCard(base, detail) {
     if (!spotCard) return;
     const disciplines = detail?.disciplines || base.disciplines || [];
-    const tags = disciplines
+    // Prefer install facets + primary sports; hide noisy co-located duplicates in UI chips.
+    const prefer = [
+      "cable_ring",
+      "cable_reverse",
+      "cable_pool",
+      "wakesurf",
+      "wakeboard_boat",
+      "wakeboard_cable",
+      "wakeskate",
+      "waterski_slalom",
+      "waterski_cable",
+    ];
+    const shown = [];
+    for (const slug of prefer) {
+      if (disciplines.includes(slug)) shown.push(slug);
+    }
+    for (const slug of disciplines) {
+      if (!shown.includes(slug) && shown.length < 4) shown.push(slug);
+    }
+    const tags = shown
       .map((slug) => {
         const meta = disciplineCatalog.find((d) => d.slug === slug);
         const color = meta?.color || "#64748b";
-        const label = meta?.label || slug;
+        const label = meta?.short || meta?.label || slug;
         return `<span class="chip-tag" style="--disc-color:${color}">${escapeHtml(label)}</span>`;
       })
       .join("");
     const address = detail?.address_text || detail?.locality || "";
-    const score = detail?.spot_score || {
-      status: "pending",
-      label: "Появится позже",
-      hint: "Собираем отзывы и проверенные факты",
-    };
-    const convenience = detail?.convenience || [];
-    const checklistHtml = convenience.length
-      ? `<ul class="checklist">${convenience
-          .map(
-            (c) =>
-              `<li data-state="${escapeHtml(c.state)}"><span class="ck">${stateIcon(
-                c.state
-              )}</span><span>${escapeHtml(c.label)}</span></li>`
-          )
-          .join("")}</ul>`
-      : "";
+    const routeUrl = detail?.route_url || null;
     const lead = detail?.lead_cta;
     const leadHtml = lead
       ? `<a class="cta-primary" href="${escapeHtml(lead.href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(
           lead.label
         )}</a>`
-      : `<p class="meta">Контакты для записи уточняются</p>`;
+      : "";
     const secondary = [];
-    if (detail?.route_url) {
-      secondary.push(
-        `<a class="cta-secondary" href="${escapeHtml(detail.route_url)}" target="_blank" rel="noopener noreferrer">Маршрут</a>`
-      );
-    }
     if (detail?.contacts?.website) {
       secondary.push(
         `<a class="cta-secondary" href="${escapeHtml(
@@ -497,35 +488,16 @@
         `<a class="cta-secondary" href="tel:${escapeHtml(tel)}">${escapeHtml(detail.contacts.phone)}</a>`
       );
     }
-    const notes = detail?.contacts?.notes_public
-      ? `<p class="notes">${escapeHtml(detail.contacts.notes_public)}</p>`
-      : "";
     const draftNote =
       base.pin_kind === "staging_approximate"
-        ? '<p class="meta">Черновик — координаты ещё уточняются</p>'
-        : '<p class="meta">GPS проверен · факты с датой наблюдения</p>';
+        ? '<p class="meta">Черновик — координаты уточняются</p>'
+        : "";
     const wx = detail?.weather;
     if (wx) formatWeatherStrip(wx);
-    const ride = detail?.rideability || {};
-    const rideHtml = `<div class="score-block">
-        <p class="score-label">Оценка катания (ветер)</p>
-        <p class="score-value">${escapeHtml(ride.label || "Не оценено")}</p>
-        <p class="meta">${escapeHtml(ride.reason || "Нужен утверждённый ветровой профиль")}</p>
-      </div>`;
-    const hourly = Array.isArray(wx?.hourly) ? wx.hourly : [];
-    const hourBits = [0, 3, 6]
-      .map((idx) => hourly[idx])
-      .filter(Boolean)
-      .map((h) => {
-        const t = String(h.at || "").slice(11, 16) || "—";
-        const w = h.wind_mps != null ? `${Number(h.wind_mps).toFixed(1)}` : "—";
-        return `${t}: ${w} м/с`;
-      })
-      .join(" · ");
     const wxHtml =
       wx && wx.status === "ok"
         ? `<div class="score-block">
-        <p class="score-label">Погода на споте</p>
+        <p class="score-label">Погода</p>
         <p class="meta">Воздух ${escapeHtml(
           wx.air_c != null ? `${Math.round(wx.air_c)}°C` : "—"
         )} · Ветер ${escapeHtml(
@@ -537,42 +509,29 @@
           wx.water_status === "measured" && wx.water_c != null
             ? `${Math.round(wx.water_c)}°C`
             : "нет данных"
-        )} · ${escapeHtml(wx.provider || "")}</p>
-        ${hourBits ? `<p class="meta">Часы: ${escapeHtml(hourBits)}</p>` : ""}
-        ${wx.attribution ? `<p class="meta">${escapeHtml(wx.attribution)}</p>` : ""}
+        )}</p>
       </div>`
-        : `<div class="score-block"><p class="score-label">Погода</p><p class="meta">${escapeHtml(
-            wx?.reason || "Нет данных"
-          )}</p></div>`;
-    const manage = detail?.club_manage;
-    const manageHtml = manage
-      ? `<p class="meta manage-hint">${escapeHtml(manage.cta_label)}: ${escapeHtml(
-          manage.moderator_telegram
-        )} · ${escapeHtml(manage.moderator_email)}</p>`
+        : "";
+    const routeHtml = routeUrl
+      ? `<a class="card-route" href="${escapeHtml(routeUrl)}" target="_blank" rel="noopener noreferrer">Маршрут в Яндекс.Картах</a>`
       : "";
     const leadDisclaimer =
-      lead?.disclaimer || lead?.kind === "booking_go"
-        ? `<p class="meta">Вы переходите на сайт клуба — это не подтверждение записи в SpotMap</p>`
+      lead?.kind === "booking_go"
+        ? `<p class="meta">Переход на сайт клуба — не подтверждение записи</p>`
         : "";
     spotCard.hidden = false;
     spotCard.innerHTML = `
       <button type="button" class="close" aria-label="Закрыть">×</button>
       <h3>${escapeHtml(detail?.name || base.name || "Спот")}</h3>
-      ${address ? `<p class="meta">${escapeHtml(address)}</p>` : ""}
-      ${draftNote}
-      ${notes}
-      <div class="score-block">
-        <p class="score-label">Рейтинг SpotMap</p>
-        <p class="score-value">${escapeHtml(score.label)}</p>
-        <p class="meta">${escapeHtml(score.hint || "")}</p>
+      <div class="card-head-meta">
+        ${address ? `<p class="meta card-address">${escapeHtml(address)}</p>` : ""}
+        ${routeHtml}
       </div>
-      ${rideHtml}
+      ${draftNote}
       ${wxHtml}
-      <div class="tags">${tags || '<span class="chip-tag">дисциплина не указана</span>'}</div>
-      ${checklistHtml ? `<div class="checklist-wrap"><p class="score-label">Удобства</p>${checklistHtml}</div>` : ""}
+      <div class="tags">${tags || ""}</div>
       <div class="cta-row">${leadHtml}${secondary.join("")}</div>
       ${leadDisclaimer}
-      ${manageHtml}
     `;
     spotCard.querySelector(".close")?.addEventListener("click", () => {
       closeSpotCard();
