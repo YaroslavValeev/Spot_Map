@@ -10,60 +10,91 @@
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
-  <div class="shell">
+  <div class="shell shell--map-first">
     <header class="top">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true"></div>
         <div>
           <p class="brand-name">SpotMap</p>
-          <p class="brand-sub">wakesurf · wakeboard cable · Россия</p>
+          <p class="brand-sub">паспорта водноспортивных спотов</p>
         </div>
       </div>
-      <label class="search">
-        <span class="sr-only">Поиск</span>
-        <input id="searchInput" type="search" placeholder="Найти спот, клуб или локацию…" autocomplete="off" />
-      </label>
-      <div id="statusPill" class="status-pill">загрузка…</div>
+
+      <div class="omnibox" id="omnibox">
+        <div class="omnibox-field" id="omniboxField">
+          <div class="omnibox-chips" id="searchChips" aria-live="polite"></div>
+          <label class="omnibox-input-wrap">
+            <span class="sr-only">Поиск спота, клуба, локации или дисциплины</span>
+            <input
+              id="searchInput"
+              type="search"
+              placeholder="Спот, клуб, адрес или дисциплина…"
+              autocomplete="off"
+              role="combobox"
+              aria-expanded="false"
+              aria-controls="searchSuggest"
+              aria-autocomplete="list"
+            />
+          </label>
+          <button type="button" class="omnibox-clear" id="searchClear" hidden aria-label="Очистить поиск и фильтры">×</button>
+        </div>
+        <div id="searchSuggest" class="omnibox-suggest" hidden role="listbox" aria-label="Подсказки поиска"></div>
+      </div>
+
+      <div class="header-weather" id="headerWeather" aria-live="polite">
+        <span>Воздух <b>—</b></span>
+        <span>Ветер <b>—</b></span>
+        <span>Вода <b>нет данных</b></span>
+      </div>
+      <button type="button" id="windLayerToggle" class="wind-toggle" aria-pressed="false" title="Слой ветра (бесплатные стрелки)">
+        Ветер
+      </button>
+      <button type="button" id="ownerAdminOpen" class="owner-open" title="Кабинет владельца спота">
+        Владельцам
+      </button>
+      <details class="more-menu">
+        <summary aria-label="Оператору SpotMap">⋯</summary>
+        <div class="more-menu-panel">
+          <p class="more-menu-lead">Инструменты оператора SpotMap. Для владельцев клуба — кнопка «Владельцам».</p>
+          <label class="toggle">
+            <input type="checkbox" id="showStaging" />
+            Черновики на карте
+          </label>
+          <div class="panel-head">
+            <h2>Очередь на проверке</h2>
+            <select id="kindFilter" aria-label="Тип кандидата">
+              <option value="">все</option>
+              <option value="spot_or_club">клубы</option>
+              <option value="cable_installation">канатки</option>
+              <option value="other">прочее</option>
+            </select>
+          </div>
+          <ul id="queue" class="queue"></ul>
+          <p id="mapProviderNote" class="provider-note">Картография: Яндекс · погода: MET Norway (CC BY 4.0)</p>
+        </div>
+      </details>
+      <div id="statusPill" class="status-pill" hidden></div>
     </header>
 
-    <aside class="panel">
-      <section class="panel-block">
-        <h1>Карта</h1>
-        <p class="lede">Пиктограммы дисциплин на маркерах. Фильтр слева обновляет карту без перезагрузки. Staging approximate · verified 0.</p>
-
-        <div class="discipline-block">
-          <h2>Дисциплины</h2>
-          <div id="disciplineFilters" class="discipline-list" role="group" aria-label="Фильтр дисциплин"></div>
-          <p class="hint" id="disciplineHint">Показаны все дисциплины</p>
-        </div>
-
-        <label class="toggle">
-          <input type="checkbox" id="showStaging" checked />
-          Показывать staging на карте
-        </label>
-        <div id="stats" class="stats"></div>
-        <p id="mapProviderNote" class="provider-note">Картография: Яндекс</p>
-      </section>
-
-      <section class="panel-block">
-        <div class="panel-head">
-          <h2>Очередь staging</h2>
-          <select id="kindFilter" aria-label="Тип кандидата">
-            <option value="">все типы</option>
-            <option value="spot_or_club">spot/club</option>
-            <option value="cable_installation">cable</option>
-            <option value="other">other</option>
-          </select>
-        </div>
-        <ul id="queue" class="queue"></ul>
-      </section>
+    <!-- Hidden hooks kept for app.js compatibility -->
+    <aside class="panel" hidden aria-hidden="true">
+      <div id="disciplineFilters"></div>
+      <p id="disciplineHint"></p>
+      <div class="weather-strip" id="weatherStrip"></div>
+      <div id="insightPanel" class="insight-panel">
+        <div class="insight-stats" id="insightStats"></div>
+        <div class="insight-selected" id="insightSelected" hidden></div>
+      </div>
+      <div id="stats" class="stats" hidden></div>
     </aside>
 
     <main class="map-wrap">
       <div id="map" role="application" aria-label="Карта спотов SpotMap"></div>
+
       <div id="emptyState" class="empty-state" hidden>
-        <p class="empty-title">Нет объектов для выбранных дисциплин</p>
-        <p class="empty-text">Снимите фильтр или выберите другую дисциплину.</p>
+        <p class="empty-title">Ничего не найдено</p>
+        <p class="empty-text">Измените запрос или снимите фильтр дисциплины.</p>
+        <button type="button" class="empty-reset" id="emptyReset">Сбросить поиск</button>
       </div>
       <div id="mapKeyHint" class="empty-state key-hint" hidden>
         <p class="empty-title">Нужен ключ Яндекс.Карт</p>
@@ -73,8 +104,10 @@
     </main>
   </div>
 
-  <!-- SVG sprite loaded for panel + map markers -->
+  <!-- Mount point for owner-admin module -->
+  <div id="ownerAdminRoot" hidden></div>
+
   <object id="iconSprite" data="/static/icons/disciplines.svg" type="image/svg+xml" hidden aria-hidden="true"></object>
-  <script src="/static/app.js"></script>
+  <script type="module" src="/static/app.js"></script>
 </body>
 </html>

@@ -1,4 +1,5 @@
-(() => {
+import { createOwnerAdmin } from "./modules/owner-admin.js";
+
   const statusPill = document.getElementById("statusPill");
   const statsEl = document.getElementById("stats");
   const queueEl = document.getElementById("queue");
@@ -10,6 +11,88 @@
   const disciplineHint = document.getElementById("disciplineHint");
   const spotCard = document.getElementById("spotCard");
   const searchInput = document.getElementById("searchInput");
+  const searchChips = document.getElementById("searchChips");
+  const searchSuggest = document.getElementById("searchSuggest");
+  const searchClear = document.getElementById("searchClear");
+  const omniboxField = document.getElementById("omniboxField");
+  const emptyReset = document.getElementById("emptyReset");
+  const insightStats = document.getElementById("insightStats");
+  const insightSelected = document.getElementById("insightSelected");
+  const weatherStrip = document.getElementById("weatherStrip");
+  const headerWeather = document.getElementById("headerWeather");
+  const windLayerToggle = document.getElementById("windLayerToggle");
+  const ownerAdminOpen = document.getElementById("ownerAdminOpen");
+  const ownerAdminRoot = document.getElementById("ownerAdminRoot");
+  const EMBED_MODE = document.body?.dataset?.mode === "embed";
+  const EMBED_HOST = document.body?.dataset?.host || "mywave";
+
+  function normalizeTelegramUrl(raw) {
+    if (!raw) return null;
+    const value = String(raw).trim();
+    if (!value) return null;
+    if (/^https?:\/\//i.test(value)) return value;
+    if (value.startsWith("t.me/") || value.startsWith("telegram.me/")) {
+      return `https://${value}`;
+    }
+    const handle = value.replace(/^@/, "");
+    if (/^[A-Za-z0-9_]{4,}$/.test(handle)) return `https://t.me/${handle}`;
+    return null;
+  }
+
+  function windDirLabel(deg) {
+    if (deg == null || Number.isNaN(Number(deg))) return "—";
+    const d = ((Number(deg) % 360) + 360) % 360;
+    const names = ["С", "СВ", "В", "ЮВ", "Ю", "ЮЗ", "З", "СЗ"];
+    return `${names[Math.round(d / 45) % 8]} ${Math.round(d)}°`;
+  }
+
+  function formatWeatherStrip(weather) {
+    const air =
+      weather && weather.status === "ok" && weather.air_c != null
+        ? `${Math.round(weather.air_c)}°C`
+        : "—";
+    const windSpeed =
+      weather && weather.status === "ok" && weather.wind_mps != null
+        ? `${Number(weather.wind_mps).toFixed(1)} м/с`
+        : "—";
+    const windDir =
+      weather && weather.status === "ok" ? windDirLabel(weather.direction_from_deg) : "—";
+    const gust =
+      weather && weather.status === "ok" && weather.gust_mps != null
+        ? `${Number(weather.gust_mps).toFixed(1)} м/с`
+        : "—";
+    const water =
+      weather && weather.water_status === "measured" && weather.water_c != null
+        ? `${Math.round(weather.water_c)}°C`
+        : "нет данных";
+    const layer = weather?.wind_layer?.enabled
+      ? weather.wind_layer.label || "Ветер — стрелки"
+      : "Ветровой слой недоступен";
+    // Attribution not shown in chrome/card (legal credit stays in footer provider-note).
+    const html = `
+      <span>Воздух <b>${escapeHtml(air)}</b></span>
+      <span>Ветер <b>${escapeHtml(windSpeed)}</b> ${escapeHtml(windDir)}</span>
+      <span>Порывы <b>${escapeHtml(gust)}</b></span>
+      <span>Вода <b>${escapeHtml(water)}</b></span>
+      <span class="weather-layer">${escapeHtml(layer)}</span>
+    `;
+    if (weatherStrip) weatherStrip.innerHTML = html;
+    if (headerWeather) {
+      headerWeather.innerHTML = `
+        <span>Воздух <b>${escapeHtml(air)}</b></span>
+        <span>Ветер <b>${escapeHtml(windSpeed)}</b> ${escapeHtml(windDir)}</span>
+        <span>Вода <b>${escapeHtml(water)}</b></span>
+      `;
+    }
+    if (windLayerToggle) {
+      const can = Boolean(weather?.wind_layer?.enabled);
+      windLayerToggle.disabled = !can;
+      if (!can) {
+        windLayerToggle.setAttribute("aria-pressed", "false");
+        windLayerOn = false;
+      }
+    }
+  }
 
   const RUSSIA_BOUNDS = [
     [41.2, 19.5],
@@ -19,12 +102,21 @@
   const RUSSIA_ZOOM = 3;
 
   const FALLBACK_CATALOG = [
-    { slug: "waterski", label: "Водные лыжи", short: "Водные лыжи", symbol: "disc-waterski", color: "#7B5CFF" },
-    { slug: "wakesurf_skim", label: "Вейксерф / вейкским", short: "Вейксерф / вейкским", symbol: "disc-wakesurf", color: "#14B8A6" },
-    { slug: "wakeboard", label: "Вейкборд — катер", short: "Вейкборд — катер", symbol: "disc-wakeboat", color: "#1D4ED8" },
-    { slug: "cable_ring", label: "Кольцо — электротяга", short: "Кольцо — электротяга", symbol: "disc-cable-ring", color: "#22C55E" },
-    { slug: "cable_reverse", label: "Реверс — электротяга", short: "Реверс — электротяга", symbol: "disc-cable-reverse", color: "#EC4899" },
-    { slug: "cable_pool", label: "Бассейн — электротяга", short: "Бассейн — электротяга", symbol: "disc-cable-pool", color: "#38BDF8" },
+    { slug: "waterski_slalom", label: "Водные лыжи — слалом", short: "Слалом", symbol: "disc-waterski", color: "#7B5CFF", kind: "sport" },
+    { slug: "waterski_tricks", label: "Водные лыжи — фигурное", short: "Фигурное", symbol: "disc-waterski", color: "#8B5CF6", kind: "sport" },
+    { slug: "waterski_jump", label: "Водные лыжи — прыжки", short: "Прыжки", symbol: "disc-waterski", color: "#A78BFA", kind: "sport" },
+    { slug: "adaptive_waterski", label: "Адаптивные водные лыжи", short: "Адаптив", symbol: "disc-waterski", color: "#6366F1", kind: "sport" },
+    { slug: "wakesurf", label: "Вейксерф", short: "Вейксерф", symbol: "disc-wakesurf", color: "#14B8A6", kind: "sport" },
+    { slug: "wakeskim", label: "Вейкским", short: "Вейкским", symbol: "disc-wakesurf", color: "#2DD4BF", kind: "sport" },
+    { slug: "wakesurf_longboard", label: "Вейксерф-лонгборд", short: "Лонгборд", symbol: "disc-wakesurf", color: "#0D9488", kind: "sport" },
+    { slug: "wakefoil", label: "Вейкфойл", short: "Вейкфойл", symbol: "disc-wakesurf", color: "#0F766E", kind: "sport" },
+    { slug: "wakeboard_boat", label: "Вейкборд — катер", short: "Вейкборд", symbol: "disc-wakeboat", color: "#1D4ED8", kind: "sport" },
+    { slug: "wakeskate", label: "Вейкскейт", short: "Вейкскейт", symbol: "disc-wakeboat", color: "#2563EB", kind: "sport" },
+    { slug: "wakeboard_cable", label: "Вейкборд — электротяга", short: "Кабель-вейк", symbol: "disc-cable-ring", color: "#059669", kind: "sport" },
+    { slug: "waterski_cable", label: "Водные лыжи — электротяга", short: "Лыжи-кабель", symbol: "disc-cable-ring", color: "#10B981", kind: "sport" },
+    { slug: "cable_ring", label: "Кольцо — электротяга", short: "Кольцо", symbol: "disc-cable-ring", color: "#22C55E", kind: "installation" },
+    { slug: "cable_reverse", label: "Реверс — электротяга", short: "Реверс", symbol: "disc-cable-reverse", color: "#EC4899", kind: "installation" },
+    { slug: "cable_pool", label: "Бассейн — электротяга", short: "Бассейн", symbol: "disc-cable-pool", color: "#38BDF8", kind: "installation" },
   ];
 
   /** Inline glyph paths (white on colored tile) — matches /static/icons/disciplines.svg */
@@ -46,6 +138,7 @@
   let selectedDisciplines = new Set();
   let disciplineCatalog = FALLBACK_CATALOG;
   let disciplineCounts = {};
+  let filterAliases = {};
   let allFeatures = [];
   let mapMeta = {};
   let map = null;
@@ -55,6 +148,46 @@
   let selectedClusterKey = null;
   let clusterLayout = null;
   let searchQuery = "";
+  let suggestOpen = false;
+  let suggestItems = [];
+  let suggestIndex = -1;
+  let windLayerOn = false;
+  let windCollection = null;
+  let windLoadTimer = null;
+  let clubManageConfig = {
+    moderator_telegram: "@MyWave23",
+    moderator_email: "y.valeev@gmail.com",
+  };
+  let ownerAdmin = null;
+
+  function listOwnerSpots() {
+    const rows = [];
+    const seen = new Set();
+    allFeatures.forEach((f) => {
+      const p = f.properties || {};
+      if (p.pin_kind === "staging_approximate") return;
+      const manageId = p.manage_spot_id || p.parent_spot_id || p.id;
+      if (!manageId || seen.has(manageId)) return;
+      seen.add(manageId);
+      rows.push({
+        id: p.id,
+        manageSpotId: manageId,
+        name: p.name || manageId,
+      });
+    });
+    rows.sort((a, b) => a.name.localeCompare(b.name, "ru"));
+    return rows;
+  }
+
+  function initOwnerAdminModule() {
+    if (!ownerAdminRoot || EMBED_MODE) return null;
+    return createOwnerAdmin({
+      root: ownerAdminRoot,
+      openButton: ownerAdminOpen,
+      getSpots: listOwnerSpots,
+      getConfig: () => clubManageConfig,
+    });
+  }
 
   function escapeHtml(value) {
     return String(value ?? "")
@@ -70,34 +203,55 @@
   }
 
   function setStatus(text, ok) {
-    statusPill.textContent = text;
-    statusPill.classList.toggle("ok", ok === true);
-    statusPill.classList.toggle("bad", ok === false);
+    // Success/idle: hide counters. Show pill only for errors / blocking states.
+    const show = Boolean(text) && ok === false;
+    statusPill.hidden = !show;
+    statusPill.textContent = show ? text : "";
+    statusPill.classList.toggle("ok", false);
+    statusPill.classList.toggle("bad", show);
   }
 
-  function renderStats(meta) {
-    const cards = [
-      ["Пины на карте", meta.feature_count ?? 0],
-      ["Staging approx", meta.staging_approx_count ?? 0],
-      ["Verified", meta.verified_count ?? 0],
-      ["Cable кандидаты", meta.staging_cable_candidates ?? 0],
-    ];
-    statsEl.innerHTML = cards
-      .map(([label, value]) => `<div class="stat"><b>${value}</b><span>${label}</span></div>`)
-      .join("");
+  function renderStats(_meta) {
+    if (!statsEl) return;
+    statsEl.innerHTML = "";
+    statsEl.hidden = true;
+  }
+
+  function expandedDisciplineFilter() {
+    const out = new Set();
+    selectedDisciplines.forEach((slug) => {
+      out.add(slug);
+      (filterAliases[slug] || []).forEach((alias) => out.add(alias));
+    });
+    return out;
+  }
+
+  function featureSearchBlob(f) {
+    const p = f.properties || {};
+    const discText = (p.disciplines || [])
+      .map((slug) => {
+        const meta = disciplineCatalog.find((d) => d.slug === slug);
+        return [meta?.label, meta?.short, slug].filter(Boolean).join(" ");
+      })
+      .join(" ");
+    return [p.name, p.address, p.discipline_label, discText, p.entity_type]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
   }
 
   function filteredFeatures() {
     let list = allFeatures;
     if (selectedDisciplines.size) {
+      const wanted = expandedDisciplineFilter();
       list = list.filter((f) => {
         const tags = f.properties?.disciplines || [];
-        return tags.some((t) => selectedDisciplines.has(t));
+        return tags.some((t) => wanted.has(t));
       });
     }
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      list = list.filter((f) => String(f.properties?.name || "").toLowerCase().includes(q));
+      list = list.filter((f) => featureSearchBlob(f).includes(q));
     }
     return list;
   }
@@ -110,42 +264,269 @@
     }
     const labels = disciplineCatalog
       .filter((d) => selectedDisciplines.has(d.slug))
-      .map((d) => d.label);
+      .map((d) => d.short || d.label);
     disciplineHint.textContent = `Фильтр: ${labels.join(" · ")}`;
   }
 
-  function renderDisciplineFilters() {
-    if (!disciplineFiltersEl) return;
-    const total = allFeatures.length;
-    const allActive = selectedDisciplines.size === 0 ? "active" : "";
-    const rows = [
-      `<button type="button" class="discipline-row is-all ${allActive}" data-slug="">
-        <span class="glyph all">Все</span>
-        <span class="name">Все дисциплины</span>
-        <span class="count">${total}</span>
-      </button>`,
-    ];
-    disciplineCatalog.forEach((item) => {
-      const active = selectedDisciplines.has(item.slug) ? "active" : "";
-      const count = disciplineCounts[item.slug] ?? 0;
-      rows.push(`<button type="button" class="discipline-row ${active}" data-slug="${item.slug}" style="--disc-color:${item.color}">
-        <span class="glyph">${glyphSvg(item.symbol)}</span>
-        <span class="name">${escapeHtml(item.label)}</span>
-        <span class="count">${count}</span>
-      </button>`);
+  function syncSearchChrome() {
+    const hasFilters = selectedDisciplines.size > 0 || Boolean(searchQuery);
+    if (searchClear) searchClear.hidden = !hasFilters;
+    renderSearchChips();
+    updateDisciplineHint();
+  }
+
+  function renderSearchChips() {
+    if (!searchChips) return;
+    const chips = [];
+    selectedDisciplines.forEach((slug) => {
+      const meta = disciplineCatalog.find((d) => d.slug === slug);
+      const label = meta?.short || meta?.label || slug;
+      const color = meta?.color || "#64748b";
+      chips.push(
+        `<span class="omnibox-chip" style="--disc-color:${color}">
+          <span>${escapeHtml(label)}</span>
+          <button type="button" data-remove-slug="${escapeHtml(slug)}" aria-label="Убрать ${escapeHtml(label)}">×</button>
+        </span>`
+      );
     });
-    disciplineFiltersEl.innerHTML = rows.join("");
-    disciplineFiltersEl.querySelectorAll(".discipline-row").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const slug = btn.dataset.slug;
-        if (!slug) selectedDisciplines.clear();
-        else if (selectedDisciplines.has(slug)) selectedDisciplines.delete(slug);
-        else selectedDisciplines.add(slug);
-        renderDisciplineFilters();
-        paintMap(false);
+    searchChips.innerHTML = chips.join("");
+    searchChips.querySelectorAll("[data-remove-slug]").forEach((btn) => {
+      btn.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        selectedDisciplines.delete(btn.getAttribute("data-remove-slug"));
+        applySearchState();
       });
     });
-    updateDisciplineHint();
+  }
+
+  function setSuggestOpen(open) {
+    suggestOpen = open;
+    if (searchSuggest) searchSuggest.hidden = !open;
+    if (omniboxField) omniboxField.classList.toggle("is-open", open);
+    if (searchInput) searchInput.setAttribute("aria-expanded", open ? "true" : "false");
+    if (!open) {
+      suggestIndex = -1;
+      suggestItems = [];
+    }
+  }
+
+  function buildSuggestions(rawQuery) {
+    const q = (rawQuery || "").trim().toLowerCase();
+    const discHits = [];
+    disciplineCatalog.forEach((item) => {
+      const count = disciplineCounts[item.slug] ?? 0;
+      const hay = `${item.label} ${item.short || ""} ${item.slug}`.toLowerCase();
+      if (q && !hay.includes(q)) return;
+      discHits.push({
+        kind: "discipline",
+        slug: item.slug,
+        label: item.label,
+        short: item.short || item.label,
+        color: item.color,
+        symbol: item.symbol,
+        count,
+        active: selectedDisciplines.has(item.slug),
+      });
+    });
+    discHits.sort((a, b) => {
+      if (a.active !== b.active) return a.active ? -1 : 1;
+      if ((b.count || 0) !== (a.count || 0)) return (b.count || 0) - (a.count || 0);
+      return a.label.localeCompare(b.label, "ru");
+    });
+
+    const placeHits = [];
+    if (q.length >= 1) {
+      allFeatures.forEach((f) => {
+        if (!featureSearchBlob(f).includes(q)) return;
+        const p = f.properties || {};
+        placeHits.push({
+          kind: "place",
+          id: p.id,
+          entityType: p.entity_type || "spot",
+          label: p.name || "Спот",
+          meta: p.address || p.discipline_label || "",
+          color: p.discipline_color || "#64748b",
+          symbol: p.discipline_symbol || "disc-wakesurf",
+          feature: f,
+        });
+      });
+      placeHits.sort((a, b) => a.label.localeCompare(b.label, "ru"));
+    }
+
+    return {
+      disciplines: discHits.slice(0, q ? 8 : 12),
+      places: placeHits.slice(0, 8),
+    };
+  }
+
+  function renderSuggestions(rawQuery) {
+    if (!searchSuggest) return;
+    const packs = buildSuggestions(rawQuery);
+    suggestItems = [];
+    const blocks = [];
+    if (packs.disciplines.length) {
+      blocks.push(`<p class="omnibox-section">Дисциплины</p>`);
+      packs.disciplines.forEach((item) => {
+        const idx = suggestItems.length;
+        suggestItems.push(item);
+        blocks.push(
+          `<button type="button" class="omnibox-item" role="option" data-suggest-index="${idx}" style="--disc-color:${item.color}">
+            <span class="glyph">${glyphSvg(item.symbol)}</span>
+            <span class="name"><b>${escapeHtml(item.label)}</b><small>${
+              item.active ? "выбрано · снять" : "фильтр по дисциплине"
+            }</small></span>
+            <span class="count">${item.count}</span>
+          </button>`
+        );
+      });
+    }
+    if (packs.places.length) {
+      blocks.push(`<p class="omnibox-section">Споты и клубы</p>`);
+      packs.places.forEach((item) => {
+        const idx = suggestItems.length;
+        suggestItems.push(item);
+        blocks.push(
+          `<button type="button" class="omnibox-item" role="option" data-suggest-index="${idx}" style="--disc-color:${item.color}">
+            <span class="glyph">${glyphSvg(item.symbol)}</span>
+            <span class="name"><b>${escapeHtml(item.label)}</b><small>${escapeHtml(
+              item.meta || "Открыть паспорт"
+            )}</small></span>
+            <span class="count"></span>
+          </button>`
+        );
+      });
+    }
+    if (!blocks.length) {
+      searchSuggest.innerHTML = `<p class="omnibox-empty">Нет совпадений. Попробуйте другое название или дисциплину.</p>`;
+      setSuggestOpen(true);
+      return;
+    }
+    searchSuggest.innerHTML = blocks.join("");
+    searchSuggest.querySelectorAll("[data-suggest-index]").forEach((btn) => {
+      btn.addEventListener("mousedown", (ev) => {
+        ev.preventDefault();
+        const idx = Number(btn.getAttribute("data-suggest-index"));
+        chooseSuggestion(idx);
+      });
+    });
+    setSuggestOpen(true);
+    highlightSuggestion(-1);
+  }
+
+  function highlightSuggestion(index) {
+    suggestIndex = index;
+    if (!searchSuggest) return;
+    searchSuggest.querySelectorAll(".omnibox-item").forEach((el, i) => {
+      el.classList.toggle("is-active", i === index);
+    });
+  }
+
+  function chooseSuggestion(index) {
+    const item = suggestItems[index];
+    if (!item) return;
+    if (item.kind === "discipline") {
+      if (selectedDisciplines.has(item.slug)) selectedDisciplines.delete(item.slug);
+      else selectedDisciplines.add(item.slug);
+      if (searchInput) searchInput.value = "";
+      searchQuery = "";
+      applySearchState();
+      renderSuggestions("");
+      searchInput?.focus();
+      return;
+    }
+    if (item.kind === "place") {
+      if (searchInput) searchInput.value = item.label;
+      searchQuery = item.label;
+      setSuggestOpen(false);
+      applySearchState();
+      const props = item.feature?.properties;
+      if (props) openSpotCard(props).catch(() => {});
+      paintMap(false);
+      if (map && item.feature?.geometry?.coordinates) {
+        const [lng, lat] = item.feature.geometry.coordinates;
+        map.setCenter([lat, lng], Math.max(map.getZoom(), 12), { duration: 250 });
+      }
+    }
+  }
+
+  function applySearchState() {
+    syncSearchChrome();
+    paintMap(false);
+    renderInsightPanel();
+  }
+
+  function clearSearchAndFilters() {
+    selectedDisciplines.clear();
+    searchQuery = "";
+    if (searchInput) searchInput.value = "";
+    setSuggestOpen(false);
+    applySearchState();
+  }
+
+  function pluralRu(n, one, few, many) {
+    const abs = Math.abs(n) % 100;
+    const d = abs % 10;
+    if (abs > 10 && abs < 20) return many;
+    if (d === 1) return one;
+    if (d >= 2 && d <= 4) return few;
+    return many;
+  }
+
+  function renderInsightPanel() {
+    const features = filteredFeatures();
+    const verified = features.filter((f) => f.properties?.pin_kind !== "staging_approximate").length;
+    const drafts = features.length - verified;
+    if (insightStats) {
+      if (!features.length) {
+        insightStats.innerHTML = `<p class="insight-empty">На карте нет объектов под текущий фильтр или поиск. Снимите фильтр или измените запрос.</p>`;
+      } else {
+        const totalLabel = pluralRu(features.length, "объект", "объекта", "объектов");
+        const draftNote = drafts
+          ? ` · ${drafts} ${pluralRu(drafts, "черновик", "черновика", "черновиков")}`
+          : "";
+        const searchNote = searchQuery
+          ? `<p class="meta">Поиск: «${escapeHtml(searchQuery)}»</p>`
+          : "";
+        insightStats.innerHTML = `
+          <p class="insight-count"><b>${features.length}</b> ${totalLabel} на карте</p>
+          <p class="meta">${verified} с проверенным GPS${draftNote}</p>
+          ${searchNote}
+        `;
+      }
+    }
+    if (insightSelected) {
+      const hit = selectedPinId
+        ? allFeatures.find((f) => f.properties?.id === selectedPinId)
+        : null;
+      if (!hit) {
+        insightSelected.hidden = true;
+        insightSelected.innerHTML = "";
+      } else {
+        const p = hit.properties || {};
+        const disc = (p.disciplines || [])
+          .map((slug) => disciplineCatalog.find((d) => d.slug === slug)?.label || slug)
+          .filter(Boolean)
+          .slice(0, 3)
+          .join(" · ");
+        const kind =
+          p.pin_kind === "staging_approximate" ? "Черновик на проверке" : "Проверенный паспорт";
+        insightSelected.hidden = false;
+        insightSelected.innerHTML = `
+          <h2>Выбрано на карте</h2>
+          <p class="insight-selected-name">${escapeHtml(p.name || "Спот")}</p>
+          <p class="meta">${escapeHtml(kind)}${disc ? ` · ${escapeHtml(disc)}` : ""}</p>
+          <p class="meta">Полный паспорт — в карточке справа на карте.</p>
+        `;
+      }
+    }
+  }
+
+  function renderDisciplineFilters() {
+    // Legacy sidebar list kept only as hidden hook; primary UX is the omnibox.
+    syncSearchChrome();
+    if (!disciplineFiltersEl) return;
+    disciplineFiltersEl.innerHTML = "";
   }
 
   function loadYmapsScript(apiKey) {
@@ -171,6 +552,73 @@
     });
   }
 
+  async function refreshWindLayer() {
+    if (!map || !window.ymaps || !windLayerOn) {
+      if (windCollection) windCollection.removeAll();
+      return;
+    }
+    const bounds = map.getBounds();
+    if (!bounds || bounds.length < 2) return;
+    const sw = bounds[0];
+    const ne = bounds[1];
+    const qs = new URLSearchParams({
+      min_lat: String(sw[0]),
+      min_lng: String(sw[1]),
+      max_lat: String(ne[0]),
+      max_lng: String(ne[1]),
+      step: "0.4",
+    });
+    try {
+      const res = await fetch(`/v1/weather/wind-grid?${qs.toString()}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!windCollection) {
+        windCollection = new window.ymaps.GeoObjectCollection();
+        map.geoObjects.add(windCollection);
+      }
+      windCollection.removeAll();
+      const WIND_ICON = 48;
+      (data.points || []).forEach((p) => {
+        const from = Number(p.direction_from_deg);
+        const to = (from + 180) % 360;
+        const speed = Number(p.wind_mps) || 0;
+        const half = WIND_ICON / 2;
+        const mark = new window.ymaps.Placemark(
+          [p.lat, p.lng],
+          {
+            hintContent: `${speed.toFixed(1)} м/с · от ${Math.round(from)}°`,
+          },
+          {
+            iconLayout: "default#image",
+            iconImageHref:
+              "data:image/svg+xml;charset=UTF-8," +
+              encodeURIComponent(
+                `<svg xmlns="http://www.w3.org/2000/svg" width="${WIND_ICON}" height="${WIND_ICON}" viewBox="0 0 48 48">
+                  <g transform="rotate(${to} 24 24)">
+                    <path d="M24 4 L32 30 L24 24 L16 30 Z" fill="#0b3d4a" opacity="0.92"/>
+                    <circle cx="24" cy="24" r="3.5" fill="#2a9d8f"/>
+                  </g>
+                </svg>`
+              ),
+            iconImageSize: [WIND_ICON, WIND_ICON],
+            iconImageOffset: [-half, -half],
+            zIndex: 100,
+          }
+        );
+        windCollection.add(mark);
+      });
+    } catch (_err) {
+      /* keep map usable if wind grid fails */
+    }
+  }
+
+  function scheduleWindRefresh() {
+    clearTimeout(windLoadTimer);
+    windLoadTimer = setTimeout(() => {
+      refreshWindLayer().catch(() => {});
+    }, 350);
+  }
+
   function createMap(ymaps) {
     map = new ymaps.Map(
       "map",
@@ -187,6 +635,9 @@
     );
     placemarks = new ymaps.GeoObjectCollection();
     map.geoObjects.add(placemarks);
+    windCollection = new ymaps.GeoObjectCollection();
+    map.geoObjects.add(windCollection);
+    map.events.add("boundschange", scheduleWindRefresh);
 
     pinLayout = ymaps.templateLayoutFactory.createClass(
       `<div class="spot-pin {% if properties.isActive %}is-active{% endif %}" style="--disc-color: $[properties.disciplineColor]">
@@ -235,31 +686,194 @@
     if (spotCard) spotCard.hidden = true;
     selectedPinId = null;
     selectedClusterKey = null;
+    renderInsightPanel();
   }
 
-  function openSpotCard(p) {
+  function renderPlaceCard(base, detail) {
     if (!spotCard) return;
-    const tags = (p.disciplines || [])
+    const disciplines = detail?.disciplines || base.disciplines || [];
+    // Prefer install facets + primary sports; hide noisy co-located duplicates in UI chips.
+    // Cable facets/sports first so boat tags never crowd a winch-only passport.
+    const prefer = [
+      "cable_ring",
+      "cable_reverse",
+      "cable_pool",
+      "wakeboard_cable",
+      "waterski_cable",
+      "wakeskate",
+      "wakesurf",
+      "wakeboard_boat",
+      "waterski_slalom",
+    ];
+    const shown = [];
+    for (const slug of prefer) {
+      if (disciplines.includes(slug)) shown.push(slug);
+    }
+    for (const slug of disciplines) {
+      if (!shown.includes(slug) && shown.length < 4) shown.push(slug);
+    }
+    const tags = shown
       .map((slug) => {
         const meta = disciplineCatalog.find((d) => d.slug === slug);
         const color = meta?.color || "#64748b";
-        const label = meta?.label || slug;
+        const label = meta?.short || meta?.label || slug;
         return `<span class="chip-tag" style="--disc-color:${color}">${escapeHtml(label)}</span>`;
       })
       .join("");
+    const address = detail?.address_text || detail?.locality || "";
+    const routeUrl = detail?.route_url || null;
+    const lead = detail?.lead_cta;
+    const leadHtml = lead
+      ? `<a class="cta-primary" href="${escapeHtml(lead.href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(
+          lead.label
+        )}</a>`
+      : "";
+    const secondary = [];
+    if (detail?.contacts?.website) {
+      secondary.push(
+        `<a class="cta-secondary" href="${escapeHtml(
+          detail.contacts.website
+        )}" target="_blank" rel="noopener noreferrer">Сайт</a>`
+      );
+    }
+    if (detail?.contacts?.phone) {
+      const tel = String(detail.contacts.phone).replace(/[^\d+]/g, "");
+      secondary.push(
+        `<a class="cta-secondary" href="tel:${escapeHtml(tel)}">${escapeHtml(detail.contacts.phone)}</a>`
+      );
+    }
+    const socialIcons = [];
+    const tgHref = normalizeTelegramUrl(detail?.contacts?.telegram_url);
+    if (tgHref) {
+      socialIcons.push(
+        `<a class="social-icon social-icon--telegram" href="${escapeHtml(
+          tgHref
+        )}" target="_blank" rel="noopener noreferrer" title="Telegram" aria-label="Telegram-канал">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+          </svg>
+        </a>`
+      );
+    }
+    const socialHtml = socialIcons.length
+      ? `<div class="card-social">${socialIcons.join("")}</div>`
+      : "";
+    const draftNote =
+      base.pin_kind === "staging_approximate"
+        ? '<p class="meta">Черновик — координаты уточняются</p>'
+        : "";
+    const wx = detail?.weather;
+    if (wx) formatWeatherStrip(wx);
+    const wxHtml =
+      wx && wx.status === "ok"
+        ? `<div class="score-block">
+        <p class="score-label">Погода</p>
+        <p class="meta">Воздух ${escapeHtml(
+          wx.air_c != null ? `${Math.round(wx.air_c)}°C` : "—"
+        )} · Ветер ${escapeHtml(
+          wx.wind_mps != null ? `${Number(wx.wind_mps).toFixed(1)} м/с` : "—"
+        )} ${escapeHtml(windDirLabel(wx.direction_from_deg))} · Порывы ${escapeHtml(
+          wx.gust_mps != null ? `${Number(wx.gust_mps).toFixed(1)} м/с` : "—"
+        )}</p>
+        <p class="meta">Вода: ${escapeHtml(
+          wx.water_status === "measured" && wx.water_c != null
+            ? `${Math.round(wx.water_c)}°C`
+            : "нет данных"
+        )}</p>
+      </div>`
+        : "";
+    const routeHtml = routeUrl
+      ? `<a class="card-route" href="${escapeHtml(routeUrl)}" target="_blank" rel="noopener noreferrer">Маршрут в Яндекс.Картах</a>`
+      : "";
+    const leadDisclaimer =
+      lead?.kind === "booking_go"
+        ? `<p class="meta">Переход на сайт клуба — не подтверждение записи</p>`
+        : "";
+    const manage = detail?.club_manage || {};
+    const manageSpotId = manage.manage_spot_id || detail?.parent_spot_id || detail?.id || base.id;
+    const ownerClaimHtml =
+      !EMBED_MODE && ownerAdmin && base.pin_kind !== "staging_approximate"
+        ? ownerAdmin.cardActionHtml({
+            label: manage.cta_label || "Это мой спот",
+            spotId: detail?.id || base.id,
+            manageSpotId,
+            spotName: detail?.name || base.name || "",
+          })
+        : "";
     spotCard.hidden = false;
     spotCard.innerHTML = `
       <button type="button" class="close" aria-label="Закрыть">×</button>
-      <h3>${escapeHtml(p.name || "Spot")}</h3>
-      <p class="meta">${escapeHtml(p.pin_kind === "staging_approximate" ? "STAGING · approximate" : "VERIFIED")}
-      · ${escapeHtml(p.entity_type || "")}
-      · geo: ${escapeHtml(p.geo_status || "?")}</p>
-      <div class="tags">${tags || '<span class="chip-tag">дисциплина не указана</span>'}</div>
+      <h3>${escapeHtml(detail?.name || base.name || "Спот")}</h3>
+      <div class="card-head-meta">
+        ${address ? `<p class="meta card-address">${escapeHtml(address)}</p>` : ""}
+        ${routeHtml}
+        ${socialHtml}
+      </div>
+      ${draftNote}
+      ${wxHtml}
+      <div class="tags">${tags || ""}</div>
+      <div class="cta-row">${leadHtml}${secondary.join("")}</div>
+      ${leadDisclaimer}
+      ${ownerClaimHtml}
     `;
     spotCard.querySelector(".close")?.addEventListener("click", () => {
       closeSpotCard();
       paintMap(false);
+      renderInsightPanel();
     });
+    ownerAdmin?.bindCard(spotCard);
+    renderInsightPanel();
+  }
+
+  async function openSpotCard(p) {
+    if (!spotCard) return;
+    // Staging pins: local card only (not published passport).
+    if (p.pin_kind === "staging_approximate") {
+      renderPlaceCard(p, {
+        name: p.name,
+        disciplines: p.disciplines || [],
+        spot_score: {
+          status: "pending",
+          label: "Появится позже",
+          hint: "Спот ещё на проверке",
+        },
+        convenience: [],
+        lead_cta: null,
+      });
+      return;
+    }
+    renderPlaceCard(p, {
+      name: p.name,
+      disciplines: p.disciplines || [],
+      spot_score: {
+        status: "pending",
+        label: "Появится позже",
+        hint: "Загрузка…",
+      },
+      convenience: [],
+      lead_cta: null,
+    });
+    try {
+      const et = encodeURIComponent(p.entity_type || "spot");
+      const res = await fetch(`/v1/public/places/${encodeURIComponent(p.id)}?entity_type=${et}`);
+      if (!res.ok) throw new Error(`place ${res.status}`);
+      const detail = await res.json();
+      if (selectedPinId !== p.id) return;
+      renderPlaceCard(p, detail);
+    } catch (_err) {
+      if (selectedPinId !== p.id) return;
+      renderPlaceCard(p, {
+        name: p.name,
+        disciplines: p.disciplines || [],
+        spot_score: {
+          status: "pending",
+          label: "Появится позже",
+          hint: "Собираем отзывы и проверенные факты",
+        },
+        convenience: [],
+        lead_cta: null,
+      });
+    }
   }
 
   function openClusterCard(items, key) {
@@ -272,15 +886,15 @@
           .join(", ");
         return `<button type="button" class="cluster-item" data-id="${escapeHtml(p.id)}">
           <span class="cluster-item-name">${escapeHtml(p.name || "Spot")}</span>
-          <span class="cluster-item-meta">${escapeHtml(disc || p.entity_type || "")}</span>
+          <span class="cluster-item-meta">${escapeHtml(disc || "")}</span>
         </button>`;
       })
       .join("");
     spotCard.hidden = false;
     spotCard.innerHTML = `
       <button type="button" class="close" aria-label="Закрыть">×</button>
-      <h3>На площадке: ${props.length}</h3>
-      <p class="meta">Одна координата · клубы остаются отдельными карточками</p>
+      <h3>Несколько клубов здесь</h3>
+      <p class="meta">Выберите карточку</p>
       <div class="cluster-list">${list}</div>
     `;
     spotCard.querySelector(".close")?.addEventListener("click", () => {
@@ -312,7 +926,7 @@
     });
 
     if (!features.length) {
-      setStatus("нет объектов для фильтра", true);
+      setStatus("", true);
       return;
     }
 
@@ -399,17 +1013,17 @@
       const bounds = placemarks.getBounds();
       if (bounds) map.setBounds(bounds, { checkZoomRange: true, zoomMargin: 48 });
     }
-    const clusterN = [...groups.values()].filter((g) => g.length > 1).length;
-    setStatus(
-      `${features.length} объектов · ${groups.size} точек · кластеров ${clusterN} · verified ${mapMeta.verified_count ?? 0}`,
-      true
-    );
+    renderInsightPanel();
+    setStatus("", true);
   }
 
   async function loadMapData() {
     if (!map || !window.ymaps) return;
     const qs = new URLSearchParams();
-    qs.set("include_staging", showStaging?.checked ? "true" : "false");
+    qs.set(
+      "include_staging",
+      !EMBED_MODE && showStaging?.checked ? "true" : "false"
+    );
     const res = await fetch(`/v1/map/points?${qs.toString()}`);
     if (!res.ok) throw new Error(`map ${res.status}`);
     const data = await res.json();
@@ -419,8 +1033,10 @@
       disciplineCatalog = mapMeta.discipline_catalog;
     }
     disciplineCounts = mapMeta.discipline_counts || {};
+    filterAliases = mapMeta.filter_aliases || {};
     renderDisciplineFilters();
     paintMap(true);
+    ownerAdmin?.refreshSpots();
   }
 
   async function loadQueue() {
@@ -432,41 +1048,98 @@
     const data = await res.json();
     queueEl.innerHTML = (data.items || [])
       .map((item) => {
-        const region = item.raw_region || "регион не указан";
-        const legacy = item.legacy_row_id ? ` · ${item.legacy_row_id}` : "";
+        const region = item.raw_region ? escapeHtml(item.raw_region) : "";
         const src = item.source_url
-          ? `<a href="${item.source_url}" target="_blank" rel="noopener noreferrer">источник</a>`
-          : "источник не указан";
+          ? `<a href="${escapeHtml(item.source_url)}" target="_blank" rel="noopener noreferrer">сайт</a>`
+          : "";
         const onMap = item.has_approx_point
           ? '<span class="tag tag-ok">на карте</span>'
           : '<span class="tag tag-warn">нужен GPS</span>';
+        const metaParts = [region, src].filter(Boolean).join(" · ");
         return `<li>
           <p class="name">${escapeHtml(item.raw_name)}</p>
-          <p class="meta">${escapeHtml(region)}${escapeHtml(legacy)} · ${escapeHtml(item.candidate_kind)} · ${src}</p>
-          <span class="tag">geo: ${escapeHtml(item.geo_status)}</span>
+          ${metaParts ? `<p class="meta">${metaParts}</p>` : ""}
           ${onMap}
         </li>`;
       })
       .join("");
     if (!data.items?.length) {
-      queueEl.innerHTML = `<li><p class="meta">Очередь пуста для текущего фильтра.</p></li>`;
+      queueEl.innerHTML = `<li><p class="meta">Пока пусто</p></li>`;
     }
   }
 
-  kindFilter.addEventListener("change", () => {
-    loadQueue().catch((err) => setStatus(`ошибка очереди: ${err.message}`, false));
-  });
+  if (!EMBED_MODE) {
+    kindFilter?.addEventListener("change", () => {
+      loadQueue().catch((err) => setStatus(`ошибка очереди: ${err.message}`, false));
+    });
+  }
   showStaging?.addEventListener("change", () => {
     loadMapData().catch((err) => setStatus(`ошибка карты: ${err.message}`, false));
+  });
+  windLayerToggle?.addEventListener("click", () => {
+    if (windLayerToggle.disabled) return;
+    windLayerOn = !windLayerOn;
+    windLayerToggle.setAttribute("aria-pressed", windLayerOn ? "true" : "false");
+    if (!windLayerOn && windCollection) windCollection.removeAll();
+    else scheduleWindRefresh();
   });
   let searchTimer = null;
   searchInput?.addEventListener("input", () => {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => {
       searchQuery = (searchInput.value || "").trim();
-      paintMap(false);
-    }, 180);
+      applySearchState();
+      renderSuggestions(searchInput.value || "");
+    }, 140);
   });
+  searchInput?.addEventListener("focus", () => {
+    renderSuggestions(searchInput.value || "");
+  });
+  searchInput?.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape") {
+      setSuggestOpen(false);
+      return;
+    }
+    if (!suggestOpen || !suggestItems.length) {
+      if (ev.key === "Enter") {
+        searchQuery = (searchInput.value || "").trim();
+        applySearchState();
+      }
+      return;
+    }
+    if (ev.key === "ArrowDown") {
+      ev.preventDefault();
+      highlightSuggestion((suggestIndex + 1) % suggestItems.length);
+    } else if (ev.key === "ArrowUp") {
+      ev.preventDefault();
+      highlightSuggestion((suggestIndex - 1 + suggestItems.length) % suggestItems.length);
+    } else if (ev.key === "Enter") {
+      ev.preventDefault();
+      if (suggestIndex >= 0) chooseSuggestion(suggestIndex);
+      else {
+        searchQuery = (searchInput.value || "").trim();
+        setSuggestOpen(false);
+        applySearchState();
+      }
+    }
+  });
+  searchClear?.addEventListener("click", () => clearSearchAndFilters());
+  emptyReset?.addEventListener("click", () => clearSearchAndFilters());
+  document.addEventListener("click", (ev) => {
+    const box = document.getElementById("omnibox");
+    if (box && !box.contains(ev.target)) setSuggestOpen(false);
+  });
+
+  if (EMBED_MODE) {
+    document.body.classList.add(`host-${EMBED_HOST}`);
+    document.querySelector(".panel-block:last-of-type")?.setAttribute("hidden", "");
+    const stagingToggle = document.querySelector("label.toggle");
+    if (stagingToggle) stagingToggle.hidden = true;
+    if (showStaging) showStaging.checked = false;
+    if (ownerAdminOpen) ownerAdminOpen.hidden = true;
+  } else {
+    ownerAdmin = initOwnerAdminModule();
+  }
 
   (async () => {
     try {
@@ -476,23 +1149,40 @@
         fetch("/v1/config/public").then((r) => r.json()),
       ]);
       if (health.database !== "up") setStatus("БД недоступна", false);
+      if (config.club_manage) {
+        clubManageConfig = { ...clubManageConfig, ...config.club_manage };
+      }
 
       const apiKey = (config.yandex_maps_api_key || "").trim();
       if (!apiKey) {
         mapKeyHint.hidden = false;
         emptyState.hidden = true;
         setStatus("нужен YANDEX_MAPS_API_KEY", false);
-        await loadQueue();
+        if (!EMBED_MODE) await loadQueue();
         return;
       }
 
       mapKeyHint.hidden = true;
+      if (config.weather?.wind_layer) {
+        formatWeatherStrip({
+          status: "unavailable",
+          wind_layer: config.weather.wind_layer,
+          water_status: "no_measurement",
+        });
+      }
       const ymaps = await loadYmapsScript(apiKey);
       createMap(ymaps);
-      await Promise.all([loadMapData(), loadQueue()]);
+      const jobs = [
+        loadMapData(),
+        fetch("/v1/weather/point?lat=55.75&lon=37.62")
+          .then((r) => r.json())
+          .then((wx) => formatWeatherStrip(wx))
+          .catch(() => {}),
+      ];
+      if (!EMBED_MODE) jobs.push(loadQueue());
+      await Promise.all(jobs);
     } catch (err) {
       setStatus(`не удалось загрузить: ${err.message}`, false);
       emptyState.hidden = false;
     }
   })();
-})();

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SpotMap — карта</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body class="embed-mode" data-mode="embed" data-host="mywave">
+  <div class="shell shell--map-first embed-shell">
+    <header class="top">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div>
+          <p class="brand-name">SpotMap</p>
+          <p class="brand-sub">вейк-споты на карте</p>
+        </div>
+      </div>
+
+      <div class="omnibox" id="omnibox">
+        <div class="omnibox-field" id="omniboxField">
+          <div class="omnibox-chips" id="searchChips" aria-live="polite"></div>
+          <label class="omnibox-input-wrap">
+            <span class="sr-only">Поиск спота, клуба, локации или дисциплины</span>
+            <input
+              id="searchInput"
+              type="search"
+              placeholder="Спот, клуб, адрес или дисциплина…"
+              autocomplete="off"
+              role="combobox"
+              aria-expanded="false"
+              aria-controls="searchSuggest"
+              aria-autocomplete="list"
+            />
+          </label>
+          <button type="button" class="omnibox-clear" id="searchClear" hidden aria-label="Очистить поиск и фильтры">×</button>
+        </div>
+        <div id="searchSuggest" class="omnibox-suggest" hidden role="listbox" aria-label="Подсказки поиска"></div>
+      </div>
+
+      <div id="statusPill" class="status-pill" hidden></div>
+    </header>
+
+    <aside class="panel" hidden aria-hidden="true">
+      <div id="disciplineFilters"></div>
+      <p id="disciplineHint"></p>
+      <div class="weather-strip" id="weatherStrip"></div>
+      <div id="insightPanel" class="insight-panel">
+        <div class="insight-stats" id="insightStats"></div>
+        <div class="insight-selected" id="insightSelected" hidden></div>
+      </div>
+      <label class="toggle" hidden>
+        <input type="checkbox" id="showStaging" />
+        Показывать черновики на карте
+      </label>
+      <div id="stats" class="stats" hidden></div>
+      <select id="kindFilter" hidden aria-hidden="true"><option value=""></option></select>
+      <ul id="queue" class="queue" hidden></ul>
+      <p id="mapProviderNote" class="provider-note">Картография: Яндекс · погода: MET Norway (CC BY 4.0)</p>
+    </aside>
+
+    <main class="map-wrap">
+      <div id="map" role="application" aria-label="Карта спотов SpotMap"></div>
+      <div id="emptyState" class="empty-state" hidden>
+        <p class="empty-title">Ничего не найдено</p>
+        <p class="empty-text">Измените запрос или снимите фильтр дисциплины.</p>
+        <button type="button" class="empty-reset" id="emptyReset">Сбросить поиск</button>
+      </div>
+      <div id="mapKeyHint" class="empty-state key-hint" hidden>
+        <p class="empty-title">Карта временно недоступна</p>
+        <p class="empty-text">Проверьте настройки ключа карт у администратора.</p>
+      </div>
+      <div id="spotCard" class="spot-card" hidden></div>
+    </main>
+  </div>
+
+  <div id="ownerAdminRoot" hidden></div>
+  <object id="iconSprite" data="/static/icons/disciplines.svg" type="image/svg+xml" hidden aria-hidden="true"></object>
+  <script>
+    (function () {
+      const params = new URLSearchParams(location.search);
+      const host = params.get("host") === "fvls" ? "fvls" : "mywave";
+      document.body.dataset.host = host;
+      document.body.classList.add("host-" + host);
+    })();
+  </script>
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>

@@ -2,20 +2,26 @@ import unittest
 
 from app.disciplines import (
     DISCIPLINE_CATALOG,
+    SPORT_SLUGS,
+    WAKESURF_FAMILY,
+    WATERSKI_CLUB_TAGS,
     classify_disciplines,
     count_disciplines,
     enrich_row_disciplines,
+    expand_filter_selection,
     primary_discipline,
 )
 
 
 class DisciplineClassifyTests(unittest.TestCase):
-    def test_catalog_has_six_approved_icons(self):
-        self.assertEqual(len(DISCIPLINE_CATALOG), 6)
-        colors = {item["color"] for item in DISCIPLINE_CATALOG}
-        self.assertIn("#7B5CFF", colors)  # waterski purple
-        self.assertIn("#EC4899", colors)  # reverse magenta
-        self.assertIn("#22C55E", colors)  # ring green
+    def test_catalog_excludes_removed(self):
+        slugs = {i["slug"] for i in DISCIPLINE_CATALOG}
+        for banned in ("kneeboard", "barefoot", "wakeskate_cable", "show_ski", "sup"):
+            self.assertNotIn(banned, slugs)
+        self.assertIn("wakesurf_longboard", slugs)
+        self.assertIn("wakefoil", slugs)
+        self.assertIn("wakeskate", slugs)
+        self.assertEqual(SPORT_SLUGS, frozenset(i["slug"] for i in DISCIPLINE_CATALOG if i["kind"] == "sport"))
 
     def test_pool(self):
         tags = classify_disciplines(
@@ -23,31 +29,54 @@ class DisciplineClassifyTests(unittest.TestCase):
             raw_disciplines="Крытый вейк на лебёдке, 50-метровый бассейн",
         )
         self.assertIn("cable_pool", tags)
+        self.assertIn("wakeboard_cable", tags)
+        self.assertIn("waterski_cable", tags)
+        self.assertNotIn("wakeskate", tags)  # скейт только кольцо/реверс
         self.assertEqual(primary_discipline(tags), "cable_pool")
 
-    def test_ring_and_reverse(self):
+    def test_ring_gets_wakeskate_and_waterski_cable(self):
         tags = classify_disciplines(
             name="Полати Кровати",
             raw_disciplines="Кольцо / 2 реверса",
         )
         self.assertIn("cable_ring", tags)
         self.assertIn("cable_reverse", tags)
+        self.assertIn("wakeskate", tags)
+        self.assertIn("waterski_cable", tags)
+        self.assertIn("wakeboard_cable", tags)
 
-    def test_wakesurf_wakeboard_boat(self):
+    def test_wakesurf_family_colocated(self):
         tags = classify_disciplines(
             name="BestWave",
-            raw_disciplines="Вейксерф, джетсерф, e-foil",
+            raw_disciplines="Вейксерф",
             raw_address="Москва, Карамышевская наб. 13",
         )
-        self.assertIn("wakesurf_skim", tags)
+        self.assertTrue(WAKESURF_FAMILY.issubset(tags))
+        self.assertNotIn("sup", tags)
 
-    def test_untyped_cable(self):
+    def test_waterski_club_suite(self):
         tags = classify_disciplines(
-            name="Flat Wake Park",
-            raw_disciplines="Вейкборд (лебедка)",
-            candidate_kind="other",
+            name="Воднолыжный клуб «Вега»",
+            raw_disciplines="WATER_SKI",
         )
-        self.assertIn("cable_reverse", tags)
+        self.assertTrue(WATERSKI_CLUB_TAGS.issubset(tags))
+
+    def test_sup_not_emitted(self):
+        tags = classify_disciplines(name="SUP Club", raw_disciplines="сапборд SUP paddle")
+        self.assertNotIn("sup", tags)
+
+    def test_removed_slugs_never_emitted(self):
+        tags = classify_disciplines(
+            name="Test",
+            raw_disciplines="ниборд барефут wakeskate_cable kneeboard barefoot",
+        )
+        self.assertNotIn("kneeboard", tags)
+        self.assertNotIn("barefoot", tags)
+        self.assertNotIn("wakeskate_cable", tags)
+
+    def test_legacy_filter_alias(self):
+        expanded = expand_filter_selection({"wakesurf_skim"})
+        self.assertTrue(WAKESURF_FAMILY.issubset(expanded))
 
     def test_enrich_and_counts(self):
         row = enrich_row_disciplines(
@@ -58,24 +87,45 @@ class DisciplineClassifyTests(unittest.TestCase):
             }
         )
         self.assertIn("cable_ring", row["disciplines"])
-        self.assertTrue(row["discipline_symbol"].startswith("disc-"))
+        self.assertIn("wakeskate", row["disciplines"])
         counts = count_disciplines([row])
         self.assertGreaterEqual(counts["cable_ring"], 1)
-        self.assertGreaterEqual(counts["cable_reverse"], 1)
+        self.assertGreaterEqual(counts["wakeskate"], 1)
 
-    def test_research_taxonomy_tags(self):
+    def test_cable_only_strips_noisy_boat_tags(self):
         tags = classify_disciplines(
-            name="Воднолыжный клуб «Вега»",
-            raw_disciplines="WATER_SKI",
-        )
-        self.assertIn("waterski", tags)
-        cable = classify_disciplines(
-            name="Kraskovo Wake Park",
-            raw_disciplines="CABLE_CIRCUIT;CABLE_REVERSE",
+            name="WakeHome",
+            raw_disciplines="CABLE_REVERSE;реверсивная лебёдка;WAKESURF;WAKEBOARD_BOAT",
             candidate_kind="cable_installation",
         )
-        self.assertIn("cable_ring", cable)
-        self.assertIn("cable_reverse", cable)
+        self.assertIn("cable_reverse", tags)
+        self.assertIn("wakeboard_cable", tags)
+        self.assertIn("waterski_cable", tags)
+        self.assertIn("wakeskate", tags)
+        for boat in ("wakesurf", "wakeskim", "wakesurf_longboard", "wakefoil", "wakeboard_boat"):
+            self.assertNotIn(boat, tags)
+
+    def test_water_ski_on_cable_is_not_classic_club(self):
+        tags = classify_disciplines(
+            name="Вейк-парк Мякинино (Живописная бухта)",
+            raw_disciplines="CABLE_CIRCUIT;кольцевая лебёдка;WAKEBOARD_CABLE;WATER_SKI",
+            candidate_kind="cable_installation",
+        )
+        self.assertIn("cable_ring", tags)
+        self.assertIn("waterski_cable", tags)
+        self.assertNotIn("waterski_slalom", tags)
+        self.assertNotIn("adaptive_waterski", tags)
+
+    def test_hybrid_boat_plus_cable_keeps_boat_sports(self):
+        tags = classify_disciplines(
+            name="Take&Wake Konakovo",
+            raw_disciplines="WAKESURF;WAKEBOARD;катер;реверс",
+            candidate_kind="spot_or_club",
+        )
+        self.assertIn("cable_reverse", tags)
+        self.assertIn("wakeboard_cable", tags)
+        self.assertTrue(WAKESURF_FAMILY.issubset(tags))
+        self.assertIn("wakeboard_boat", tags)
 
 
 if __name__ == "__main__":
