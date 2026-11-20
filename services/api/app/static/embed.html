@@ -77,6 +77,7 @@
     </main>
   </div>
 
+  <div id="ownerAdminRoot" hidden></div>
   <object id="iconSprite" data="/static/icons/disciplines.svg" type="image/svg+xml" hidden aria-hidden="true"></object>
   <script>
     (function () {
@@ -86,6 +87,6 @@
       document.body.classList.add("host-" + host);
     })();
   </script>
-  <script src="/static/app.js"></script>
+  <script type="module" src="/static/app.js"></script>
 </body>
 </html>

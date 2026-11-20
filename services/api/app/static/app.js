@@ -1,4 +1,5 @@
-(() => {
+import { createOwnerAdmin } from "./modules/owner-admin.js";
+
   const statusPill = document.getElementById("statusPill");
   const statsEl = document.getElementById("stats");
   const queueEl = document.getElementById("queue");
@@ -20,6 +21,8 @@
   const weatherStrip = document.getElementById("weatherStrip");
   const headerWeather = document.getElementById("headerWeather");
   const windLayerToggle = document.getElementById("windLayerToggle");
+  const ownerAdminOpen = document.getElementById("ownerAdminOpen");
+  const ownerAdminRoot = document.getElementById("ownerAdminRoot");
   const EMBED_MODE = document.body?.dataset?.mode === "embed";
   const EMBED_HOST = document.body?.dataset?.host || "mywave";
 
@@ -151,6 +154,45 @@
   let windLayerOn = false;
   let windCollection = null;
   let windLoadTimer = null;
+  let clubManageConfig = {
+    moderator_telegram: "@MyWave23",
+    moderator_email: "y.valeev@gmail.com",
+  };
+  let ownerAdmin = null;
+
+  function listOwnerSpots() {
+    const rows = [];
+    const seen = new Set();
+    allFeatures.forEach((f) => {
+      const p = f.properties || {};
+      if (p.pin_kind === "staging_approximate") return;
+      const manageId = p.manage_spot_id || p.parent_spot_id || p.id;
+      if (!manageId || seen.has(manageId)) return;
+      seen.add(manageId);
+      rows.push({
+        id: p.id,
+        manageSpotId: manageId,
+        name: p.name || manageId,
+      });
+    });
+    rows.sort((a, b) => a.name.localeCompare(b.name, "ru"));
+    return rows;
+  }
+
+  function initOwnerAdminModule() {
+    if (!ownerAdminRoot || EMBED_MODE) return null;
+    return createOwnerAdmin({
+      root: ownerAdminRoot,
+      openButton: ownerAdminOpen,
+      getSpots: listOwnerSpots,
+      getConfig: () => clubManageConfig,
+    });
+  }
+  let clubManageConfig = {
+    moderator_telegram: "@MyWave23",
+    moderator_email: "y.valeev@gmail.com",
+  };
+  let ownerPrefill = null;
 
   function escapeHtml(value) {
     return String(value ?? "")
@@ -751,6 +793,17 @@
       lead?.kind === "booking_go"
         ? `<p class="meta">Переход на сайт клуба — не подтверждение записи</p>`
         : "";
+    const manage = detail?.club_manage || {};
+    const manageSpotId = manage.manage_spot_id || detail?.parent_spot_id || detail?.id || base.id;
+    const ownerClaimHtml =
+      !EMBED_MODE && ownerAdmin && base.pin_kind !== "staging_approximate"
+        ? ownerAdmin.cardActionHtml({
+            label: manage.cta_label || "Это мой спот",
+            spotId: detail?.id || base.id,
+            manageSpotId,
+            spotName: detail?.name || base.name || "",
+          })
+        : "";
     spotCard.hidden = false;
     spotCard.innerHTML = `
       <button type="button" class="close" aria-label="Закрыть">×</button>
@@ -765,12 +818,14 @@
       <div class="tags">${tags || ""}</div>
       <div class="cta-row">${leadHtml}${secondary.join("")}</div>
       ${leadDisclaimer}
+      ${ownerClaimHtml}
     `;
     spotCard.querySelector(".close")?.addEventListener("click", () => {
       closeSpotCard();
       paintMap(false);
       renderInsightPanel();
     });
+    ownerAdmin?.bindCard(spotCard);
     renderInsightPanel();
   }
 
@@ -985,6 +1040,7 @@
     filterAliases = mapMeta.filter_aliases || {};
     renderDisciplineFilters();
     paintMap(true);
+    ownerAdmin?.refreshSpots();
   }
 
   async function loadQueue() {
@@ -1084,6 +1140,9 @@
     const stagingToggle = document.querySelector("label.toggle");
     if (stagingToggle) stagingToggle.hidden = true;
     if (showStaging) showStaging.checked = false;
+    if (ownerAdminOpen) ownerAdminOpen.hidden = true;
+  } else {
+    ownerAdmin = initOwnerAdminModule();
   }
 
   (async () => {
@@ -1094,6 +1153,9 @@
         fetch("/v1/config/public").then((r) => r.json()),
       ]);
       if (health.database !== "up") setStatus("БД недоступна", false);
+      if (config.club_manage) {
+        clubManageConfig = { ...clubManageConfig, ...config.club_manage };
+      }
 
       const apiKey = (config.yandex_maps_api_key || "").trim();
       if (!apiKey) {
@@ -1128,4 +1190,3 @@
       emptyState.hidden = false;
     }
   })();
-})();

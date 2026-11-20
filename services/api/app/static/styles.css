@@ -485,6 +485,55 @@ body {
   font-size: 0.95rem;
 }
 .more-menu-panel .queue { max-height: 240px; overflow: auto; }
+.more-menu-lead {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+.map-legend {
+  position: absolute;
+  left: 0.85rem;
+  bottom: 0.85rem;
+  z-index: 450;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.75rem;
+  max-width: min(420px, calc(100% - 5rem));
+  padding: 0.45rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--shadow);
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+.map-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.map-legend .legend-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 999px;
+  display: inline-block;
+}
+/* Minimal trigger; full owner-admin styles live in modules/owner-admin.css */
+.owner-open {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--water);
+  border-radius: 10px;
+  padding: 0.4rem 0.75rem;
+  font: 700 0.8rem var(--font-body);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.owner-open:hover {
+  border-color: var(--accent);
+  background: rgba(42, 157, 143, 0.08);
+}
 
 .discipline-block { margin: 0 0 1.1rem; }
 .discipline-list {

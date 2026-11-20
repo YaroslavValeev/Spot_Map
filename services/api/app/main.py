@@ -217,19 +217,48 @@ def booking_go(
         ) from exc
 
 
+def _resolve_manage_spot_id(cur, raw_id: str) -> str | None:
+    """Accept published spot id or cable_installation id → parent spot."""
+    cur.execute(
+        """
+        SELECT id::text
+        FROM spots
+        WHERE id = %s::uuid AND publication_status = 'published'
+        """,
+        (raw_id,),
+    )
+    row = cur.fetchone()
+    if row:
+        return row[0]
+    cur.execute(
+        """
+        SELECT c.spot_id::text
+        FROM cable_installations c
+        JOIN spots s ON s.id = c.spot_id
+        WHERE c.id = %s::uuid
+          AND c.publication_status = 'published'
+          AND s.publication_status = 'published'
+          AND c.spot_id IS NOT NULL
+        """,
+        (raw_id,),
+    )
+    row = cur.fetchone()
+    return row[0] if row else None
+
+
 @app.post("/v1/club/manage-request")
 def club_manage_request(body: ClubManageRequestBody):
     """Queue claim/manage request for moderator — no auto-grant."""
     if not body.contact_email and not body.contact_telegram:
         raise HTTPException(status_code=400, detail="укажите email или telegram")
     try:
+        resolved_spot_id = None
+        request_id = None
+        request_status = None
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute(
-                    "SELECT 1 FROM spots WHERE id = %s::uuid AND publication_status = 'published'",
-                    (body.spot_id,),
-                )
-                if not cur.fetchone():
+                resolved_spot_id = _resolve_manage_spot_id(cur, body.spot_id)
+                if not resolved_spot_id:
                     raise HTTPException(status_code=404, detail="spot not found")
                 cur.execute(
                     """
@@ -239,17 +268,20 @@ def club_manage_request(body: ClubManageRequestBody):
                     RETURNING id::text, status
                     """,
                     (
-                        body.spot_id,
+                        resolved_spot_id,
                         (body.contact_email or "").strip() or None,
                         (body.contact_telegram or "").strip() or None,
                         (body.message or "").strip() or None,
                     ),
                 )
                 row = cur.fetchone()
+                request_id = row[0]
+                request_status = row[1]
             conn.commit()
         return {
-            "id": row[0],
-            "status": row[1],
+            "id": request_id,
+            "status": request_status,
+            "spot_id": resolved_spot_id,
             "next": "Модератор свяжется: @MyWave23 / y.valeev@gmail.com",
         }
     except HTTPException:

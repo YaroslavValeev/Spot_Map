@@ -40,6 +40,7 @@ SELECT
     s.display_name
   ) AS raw_disciplines,
   s.address_text AS raw_address,
+  NULL::text AS parent_spot_id,
   ST_Y(s.point::geometry) AS lat,
   ST_X(s.point::geometry) AS lng
 FROM spots s
@@ -83,6 +84,7 @@ SELECT
     FROM spots s
     WHERE s.id = c.spot_id
   ) AS raw_address,
+  c.spot_id::text AS parent_spot_id,
   ST_Y(c.point::geometry) AS lat,
   ST_X(c.point::geometry) AS lng
 FROM cable_installations c
@@ -279,6 +281,8 @@ def rows_to_geojson(rows: list[dict[str, Any]], meta: dict[str, Any]) -> dict[st
                     "pin_kind": pin_kind,
                     "name": row["name"],
                     "address": row.get("raw_address") or None,
+                    "parent_spot_id": row.get("parent_spot_id") or None,
+                    "manage_spot_id": row.get("parent_spot_id") or row["id"],
                     "operation_status": row["operation_status"],
                     "geo_status": row["geo_status"],
                     "approx_precision": row.get("approx_precision"),

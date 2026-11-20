@@ -250,9 +250,10 @@ def fetch_public_place(
         "weather": weather,
         "convenience": merge_convenience_rows(facts),
         "club_manage": {
-            "cta_label": "Запросить управление",
+            "cta_label": "Это мой спот",
+            "manage_spot_id": profile_spot or place_id,
             "moderator_telegram": "@MyWave23",
             "moderator_email": "y.valeev@gmail.com",
-            "hint": "Подтверждённым операторам клуба — после модерации",
+            "hint": "Заявка уходит модератору. Редактор паспорта откроется после подтверждения.",
         },
     }

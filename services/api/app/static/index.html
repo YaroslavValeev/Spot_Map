@@ -49,15 +49,19 @@
       <button type="button" id="windLayerToggle" class="wind-toggle" aria-pressed="false" title="Слой ветра (бесплатные стрелки)">
         Ветер
       </button>
+      <button type="button" id="ownerAdminOpen" class="owner-open" title="Кабинет владельца спота">
+        Владельцам
+      </button>
       <details class="more-menu">
-        <summary aria-label="Ещё">⋯</summary>
+        <summary aria-label="Оператору SpotMap">⋯</summary>
         <div class="more-menu-panel">
+          <p class="more-menu-lead">Инструменты оператора SpotMap. Для владельцев клуба — кнопка «Владельцам».</p>
           <label class="toggle">
             <input type="checkbox" id="showStaging" />
             Черновики на карте
           </label>
           <div class="panel-head">
-            <h2>На проверке</h2>
+            <h2>Очередь на проверке</h2>
             <select id="kindFilter" aria-label="Тип кандидата">
               <option value="">все</option>
               <option value="spot_or_club">клубы</option>
@@ -86,6 +90,13 @@
 
     <main class="map-wrap">
       <div id="map" role="application" aria-label="Карта спотов SpotMap"></div>
+
+      <div class="map-legend" aria-label="Обозначения на карте">
+        <span><i class="legend-dot verified" aria-hidden="true"></i>Проверенный GPS</span>
+        <span><i class="legend-dot draft" aria-hidden="true"></i>Черновик</span>
+        <span><i class="legend-dot cluster" aria-hidden="true"></i>Кластер</span>
+      </div>
+
       <div id="emptyState" class="empty-state" hidden>
         <p class="empty-title">Ничего не найдено</p>
         <p class="empty-text">Измените запрос или снимите фильтр дисциплины.</p>
@@ -99,7 +110,10 @@
     </main>
   </div>
 
+  <!-- Mount point for owner-admin module -->
+  <div id="ownerAdminRoot" hidden></div>
+
   <object id="iconSprite" data="/static/icons/disciplines.svg" type="image/svg+xml" hidden aria-hidden="true"></object>
-  <script src="/static/app.js"></script>
+  <script type="module" src="/static/app.js"></script>
 </body>
 </html>
