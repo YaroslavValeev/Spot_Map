@@ -33,6 +33,13 @@ body {
     "top top"
     "panel map";
 }
+.shell--map-first {
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "top"
+    "map";
+}
+.shell--map-first .panel { display: none !important; }
 
 .top {
   grid-area: top;
@@ -271,6 +278,213 @@ body {
   font: 500 0.9rem var(--font-body);
 }
 .search input::placeholder { color: var(--muted); }
+
+.omnibox {
+  position: relative;
+  flex: 1;
+  min-width: 180px;
+  max-width: 560px;
+}
+.omnibox-field {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  min-height: 2.55rem;
+  padding: 0.28rem 0.45rem 0.28rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+}
+.omnibox-field.is-open,
+.omnibox-field:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.12);
+}
+.omnibox-chips {
+  display: contents;
+}
+.omnibox-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  max-width: 12rem;
+  padding: 0.22rem 0.35rem 0.22rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--disc-color, var(--accent)) 40%, var(--line));
+  background: color-mix(in srgb, var(--disc-color, var(--accent)) 14%, #fff);
+  color: var(--water);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.omnibox-chip span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.omnibox-chip button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 0.2rem;
+  opacity: 0.7;
+}
+.omnibox-chip button:hover { opacity: 1; }
+.omnibox-input-wrap {
+  flex: 1;
+  min-width: 8rem;
+}
+.omnibox-input-wrap input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  padding: 0.35rem 0.25rem;
+  font: 500 0.9rem var(--font-body);
+}
+.omnibox-input-wrap input::placeholder { color: var(--muted); }
+.omnibox-clear {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0.2rem 0.35rem;
+}
+.omnibox-clear:hover { color: var(--ink); }
+.omnibox-suggest {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 0.35rem);
+  z-index: 1200;
+  max-height: min(58vh, 420px);
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--shadow);
+  padding: 0.35rem;
+}
+.omnibox-section {
+  margin: 0.2rem 0 0.15rem;
+  padding: 0.35rem 0.55rem 0.15rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.omnibox-item {
+  display: grid;
+  grid-template-columns: 1.7rem 1fr auto;
+  gap: 0.55rem;
+  align-items: center;
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  padding: 0.45rem 0.55rem;
+  cursor: pointer;
+  font: 500 0.88rem var(--font-body);
+}
+.omnibox-item:hover,
+.omnibox-item.is-active {
+  background: color-mix(in srgb, var(--accent) 10%, #fff);
+}
+.omnibox-item .glyph {
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 0.45rem;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--disc-color, var(--accent)) 18%, #fff);
+  color: var(--disc-color, var(--water));
+}
+.omnibox-item .glyph svg { width: 1.05rem; height: 1.05rem; }
+.omnibox-item .name { min-width: 0; }
+.omnibox-item .name b {
+  display: block;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.omnibox-item .name small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.74rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.omnibox-item .count {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+.omnibox-empty {
+  margin: 0;
+  padding: 0.75rem 0.65rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.empty-reset {
+  margin-top: 0.7rem;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--water);
+  border-radius: 10px;
+  padding: 0.45rem 0.75rem;
+  font: 600 0.82rem var(--font-body);
+  cursor: pointer;
+}
+.empty-reset:hover { border-color: var(--accent); }
+.more-menu {
+  position: relative;
+}
+.more-menu > summary {
+  list-style: none;
+  cursor: pointer;
+  width: 2.2rem;
+  height: 2.2rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 1.15rem;
+  line-height: 1;
+}
+.more-menu > summary::-webkit-details-marker { display: none; }
+.more-menu-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.4rem);
+  z-index: 1300;
+  width: min(320px, calc(100vw - 1.5rem));
+  max-height: min(70vh, 520px);
+  overflow: auto;
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+.more-menu-panel .panel-head h2 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+.more-menu-panel .queue { max-height: 240px; overflow: auto; }
 
 .discipline-block { margin: 0 0 1.1rem; }
 .discipline-list {
@@ -727,7 +941,11 @@ body.host-fvls {
 
 @media (max-width: 860px) {
   .search { max-width: none; }
+  .omnibox { max-width: none; }
   .discipline-row { border-radius: 0.85rem; }
+  .header-weather { display: none; }
+  .brand-sub { display: none; }
+  .brand { min-width: auto; }
 }
 
 /* Yandex Maps root fills the panel */
@@ -742,8 +960,13 @@ body.host-fvls {
       "panel"
       "map";
   }
+  .shell--map-first {
+    grid-template-rows: auto minmax(56vh, 1fr);
+    grid-template-areas:
+      "top"
+      "map";
+  }
   .panel { max-height: 34vh; border-right: 0; border-bottom: 1px solid var(--line); }
-  .brand-sub { display: none; }
   .spot-card {
     left: 0;
     right: 0;

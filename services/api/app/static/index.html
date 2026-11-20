@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
-  <div class="shell">
+  <div class="shell shell--map-first">
     <header class="top">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true"></div>
@@ -19,10 +19,28 @@
           <p class="brand-sub">паспорта водноспортивных спотов</p>
         </div>
       </div>
-      <label class="search">
-        <span class="sr-only">Поиск</span>
-        <input id="searchInput" type="search" placeholder="Найти спот, клуб или локацию…" autocomplete="off" />
-      </label>
+
+      <div class="omnibox" id="omnibox">
+        <div class="omnibox-field" id="omniboxField">
+          <div class="omnibox-chips" id="searchChips" aria-live="polite"></div>
+          <label class="omnibox-input-wrap">
+            <span class="sr-only">Поиск спота, клуба, локации или дисциплины</span>
+            <input
+              id="searchInput"
+              type="search"
+              placeholder="Спот, клуб, адрес или дисциплина…"
+              autocomplete="off"
+              role="combobox"
+              aria-expanded="false"
+              aria-controls="searchSuggest"
+              aria-autocomplete="list"
+            />
+          </label>
+          <button type="button" class="omnibox-clear" id="searchClear" hidden aria-label="Очистить поиск и фильтры">×</button>
+        </div>
+        <div id="searchSuggest" class="omnibox-suggest" hidden role="listbox" aria-label="Подсказки поиска"></div>
+      </div>
+
       <div class="header-weather" id="headerWeather" aria-live="polite">
         <span>Воздух <b>—</b></span>
         <span>Ветер <b>—</b></span>
@@ -31,59 +49,12 @@
       <button type="button" id="windLayerToggle" class="wind-toggle" aria-pressed="false" title="Слой ветра (бесплатные стрелки)">
         Ветер
       </button>
-      <div id="statusPill" class="status-pill" hidden></div>
-    </header>
-
-    <aside class="panel">
-      <section class="panel-block">
-        <h1>Навигатор</h1>
-        <p class="lede">Фильтр и поиск ведут по карте. Паспорт открывается по клику на пин — без выдуманных рейтингов и координат.</p>
-
-        <div class="discipline-block">
-          <h2>Дисциплины</h2>
-          <div id="disciplineFilters" class="discipline-list" role="group" aria-label="Фильтр дисциплин"></div>
-          <p class="hint" id="disciplineHint">Показаны все дисциплины</p>
-        </div>
-
-        <div class="weather-strip" id="weatherStrip" aria-live="polite">
-          <span>Воздух <b>—</b></span>
-          <span>Ветер <b>—</b></span>
-          <span>Вода <b>нет измерений</b></span>
-        </div>
-        <p class="hint weather-note">Вода ≠ воздух. Температура воды только из измерений, иначе «нет измерений».</p>
-
-        <div id="insightPanel" class="insight-panel" aria-live="polite">
-          <div class="insight-stats" id="insightStats"></div>
-          <div class="insight-selected" id="insightSelected" hidden></div>
-          <div class="insight-legend">
-            <h2>Как читать карту</h2>
-            <ul class="legend-list">
-              <li><span class="legend-dot verified" aria-hidden="true"></span>Проверенный GPS — паспорт с фактами</li>
-              <li><span class="legend-dot draft" aria-hidden="true"></span>Черновик — координаты ещё уточняются</li>
-              <li><span class="legend-dot cluster" aria-hidden="true"></span>Кластер — несколько спотов рядом, увеличьте масштаб</li>
-            </ul>
-          </div>
-          <div class="insight-facts">
-            <h2>Важно знать</h2>
-            <ul class="facts-list">
-              <li>Спот ≠ клуб ≠ лебёдка ≠ катер — у каждого свой паспорт</li>
-              <li>MVP сейчас: вейксерф и кабельный вейкборд</li>
-              <li>SpotScore и оценка ветра — только после проверки, иначе «не оценено»</li>
-              <li>«Записаться» ведёт на сайт клуба; клик ≠ подтверждённая запись</li>
-            </ul>
-          </div>
-          <ol class="insight-steps">
-            <li>Выберите дисциплину или найдите название сверху</li>
-            <li>Кликните пин на карте</li>
-            <li>Смотрите контакты, удобства и погоду в паспорте</li>
-          </ol>
-        </div>
-
-        <details class="mod-drawer">
-          <summary>Служебное: модерация</summary>
+      <details class="more-menu">
+        <summary aria-label="Ещё">⋯</summary>
+        <div class="more-menu-panel">
           <label class="toggle">
             <input type="checkbox" id="showStaging" />
-            Показывать черновики на карте
+            Черновики на карте
           </label>
           <div class="panel-head">
             <h2>На проверке</h2>
@@ -95,17 +66,30 @@
             </select>
           </div>
           <ul id="queue" class="queue"></ul>
-        </details>
-        <div id="stats" class="stats" hidden></div>
-        <p id="mapProviderNote" class="provider-note">Картография: Яндекс · погода: MET Norway (CC BY 4.0)</p>
-      </section>
+          <p id="mapProviderNote" class="provider-note">Картография: Яндекс · погода: MET Norway (CC BY 4.0)</p>
+        </div>
+      </details>
+      <div id="statusPill" class="status-pill" hidden></div>
+    </header>
+
+    <!-- Hidden hooks kept for app.js compatibility -->
+    <aside class="panel" hidden aria-hidden="true">
+      <div id="disciplineFilters"></div>
+      <p id="disciplineHint"></p>
+      <div class="weather-strip" id="weatherStrip"></div>
+      <div id="insightPanel" class="insight-panel">
+        <div class="insight-stats" id="insightStats"></div>
+        <div class="insight-selected" id="insightSelected" hidden></div>
+      </div>
+      <div id="stats" class="stats" hidden></div>
     </aside>
 
     <main class="map-wrap">
       <div id="map" role="application" aria-label="Карта спотов SpotMap"></div>
       <div id="emptyState" class="empty-state" hidden>
-        <p class="empty-title">Нет объектов для выбранных дисциплин</p>
-        <p class="empty-text">Снимите фильтр или выберите другую дисциплину.</p>
+        <p class="empty-title">Ничего не найдено</p>
+        <p class="empty-text">Измените запрос или снимите фильтр дисциплины.</p>
+        <button type="button" class="empty-reset" id="emptyReset">Сбросить поиск</button>
       </div>
       <div id="mapKeyHint" class="empty-state key-hint" hidden>
         <p class="empty-title">Нужен ключ Яндекс.Карт</p>
@@ -115,7 +99,6 @@
     </main>
   </div>
 
-  <!-- SVG sprite loaded for panel + map markers -->
   <object id="iconSprite" data="/static/icons/disciplines.svg" type="image/svg+xml" hidden aria-hidden="true"></object>
   <script src="/static/app.js"></script>
 </body>

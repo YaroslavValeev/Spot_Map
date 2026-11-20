@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body class="embed-mode" data-mode="embed" data-host="mywave">
-  <div class="shell embed-shell">
+  <div class="shell shell--map-first embed-shell">
     <header class="top">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true"></div>
@@ -19,64 +19,55 @@
           <p class="brand-sub">вейк-споты на карте</p>
         </div>
       </div>
-      <label class="search">
-        <span class="sr-only">Поиск</span>
-        <input id="searchInput" type="search" placeholder="Найти спот или клуб…" autocomplete="off" />
-      </label>
+
+      <div class="omnibox" id="omnibox">
+        <div class="omnibox-field" id="omniboxField">
+          <div class="omnibox-chips" id="searchChips" aria-live="polite"></div>
+          <label class="omnibox-input-wrap">
+            <span class="sr-only">Поиск спота, клуба, локации или дисциплины</span>
+            <input
+              id="searchInput"
+              type="search"
+              placeholder="Спот, клуб, адрес или дисциплина…"
+              autocomplete="off"
+              role="combobox"
+              aria-expanded="false"
+              aria-controls="searchSuggest"
+              aria-autocomplete="list"
+            />
+          </label>
+          <button type="button" class="omnibox-clear" id="searchClear" hidden aria-label="Очистить поиск и фильтры">×</button>
+        </div>
+        <div id="searchSuggest" class="omnibox-suggest" hidden role="listbox" aria-label="Подсказки поиска"></div>
+      </div>
+
       <div id="statusPill" class="status-pill" hidden></div>
     </header>
 
-    <aside class="panel">
-      <section class="panel-block">
-        <h1>Навигатор</h1>
-        <p class="lede">Фильтр ведёт по карте. Паспорт — по клику на пин.</p>
-        <div class="discipline-block">
-          <h2>Дисциплины</h2>
-          <div id="disciplineFilters" class="discipline-list" role="group" aria-label="Фильтр дисциплин"></div>
-          <p class="hint" id="disciplineHint">Показаны все дисциплины</p>
-        </div>
-        <div class="weather-strip" id="weatherStrip" aria-live="polite">
-          <span>Воздух <b>—</b></span>
-          <span>Ветер <b>—</b></span>
-          <span>Вода <b>нет измерений</b></span>
-        </div>
-        <p class="hint weather-note">Вода ≠ воздух. Без измерения воды — «нет измерений».</p>
-        <div id="insightPanel" class="insight-panel" aria-live="polite">
-          <div class="insight-stats" id="insightStats"></div>
-          <div class="insight-selected" id="insightSelected" hidden></div>
-          <div class="insight-legend">
-            <h2>Как читать карту</h2>
-            <ul class="legend-list">
-              <li><span class="legend-dot verified" aria-hidden="true"></span>Проверенный GPS</li>
-              <li><span class="legend-dot draft" aria-hidden="true"></span>Черновик</li>
-              <li><span class="legend-dot cluster" aria-hidden="true"></span>Кластер — увеличьте карту</li>
-            </ul>
-          </div>
-          <div class="insight-facts">
-            <h2>Важно</h2>
-            <ul class="facts-list">
-              <li>Спот ≠ клуб ≠ лебёдка</li>
-              <li>Рейтинг не выдумываем</li>
-              <li>«Записаться» ≠ подтверждённая запись</li>
-            </ul>
-          </div>
-        </div>
-        <label class="toggle" hidden>
-          <input type="checkbox" id="showStaging" />
-          Показывать черновики на карте
-        </label>
-        <div id="stats" class="stats" hidden></div>
-        <select id="kindFilter" hidden aria-hidden="true"><option value=""></option></select>
-        <ul id="queue" class="queue" hidden></ul>
-        <p id="mapProviderNote" class="provider-note">Картография: Яндекс · погода: MET Norway (CC BY 4.0)</p>
-      </section>
+    <aside class="panel" hidden aria-hidden="true">
+      <div id="disciplineFilters"></div>
+      <p id="disciplineHint"></p>
+      <div class="weather-strip" id="weatherStrip"></div>
+      <div id="insightPanel" class="insight-panel">
+        <div class="insight-stats" id="insightStats"></div>
+        <div class="insight-selected" id="insightSelected" hidden></div>
+      </div>
+      <label class="toggle" hidden>
+        <input type="checkbox" id="showStaging" />
+        Показывать черновики на карте
+      </label>
+      <div id="stats" class="stats" hidden></div>
+      <select id="kindFilter" hidden aria-hidden="true"><option value=""></option></select>
+      <ul id="queue" class="queue" hidden></ul>
+      <p id="mapProviderNote" class="provider-note">Картография: Яндекс · погода: MET Norway (CC BY 4.0)</p>
     </aside>
 
     <main class="map-wrap">
       <div id="map" role="application" aria-label="Карта спотов SpotMap"></div>
       <div id="emptyState" class="empty-state" hidden>
-        <p class="empty-title">Нет объектов для выбранных дисциплин</p>
-        <p class="empty-text">Снимите фильтр или выберите другую дисциплину.</p>
+        <p class="empty-title">Ничего не найдено</p>
+        <p class="empty-text">Измените запрос или снимите фильтр дисциплины.</p>
+        <button type="button" class="empty-reset" id="emptyReset">Сбросить поиск</button>
       </div>
       <div id="mapKeyHint" class="empty-state key-hint" hidden>
         <p class="empty-title">Карта временно недоступна</p>

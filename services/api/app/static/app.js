@@ -10,6 +10,11 @@
   const disciplineHint = document.getElementById("disciplineHint");
   const spotCard = document.getElementById("spotCard");
   const searchInput = document.getElementById("searchInput");
+  const searchChips = document.getElementById("searchChips");
+  const searchSuggest = document.getElementById("searchSuggest");
+  const searchClear = document.getElementById("searchClear");
+  const omniboxField = document.getElementById("omniboxField");
+  const emptyReset = document.getElementById("emptyReset");
   const insightStats = document.getElementById("insightStats");
   const insightSelected = document.getElementById("insightSelected");
   const weatherStrip = document.getElementById("weatherStrip");
@@ -130,6 +135,7 @@
   let selectedDisciplines = new Set();
   let disciplineCatalog = FALLBACK_CATALOG;
   let disciplineCounts = {};
+  let filterAliases = {};
   let allFeatures = [];
   let mapMeta = {};
   let map = null;
@@ -139,6 +145,9 @@
   let selectedClusterKey = null;
   let clusterLayout = null;
   let searchQuery = "";
+  let suggestOpen = false;
+  let suggestItems = [];
+  let suggestIndex = -1;
   let windLayerOn = false;
   let windCollection = null;
   let windLoadTimer = null;
@@ -171,17 +180,41 @@
     statsEl.hidden = true;
   }
 
+  function expandedDisciplineFilter() {
+    const out = new Set();
+    selectedDisciplines.forEach((slug) => {
+      out.add(slug);
+      (filterAliases[slug] || []).forEach((alias) => out.add(alias));
+    });
+    return out;
+  }
+
+  function featureSearchBlob(f) {
+    const p = f.properties || {};
+    const discText = (p.disciplines || [])
+      .map((slug) => {
+        const meta = disciplineCatalog.find((d) => d.slug === slug);
+        return [meta?.label, meta?.short, slug].filter(Boolean).join(" ");
+      })
+      .join(" ");
+    return [p.name, p.address, p.discipline_label, discText, p.entity_type]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+  }
+
   function filteredFeatures() {
     let list = allFeatures;
     if (selectedDisciplines.size) {
+      const wanted = expandedDisciplineFilter();
       list = list.filter((f) => {
         const tags = f.properties?.disciplines || [];
-        return tags.some((t) => selectedDisciplines.has(t));
+        return tags.some((t) => wanted.has(t));
       });
     }
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      list = list.filter((f) => String(f.properties?.name || "").toLowerCase().includes(q));
+      list = list.filter((f) => featureSearchBlob(f).includes(q));
     }
     return list;
   }
@@ -194,8 +227,204 @@
     }
     const labels = disciplineCatalog
       .filter((d) => selectedDisciplines.has(d.slug))
-      .map((d) => d.label);
+      .map((d) => d.short || d.label);
     disciplineHint.textContent = `Фильтр: ${labels.join(" · ")}`;
+  }
+
+  function syncSearchChrome() {
+    const hasFilters = selectedDisciplines.size > 0 || Boolean(searchQuery);
+    if (searchClear) searchClear.hidden = !hasFilters;
+    renderSearchChips();
+    updateDisciplineHint();
+  }
+
+  function renderSearchChips() {
+    if (!searchChips) return;
+    const chips = [];
+    selectedDisciplines.forEach((slug) => {
+      const meta = disciplineCatalog.find((d) => d.slug === slug);
+      const label = meta?.short || meta?.label || slug;
+      const color = meta?.color || "#64748b";
+      chips.push(
+        `<span class="omnibox-chip" style="--disc-color:${color}">
+          <span>${escapeHtml(label)}</span>
+          <button type="button" data-remove-slug="${escapeHtml(slug)}" aria-label="Убрать ${escapeHtml(label)}">×</button>
+        </span>`
+      );
+    });
+    searchChips.innerHTML = chips.join("");
+    searchChips.querySelectorAll("[data-remove-slug]").forEach((btn) => {
+      btn.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        selectedDisciplines.delete(btn.getAttribute("data-remove-slug"));
+        applySearchState();
+      });
+    });
+  }
+
+  function setSuggestOpen(open) {
+    suggestOpen = open;
+    if (searchSuggest) searchSuggest.hidden = !open;
+    if (omniboxField) omniboxField.classList.toggle("is-open", open);
+    if (searchInput) searchInput.setAttribute("aria-expanded", open ? "true" : "false");
+    if (!open) {
+      suggestIndex = -1;
+      suggestItems = [];
+    }
+  }
+
+  function buildSuggestions(rawQuery) {
+    const q = (rawQuery || "").trim().toLowerCase();
+    const discHits = [];
+    disciplineCatalog.forEach((item) => {
+      const count = disciplineCounts[item.slug] ?? 0;
+      const hay = `${item.label} ${item.short || ""} ${item.slug}`.toLowerCase();
+      if (q && !hay.includes(q)) return;
+      discHits.push({
+        kind: "discipline",
+        slug: item.slug,
+        label: item.label,
+        short: item.short || item.label,
+        color: item.color,
+        symbol: item.symbol,
+        count,
+        active: selectedDisciplines.has(item.slug),
+      });
+    });
+    discHits.sort((a, b) => {
+      if (a.active !== b.active) return a.active ? -1 : 1;
+      if ((b.count || 0) !== (a.count || 0)) return (b.count || 0) - (a.count || 0);
+      return a.label.localeCompare(b.label, "ru");
+    });
+
+    const placeHits = [];
+    if (q.length >= 1) {
+      allFeatures.forEach((f) => {
+        if (!featureSearchBlob(f).includes(q)) return;
+        const p = f.properties || {};
+        placeHits.push({
+          kind: "place",
+          id: p.id,
+          entityType: p.entity_type || "spot",
+          label: p.name || "Спот",
+          meta: p.address || p.discipline_label || "",
+          color: p.discipline_color || "#64748b",
+          symbol: p.discipline_symbol || "disc-wakesurf",
+          feature: f,
+        });
+      });
+      placeHits.sort((a, b) => a.label.localeCompare(b.label, "ru"));
+    }
+
+    return {
+      disciplines: discHits.slice(0, q ? 8 : 12),
+      places: placeHits.slice(0, 8),
+    };
+  }
+
+  function renderSuggestions(rawQuery) {
+    if (!searchSuggest) return;
+    const packs = buildSuggestions(rawQuery);
+    suggestItems = [];
+    const blocks = [];
+    if (packs.disciplines.length) {
+      blocks.push(`<p class="omnibox-section">Дисциплины</p>`);
+      packs.disciplines.forEach((item) => {
+        const idx = suggestItems.length;
+        suggestItems.push(item);
+        blocks.push(
+          `<button type="button" class="omnibox-item" role="option" data-suggest-index="${idx}" style="--disc-color:${item.color}">
+            <span class="glyph">${glyphSvg(item.symbol)}</span>
+            <span class="name"><b>${escapeHtml(item.label)}</b><small>${
+              item.active ? "выбрано · снять" : "фильтр по дисциплине"
+            }</small></span>
+            <span class="count">${item.count}</span>
+          </button>`
+        );
+      });
+    }
+    if (packs.places.length) {
+      blocks.push(`<p class="omnibox-section">Споты и клубы</p>`);
+      packs.places.forEach((item) => {
+        const idx = suggestItems.length;
+        suggestItems.push(item);
+        blocks.push(
+          `<button type="button" class="omnibox-item" role="option" data-suggest-index="${idx}" style="--disc-color:${item.color}">
+            <span class="glyph">${glyphSvg(item.symbol)}</span>
+            <span class="name"><b>${escapeHtml(item.label)}</b><small>${escapeHtml(
+              item.meta || "Открыть паспорт"
+            )}</small></span>
+            <span class="count"></span>
+          </button>`
+        );
+      });
+    }
+    if (!blocks.length) {
+      searchSuggest.innerHTML = `<p class="omnibox-empty">Нет совпадений. Попробуйте другое название или дисциплину.</p>`;
+      setSuggestOpen(true);
+      return;
+    }
+    searchSuggest.innerHTML = blocks.join("");
+    searchSuggest.querySelectorAll("[data-suggest-index]").forEach((btn) => {
+      btn.addEventListener("mousedown", (ev) => {
+        ev.preventDefault();
+        const idx = Number(btn.getAttribute("data-suggest-index"));
+        chooseSuggestion(idx);
+      });
+    });
+    setSuggestOpen(true);
+    highlightSuggestion(-1);
+  }
+
+  function highlightSuggestion(index) {
+    suggestIndex = index;
+    if (!searchSuggest) return;
+    searchSuggest.querySelectorAll(".omnibox-item").forEach((el, i) => {
+      el.classList.toggle("is-active", i === index);
+    });
+  }
+
+  function chooseSuggestion(index) {
+    const item = suggestItems[index];
+    if (!item) return;
+    if (item.kind === "discipline") {
+      if (selectedDisciplines.has(item.slug)) selectedDisciplines.delete(item.slug);
+      else selectedDisciplines.add(item.slug);
+      if (searchInput) searchInput.value = "";
+      searchQuery = "";
+      applySearchState();
+      renderSuggestions("");
+      searchInput?.focus();
+      return;
+    }
+    if (item.kind === "place") {
+      if (searchInput) searchInput.value = item.label;
+      searchQuery = item.label;
+      setSuggestOpen(false);
+      applySearchState();
+      const props = item.feature?.properties;
+      if (props) openSpotCard(props).catch(() => {});
+      paintMap(false);
+      if (map && item.feature?.geometry?.coordinates) {
+        const [lng, lat] = item.feature.geometry.coordinates;
+        map.setCenter([lat, lng], Math.max(map.getZoom(), 12), { duration: 250 });
+      }
+    }
+  }
+
+  function applySearchState() {
+    syncSearchChrome();
+    paintMap(false);
+    renderInsightPanel();
+  }
+
+  function clearSearchAndFilters() {
+    selectedDisciplines.clear();
+    searchQuery = "";
+    if (searchInput) searchInput.value = "";
+    setSuggestOpen(false);
+    applySearchState();
   }
 
   function pluralRu(n, one, few, many) {
@@ -257,38 +486,10 @@
   }
 
   function renderDisciplineFilters() {
+    // Legacy sidebar list kept only as hidden hook; primary UX is the omnibox.
+    syncSearchChrome();
     if (!disciplineFiltersEl) return;
-    const total = allFeatures.length;
-    const allActive = selectedDisciplines.size === 0 ? "active" : "";
-    const rows = [
-      `<button type="button" class="discipline-row is-all ${allActive}" data-slug="">
-        <span class="glyph all">Все</span>
-        <span class="name">Все дисциплины</span>
-        <span class="count">${total}</span>
-      </button>`,
-    ];
-    disciplineCatalog.forEach((item) => {
-      const active = selectedDisciplines.has(item.slug) ? "active" : "";
-      const count = disciplineCounts[item.slug] ?? 0;
-      rows.push(`<button type="button" class="discipline-row ${active}" data-slug="${item.slug}" style="--disc-color:${item.color}">
-        <span class="glyph">${glyphSvg(item.symbol)}</span>
-        <span class="name">${escapeHtml(item.label)}</span>
-        <span class="count">${count}</span>
-      </button>`);
-    });
-    disciplineFiltersEl.innerHTML = rows.join("");
-    disciplineFiltersEl.querySelectorAll(".discipline-row").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const slug = btn.dataset.slug;
-        if (!slug) selectedDisciplines.clear();
-        else if (selectedDisciplines.has(slug)) selectedDisciplines.delete(slug);
-        else selectedDisciplines.add(slug);
-        renderDisciplineFilters();
-        paintMap(false);
-        renderInsightPanel();
-      });
-    });
-    updateDisciplineHint();
+    disciplineFiltersEl.innerHTML = "";
   }
 
   function loadYmapsScript(apiKey) {
@@ -781,6 +982,7 @@
       disciplineCatalog = mapMeta.discipline_catalog;
     }
     disciplineCounts = mapMeta.discipline_counts || {};
+    filterAliases = mapMeta.filter_aliases || {};
     renderDisciplineFilters();
     paintMap(true);
   }
@@ -834,9 +1036,46 @@
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => {
       searchQuery = (searchInput.value || "").trim();
-      paintMap(false);
-      renderInsightPanel();
-    }, 180);
+      applySearchState();
+      renderSuggestions(searchInput.value || "");
+    }, 140);
+  });
+  searchInput?.addEventListener("focus", () => {
+    renderSuggestions(searchInput.value || "");
+  });
+  searchInput?.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape") {
+      setSuggestOpen(false);
+      return;
+    }
+    if (!suggestOpen || !suggestItems.length) {
+      if (ev.key === "Enter") {
+        searchQuery = (searchInput.value || "").trim();
+        applySearchState();
+      }
+      return;
+    }
+    if (ev.key === "ArrowDown") {
+      ev.preventDefault();
+      highlightSuggestion((suggestIndex + 1) % suggestItems.length);
+    } else if (ev.key === "ArrowUp") {
+      ev.preventDefault();
+      highlightSuggestion((suggestIndex - 1 + suggestItems.length) % suggestItems.length);
+    } else if (ev.key === "Enter") {
+      ev.preventDefault();
+      if (suggestIndex >= 0) chooseSuggestion(suggestIndex);
+      else {
+        searchQuery = (searchInput.value || "").trim();
+        setSuggestOpen(false);
+        applySearchState();
+      }
+    }
+  });
+  searchClear?.addEventListener("click", () => clearSearchAndFilters());
+  emptyReset?.addEventListener("click", () => clearSearchAndFilters());
+  document.addEventListener("click", (ev) => {
+    const box = document.getElementById("omnibox");
+    if (box && !box.contains(ev.target)) setSuggestOpen(false);
   });
 
   if (EMBED_MODE) {

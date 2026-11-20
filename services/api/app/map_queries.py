@@ -7,6 +7,7 @@ from typing import Any
 from .disciplines import (
     CABLE_SLUGS,
     DISCIPLINE_CATALOG,
+    FILTER_ALIASES,
     count_disciplines,
     enrich_row_disciplines,
     expand_filter_selection,
@@ -77,7 +78,11 @@ SELECT
     ),
     c.name || ' wakeboard cable'
   ) AS raw_disciplines,
-  NULL::text AS raw_address,
+  (
+    SELECT s.address_text
+    FROM spots s
+    WHERE s.id = c.spot_id
+  ) AS raw_address,
   ST_Y(c.point::geometry) AS lat,
   ST_X(c.point::geometry) AS lng
 FROM cable_installations c
@@ -273,6 +278,7 @@ def rows_to_geojson(rows: list[dict[str, Any]], meta: dict[str, Any]) -> dict[st
                     "entity_type": row["entity_type"],
                     "pin_kind": pin_kind,
                     "name": row["name"],
+                    "address": row.get("raw_address") or None,
                     "operation_status": row["operation_status"],
                     "geo_status": row["geo_status"],
                     "approx_precision": row.get("approx_precision"),
@@ -298,5 +304,6 @@ def rows_to_geojson(rows: list[dict[str, Any]], meta: dict[str, Any]) -> dict[st
             "empty_reason": empty_reason,
             "discipline_catalog": DISCIPLINE_CATALOG,
             "discipline_counts": count_disciplines(rows),
+            "filter_aliases": {k: sorted(v) for k, v in FILTER_ALIASES.items()},
         },
     }
