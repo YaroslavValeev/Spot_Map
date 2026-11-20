@@ -43,6 +43,8 @@ body {
 
 .top {
   grid-area: top;
+  position: relative;
+  z-index: 2000; /* above Yandex map panes so header menus are visible */
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -215,6 +217,7 @@ body {
 .map-wrap {
   grid-area: map;
   position: relative;
+  z-index: 1;
   min-height: 320px;
 }
 #map { height: 100%; width: 100%; background: #0b1820; }
@@ -450,6 +453,7 @@ body {
 .empty-reset:hover { border-color: var(--accent); }
 .more-menu {
   position: relative;
+  z-index: 2;
 }
 .more-menu > summary {
   list-style: none;
@@ -470,7 +474,7 @@ body {
   position: absolute;
   right: 0;
   top: calc(100% + 0.4rem);
-  z-index: 1300;
+  z-index: 2100;
   width: min(320px, calc(100vw - 1.5rem));
   max-height: min(70vh, 520px);
   overflow: auto;
