@@ -18,6 +18,19 @@
   const EMBED_MODE = document.body?.dataset?.mode === "embed";
   const EMBED_HOST = document.body?.dataset?.host || "mywave";
 
+  function normalizeTelegramUrl(raw) {
+    if (!raw) return null;
+    const value = String(raw).trim();
+    if (!value) return null;
+    if (/^https?:\/\//i.test(value)) return value;
+    if (value.startsWith("t.me/") || value.startsWith("telegram.me/")) {
+      return `https://${value}`;
+    }
+    const handle = value.replace(/^@/, "");
+    if (/^[A-Za-z0-9_]{4,}$/.test(handle)) return `https://t.me/${handle}`;
+    return null;
+  }
+
   function windDirLabel(deg) {
     if (deg == null || Number.isNaN(Number(deg))) return "—";
     const d = ((Number(deg) % 360) + 360) % 360;
@@ -326,10 +339,12 @@
         map.geoObjects.add(windCollection);
       }
       windCollection.removeAll();
+      const WIND_ICON = 48;
       (data.points || []).forEach((p) => {
         const from = Number(p.direction_from_deg);
         const to = (from + 180) % 360;
         const speed = Number(p.wind_mps) || 0;
+        const half = WIND_ICON / 2;
         const mark = new window.ymaps.Placemark(
           [p.lat, p.lng],
           {
@@ -340,15 +355,15 @@
             iconImageHref:
               "data:image/svg+xml;charset=UTF-8," +
               encodeURIComponent(
-                `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
-                  <g transform="rotate(${to} 14 14)">
-                    <path d="M14 4 L18 16 L14 13 L10 16 Z" fill="#0b3d4a" opacity="0.85"/>
-                    <circle cx="14" cy="14" r="2" fill="#2a9d8f"/>
+                `<svg xmlns="http://www.w3.org/2000/svg" width="${WIND_ICON}" height="${WIND_ICON}" viewBox="0 0 48 48">
+                  <g transform="rotate(${to} 24 24)">
+                    <path d="M24 4 L32 30 L24 24 L16 30 Z" fill="#0b3d4a" opacity="0.92"/>
+                    <circle cx="24" cy="24" r="3.5" fill="#2a9d8f"/>
                   </g>
                 </svg>`
               ),
-            iconImageSize: [28, 28],
-            iconImageOffset: [-14, -14],
+            iconImageSize: [WIND_ICON, WIND_ICON],
+            iconImageOffset: [-half, -half],
             zIndex: 100,
           }
         );
@@ -488,6 +503,22 @@
         `<a class="cta-secondary" href="tel:${escapeHtml(tel)}">${escapeHtml(detail.contacts.phone)}</a>`
       );
     }
+    const socialIcons = [];
+    const tgHref = normalizeTelegramUrl(detail?.contacts?.telegram_url);
+    if (tgHref) {
+      socialIcons.push(
+        `<a class="social-icon social-icon--telegram" href="${escapeHtml(
+          tgHref
+        )}" target="_blank" rel="noopener noreferrer" title="Telegram" aria-label="Telegram-канал">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+          </svg>
+        </a>`
+      );
+    }
+    const socialHtml = socialIcons.length
+      ? `<div class="card-social">${socialIcons.join("")}</div>`
+      : "";
     const draftNote =
       base.pin_kind === "staging_approximate"
         ? '<p class="meta">Черновик — координаты уточняются</p>'
@@ -526,6 +557,7 @@
       <div class="card-head-meta">
         ${address ? `<p class="meta card-address">${escapeHtml(address)}</p>` : ""}
         ${routeHtml}
+        ${socialHtml}
       </div>
       ${draftNote}
       ${wxHtml}

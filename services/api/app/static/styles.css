@@ -365,6 +365,32 @@ body {
   border-bottom: 1px solid rgba(11, 61, 74, 0.25);
 }
 .card-route:hover { border-bottom-color: var(--accent); color: var(--accent); }
+.card-social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+  margin-top: 0.15rem;
+}
+.social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: #229ED9;
+  background: #fff;
+  text-decoration: none;
+  transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+}
+.social-icon:hover {
+  border-color: #229ED9;
+  background: rgba(34, 158, 217, 0.08);
+  transform: translateY(-1px);
+}
+.social-icon--telegram { color: #229ED9; }
 
 .insight-panel {
   display: grid;
