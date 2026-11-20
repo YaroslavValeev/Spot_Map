@@ -23,6 +23,14 @@
         <span class="sr-only">Поиск</span>
         <input id="searchInput" type="search" placeholder="Найти спот, клуб или локацию…" autocomplete="off" />
       </label>
+      <div class="header-weather" id="headerWeather" aria-live="polite">
+        <span>Воздух <b>—</b></span>
+        <span>Ветер <b>—</b></span>
+        <span>Вода <b>нет данных</b></span>
+      </div>
+      <button type="button" id="windLayerToggle" class="wind-toggle" aria-pressed="false" title="Слой ветра (бесплатные стрелки)">
+        Ветер
+      </button>
       <div id="statusPill" class="status-pill" hidden></div>
     </header>
 

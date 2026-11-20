@@ -22,10 +22,19 @@ class Settings(BaseSettings):
     yandex_maps_api_key: str = ""
     # Comma-separated hosts allowed to iframe /embed (no scheme). Empty → deny all remote.
     embed_allowed_hosts: str = "localhost,127.0.0.1,mywavewake.ru,www.mywavewake.ru"
-    # Weather: Open-Meteo pilot (server-side). Commercial license may be required for prod.
+    # Weather: MET Norway preferred (CC BY 4.0), Open-Meteo fallback. Free only.
+    weather_provider: str = "met_norway"
+    weather_met_norway_enabled: bool = True
+    weather_met_norway_base_url: str = "https://api.met.no"
+    # Identifiable contact for MET Norway User-Agent (required by their ToS).
+    weather_met_norway_contact: str = (
+        "https://mywavewake.ru y.valeev@gmail.com https://t.me/MyWave23"
+    )
     weather_open_meteo_enabled: bool = True
     weather_open_meteo_base_url: str = "https://api.open-meteo.com"
-    # Yandex Weather windSpeed tiles — leave empty until licensed key exists.
+    # Free wind overlay mode: arrows_grid | disabled. Paid Yandex Weather tiles unused.
+    weather_wind_layer_mode: str = "arrows_grid"
+    # Legacy field — keep empty (paid tiles not used on free path).
     yandex_weather_tile_key: str = ""
     # Salt for hashing client IP on outbound booking clicks (not stored raw).
     booking_click_ip_salt: str = "spotmap-dev-only-change-me"

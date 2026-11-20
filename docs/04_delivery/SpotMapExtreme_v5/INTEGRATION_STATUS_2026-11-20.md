@@ -7,6 +7,9 @@
 |---|---|
 | Яндекс.Карта не заменена | ✅ |
 | WeatherProvider + Open-Meteo point | ✅ `/v1/weather/point` |
+| MET Norway preferred + OM fallback | ✅ User-Agent contact; attribution |
+| Wind layer A (arrows grid) | ✅ `/v1/weather/wind-grid` + UI toggle |
+| ADR-006 catalog 16 disciplines | ✅ sports + install facets; no SUP |
 | Вода ≠ воздух | ✅ только observations / «нет измерений» |
 | Wind layer toggle | ✅ честно disabled без ключа тайлов |
 | WindProfile + suitability_for_hour | ✅ модуль + тесты 11/11; оценка только если approved |

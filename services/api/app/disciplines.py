@@ -1,72 +1,79 @@
-"""Discipline tags for map icons/filters. Infer from staging text only — no invented facts."""
+"""Discipline tags for map icons/filters. ADR-006: 16 sports + install facets. No SUP."""
 
 from __future__ import annotations
 
 from typing import Any, Iterable
 
-# UI + API slugs — colors from approved SpotMap pictogram sheet.
+# 16 sport disciplines (ADR-006) + 3 installation facets (not counted in the 16).
 DISCIPLINE_CATALOG: list[dict[str, str]] = [
-    {
-        "slug": "waterski",
-        "label": "Водные лыжи",
-        "short": "Водные лыжи",
-        "icon": "waterski",
-        "symbol": "disc-waterski",
-        "color": "#7B5CFF",
-    },
-    {
-        "slug": "wakesurf_skim",
-        "label": "Вейксерф / вейкским",
-        "short": "Вейксерф / вейкским",
-        "icon": "wakesurf",
-        "symbol": "disc-wakesurf",
-        "color": "#14B8A6",
-    },
-    {
-        "slug": "wakeboard",
-        "label": "Вейкборд — катер",
-        "short": "Вейкборд — катер",
-        "icon": "wakeboat",
-        "symbol": "disc-wakeboat",
-        "color": "#1D4ED8",
-    },
-    {
-        "slug": "cable_ring",
-        "label": "Кольцо — электротяга",
-        "short": "Кольцо — электротяга",
-        "icon": "cable-ring",
-        "symbol": "disc-cable-ring",
-        "color": "#22C55E",
-    },
-    {
-        "slug": "cable_reverse",
-        "label": "Реверс — электротяга",
-        "short": "Реверс — электротяга",
-        "icon": "cable-reverse",
-        "symbol": "disc-cable-reverse",
-        "color": "#EC4899",
-    },
-    {
-        "slug": "cable_pool",
-        "label": "Бассейн — электротяга",
-        "short": "Бассейн — электротяга",
-        "icon": "cable-pool",
-        "symbol": "disc-cable-pool",
-        "color": "#38BDF8",
-    },
+    {"slug": "waterski_slalom", "label": "Водные лыжи — слалом", "short": "Слалом", "icon": "waterski", "symbol": "disc-waterski", "color": "#7B5CFF", "kind": "sport"},
+    {"slug": "waterski_tricks", "label": "Водные лыжи — фигурное", "short": "Фигурное", "icon": "waterski", "symbol": "disc-waterski", "color": "#8B5CF6", "kind": "sport"},
+    {"slug": "waterski_jump", "label": "Водные лыжи — прыжки", "short": "Прыжки", "icon": "waterski", "symbol": "disc-waterski", "color": "#A78BFA", "kind": "sport"},
+    {"slug": "barefoot", "label": "Барефут", "short": "Барефут", "icon": "waterski", "symbol": "disc-waterski", "color": "#C4B5FD", "kind": "sport"},
+    {"slug": "wakeboard_boat", "label": "Вейкборд — катер", "short": "Вейкборд", "icon": "wakeboat", "symbol": "disc-wakeboat", "color": "#1D4ED8", "kind": "sport"},
+    {"slug": "wakeskate", "label": "Вейкскейт", "short": "Вейкскейт", "icon": "wakeboat", "symbol": "disc-wakeboat", "color": "#2563EB", "kind": "sport"},
+    {"slug": "kneeboard", "label": "Ниборд", "short": "Ниборд", "icon": "wakeboat", "symbol": "disc-wakeboat", "color": "#3B82F6", "kind": "sport"},
+    {"slug": "wakesurf", "label": "Вейксерф", "short": "Вейксерф", "icon": "wakesurf", "symbol": "disc-wakesurf", "color": "#14B8A6", "kind": "sport"},
+    {"slug": "wakeskim", "label": "Вейкским", "short": "Вейкским", "icon": "wakesurf", "symbol": "disc-wakesurf", "color": "#2DD4BF", "kind": "sport"},
+    {"slug": "wakeboard_cable", "label": "Вейкборд — электротяга", "short": "Кабель-вейк", "icon": "cable-ring", "symbol": "disc-cable-ring", "color": "#059669", "kind": "sport"},
+    {"slug": "waterski_cable", "label": "Водные лыжи — электротяга", "short": "Лыжи-кабель", "icon": "cable-ring", "symbol": "disc-cable-ring", "color": "#10B981", "kind": "sport"},
+    {"slug": "wakeskate_cable", "label": "Вейкскейт — электротяга", "short": "Скейт-кабель", "icon": "cable-reverse", "symbol": "disc-cable-reverse", "color": "#34D399", "kind": "sport"},
+    {"slug": "adaptive_waterski", "label": "Адаптивные водные лыжи", "short": "Адаптив", "icon": "waterski", "symbol": "disc-waterski", "color": "#6366F1", "kind": "sport"},
+    {"slug": "show_ski", "label": "Фигурно-показательные лыжи", "short": "Show ski", "icon": "waterski", "symbol": "disc-waterski", "color": "#818CF8", "kind": "sport"},
+    {"slug": "wakesurf_longboard", "label": "Вейксерф-лонгборд", "short": "Лонгборд", "icon": "wakesurf", "symbol": "disc-wakesurf", "color": "#0D9488", "kind": "sport"},
+    {"slug": "wakefoil", "label": "Вейкфойл", "short": "Вейкфойл", "icon": "wakesurf", "symbol": "disc-wakesurf", "color": "#0F766E", "kind": "sport"},
+    # Installation facets (not part of the 16).
+    {"slug": "cable_ring", "label": "Кольцо — электротяга", "short": "Кольцо", "icon": "cable-ring", "symbol": "disc-cable-ring", "color": "#22C55E", "kind": "installation"},
+    {"slug": "cable_reverse", "label": "Реверс — электротяга", "short": "Реверс", "icon": "cable-reverse", "symbol": "disc-cable-reverse", "color": "#EC4899", "kind": "installation"},
+    {"slug": "cable_pool", "label": "Бассейн — электротяга", "short": "Бассейн", "icon": "cable-pool", "symbol": "disc-cable-pool", "color": "#38BDF8", "kind": "installation"},
 ]
 
+SPORT_SLUGS = frozenset(i["slug"] for i in DISCIPLINE_CATALOG if i.get("kind") == "sport")
+INSTALL_SLUGS = frozenset(i["slug"] for i in DISCIPLINE_CATALOG if i.get("kind") == "installation")
 SLUGS = frozenset(item["slug"] for item in DISCIPLINE_CATALOG)
-CABLE_SLUGS = frozenset({"cable_ring", "cable_reverse", "cable_pool"})
+CABLE_SLUGS = frozenset({"cable_ring", "cable_reverse", "cable_pool", "wakeboard_cable", "waterski_cable", "wakeskate_cable"})
 
-# Primary icon priority when a pin has several disciplines.
+# Legacy UI filter aliases → expand to matching tags on a pin.
+FILTER_ALIASES: dict[str, frozenset[str]] = {
+    "waterski": frozenset(
+        {
+            "waterski_slalom",
+            "waterski_tricks",
+            "waterski_jump",
+            "barefoot",
+            "adaptive_waterski",
+            "show_ski",
+            "waterski_cable",
+        }
+    ),
+    "wakesurf_skim": frozenset({"wakesurf", "wakeskim", "wakesurf_longboard"}),
+    "wakeboard": frozenset({"wakeboard_boat"}),
+    "wakeboard_boat": frozenset({"wakeboard_boat"}),
+    "wakeboard_cable": frozenset(
+        {"wakeboard_cable", "cable_ring", "cable_reverse", "cable_pool", "wakeskate_cable", "waterski_cable"}
+    ),
+}
+
 PRIMARY_ORDER = (
     "cable_pool",
     "cable_ring",
     "cable_reverse",
-    "wakesurf_skim",
-    "wakeboard",
-    "waterski",
+    "wakefoil",
+    "wakesurf_longboard",
+    "wakesurf",
+    "wakeskim",
+    "wakeboard_cable",
+    "wakeskate_cable",
+    "waterski_cable",
+    "wakeboard_boat",
+    "wakeskate",
+    "kneeboard",
+    "waterski_slalom",
+    "waterski_tricks",
+    "waterski_jump",
+    "barefoot",
+    "adaptive_waterski",
+    "show_ski",
 )
 
 
@@ -85,117 +92,94 @@ def classify_disciplines(
     text = _blob(name, raw_disciplines, raw_address, candidate_kind)
     found: set[str] = set()
 
-    is_pool = any(
-        m in text
-        for m in (
-            "бассейн",
-            "indoor_pool",
-            "энигма",
-            "крытый вейк",
-            "50-метровый",
-        )
-    )
+    # Hard ban SUP — never classify as a sport from paddle text alone.
+    # (Explicit SUP mentions are ignored.)
+
+    is_pool = any(m in text for m in ("бассейн", "indoor_pool", "энигма", "крытый вейк", "50-метровый", "cable_pool"))
     is_ring = any(
         m in text
-        for m in (
-            "кольц",
-            "circuit",
-            "full_size_circuit",
-            "кольцевая",
-        )
+        for m in ("кольц", "circuit", "full_size_circuit", "кольцевая", "cable_circuit", "cable_ring")
     )
-    is_reverse = any(
+    is_reverse = any(m in text for m in ("реверс", "two_tower", "reversible", "cable_reverse"))
+    is_cableish = candidate_kind == "cable_installation" or any(
         m in text
         for m in (
-            "реверс",
-            "two_tower",
-            "reversible",
-        )
-    )
-    is_cableish = (
-        candidate_kind == "cable_installation"
-        or any(
-            m in text
-            for m in (
-                "лебёд",
-                "лебед",
-                "электротяг",
-                "кабельн",
-                "cable",
-                "wakeboard_cable",
-            )
+            "лебёд",
+            "лебед",
+            "электротяг",
+            "кабельн",
+            "cable",
+            "wakeboard_cable",
+            "rixen",
         )
     )
 
-    # Explicit research taxonomy tags (from SpotMap research xlsx).
-    if "water_ski" in text or "воднолыж" in text:
-        found.add("waterski")
-    if "cable_circuit" in text:
-        found.add("cable_ring")
-        is_ring = True
-    if "cable_reverse" in text:
-        found.add("cable_reverse")
-        is_reverse = True
-    if "cable_pool" in text:
-        found.add("cable_pool")
-        is_pool = True
-    if "wakeboard_boat" in text:
-        found.add("wakeboard")
-    if "wakesurf" in text and "cable_" not in text.replace("wakesurf", ""):
-        # keep wakesurf detection below as well
-        pass
+    if "water_ski" in text or "воднолыж" in text or "waterski_slalom" in text:
+        found.add("waterski_slalom")
+    if "waterski_tricks" in text or "фигурн" in text and "лыж" in text:
+        found.add("waterski_tricks")
+    if "waterski_jump" in text or ("прыж" in text and "лыж" in text):
+        found.add("waterski_jump")
+    if "barefoot" in text or "барефут" in text:
+        found.add("barefoot")
+    if "adaptive" in text or "адаптив" in text:
+        found.add("adaptive_waterski")
+    if "show_ski" in text or "показательн" in text:
+        found.add("show_ski")
+    if "kneeboard" in text or "ниборд" in text or "knee board" in text:
+        found.add("kneeboard")
+    if "wakesurf_longboard" in text or "лонгборд" in text or "longboard" in text:
+        found.add("wakesurf_longboard")
+    if "wakefoil" in text or "вейкфойл" in text or "wake foil" in text or "гидрофойл" in text:
+        found.add("wakefoil")
+    if "wakeskim" in text or "вейкским" in text or "wake skim" in text:
+        found.add("wakeskim")
+    if any(m in text for m in ("wakesurf", "вейксерф", "вейксёрф")) and "longboard" not in text and "лонгборд" not in text:
+        found.add("wakesurf")
+    elif "серф" in text and "искусствен" not in text and not is_cableish and "сап" not in text and "sup" not in text:
+        found.add("wakesurf")
 
-    if is_pool:
-        found.add("cable_pool")
-    if is_ring:
-        found.add("cable_ring")
-    if is_reverse:
-        found.add("cable_reverse")
-    if is_cableish and not (is_pool or is_ring or is_reverse):
-        # Untyped cable installation — show under any electro filter via cable_reverse bucket.
-        found.add("cable_reverse")
+    if "wakeskate_cable" in text:
+        found.add("wakeskate_cable")
+    elif "wakeskate" in text or "вейкскейт" in text:
+        found.add("wakeskate_cable" if is_cableish else "wakeskate")
 
-    if any(m in text for m in ("водн", "waterski", "water ski", "water-ski", "лыж")):
-        # Avoid matching unrelated words; require ski/лыж context.
-        if (
-            "лыж" in text
-            or "waterski" in text
-            or "water ski" in text
-            or "water-ski" in text
-            or "воднолыж" in text
-            or "water_ski" in text
-        ):
-            found.add("waterski")
-
-    if any(
-        m in text
-        for m in (
-            "wakesurf",
-            "вейксерф",
-            "вейксёрф",
-            "wakeskim",
-            "вейкским",
-            "wake skim",
-        )
-    ):
-        found.add("wakesurf_skim")
-    elif "серф" in text and "искусствен" not in text and not is_cableish:
-        # Generic "серф" at boat clubs usually means wakesurf in this dataset.
-        found.add("wakesurf_skim")
+    if "waterski_cable" in text:
+        found.add("waterski_cable")
+    elif is_cableish and any(m in text for m in ("водн", "лыж", "waterski")):
+        found.add("waterski_cable")
 
     if any(m in text for m in ("wakeboard", "вейкборд", "вейк борд", "wakeboard_boat")):
         if is_cableish or is_pool or is_ring or is_reverse or "cable_" in text:
-            # Cable wakeboard already covered by cable_* tags.
-            pass
+            found.add("wakeboard_cable")
         else:
-            found.add("wakeboard")
+            found.add("wakeboard_boat")
 
-    # Staging clubs without explicit sport text: default P0 boat mix (not cable, not waterski).
+    if is_pool:
+        found.add("cable_pool")
+        found.add("wakeboard_cable")
+    if is_ring:
+        found.add("cable_ring")
+        found.add("wakeboard_cable")
+    if is_reverse:
+        found.add("cable_reverse")
+        found.add("wakeboard_cable")
+    if is_cableish and not (is_pool or is_ring or is_reverse):
+        found.add("cable_reverse")
+        found.add("wakeboard_cable")
+
+    if any(m in text for m in ("лыж", "waterski", "water ski", "water-ski", "воднолыж", "water_ski")):
+        if not any(s in found for s in ("waterski_slalom", "waterski_tricks", "waterski_jump", "waterski_cable", "barefoot")):
+            if is_cableish:
+                found.add("waterski_cable")
+            else:
+                found.add("waterski_slalom")
+
+    # Staging clubs without explicit sport text: default P0 boat mix (never foil/longboard/SUP).
     if not found and candidate_kind != "cable_installation":
-        found.update({"wakesurf_skim", "wakeboard"})
+        found.update({"wakesurf", "wakeboard_boat"})
 
     ordered = [slug for slug in PRIMARY_ORDER if slug in found]
-    # Append any unexpected future slugs last.
     for slug in sorted(found):
         if slug not in ordered:
             ordered.append(slug)
@@ -212,6 +196,17 @@ def primary_discipline(slugs: Iterable[str]) -> str | None:
 
 def catalog_by_slug() -> dict[str, dict[str, str]]:
     return {item["slug"]: item for item in DISCIPLINE_CATALOG}
+
+
+def expand_filter_selection(selected: set[str]) -> set[str]:
+    """Expand legacy aliases so old UI chips still match new tags."""
+    out: set[str] = set()
+    for slug in selected:
+        if not slug:
+            continue
+        out.add(slug)
+        out |= FILTER_ALIASES.get(slug, frozenset())
+    return out
 
 
 def enrich_row_disciplines(row: dict[str, Any]) -> dict[str, Any]:
@@ -235,8 +230,9 @@ def enrich_row_disciplines(row: dict[str, Any]) -> dict[str, Any]:
 def row_matches_discipline_filter(row: dict[str, Any], selected: set[str] | None) -> bool:
     if not selected:
         return True
+    expanded = expand_filter_selection(selected)
     tags = set(row.get("disciplines") or [])
-    return bool(tags & selected)
+    return bool(tags & expanded)
 
 
 def count_disciplines(rows: list[dict[str, Any]]) -> dict[str, int]:

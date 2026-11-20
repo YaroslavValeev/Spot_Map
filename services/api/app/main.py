@@ -27,7 +27,7 @@ from .moderation import (
     save_approx_points,
 )
 from .public_places import fetch_public_place
-from .weather import attach_water_observation, forecast_point, wind_layer_status
+from .weather import attach_water_observation, forecast_point, wind_grid, wind_layer_status
 from .wind_eval import evaluate_spot_rideability
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -93,6 +93,8 @@ def public_config() -> dict:
         "embed_hosts": ["mywave", "fvls"],
         "spot_score_ui": "pending",
         "weather": {
+            "provider": settings.weather_provider,
+            "met_norway_enabled": settings.weather_met_norway_enabled,
             "open_meteo_enabled": settings.weather_open_meteo_enabled,
             "wind_layer": wind_layer_status(),
         },
@@ -152,6 +154,27 @@ def weather_point(
                 "reason": "Нужен spot_id и утверждённый WindProfile",
             }
         return payload
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/v1/weather/wind-grid")
+def weather_wind_grid(
+    min_lat: float = Query(...),
+    min_lng: float = Query(...),
+    max_lat: float = Query(...),
+    max_lng: float = Query(...),
+    step: float = Query(default=0.35, ge=0.1, le=2.0),
+):
+    """Free wind arrow grid (option A). No paid tile provider."""
+    try:
+        return wind_grid(
+            min_lat=min_lat,
+            min_lng=min_lng,
+            max_lat=max_lat,
+            max_lng=max_lng,
+            step=step,
+        )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 

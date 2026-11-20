@@ -9,6 +9,7 @@ from .disciplines import (
     DISCIPLINE_CATALOG,
     count_disciplines,
     enrich_row_disciplines,
+    expand_filter_selection,
     row_matches_discipline_filter,
 )
 
@@ -126,18 +127,19 @@ def _normalize_selected(discipline: str | None, disciplines: list[str] | None) -
     if disciplines:
         selected.update(d for d in disciplines if d)
     if discipline:
-        # Legacy aliases from older UI chips.
+        # Legacy + ADR-006 aliases.
         if discipline in {"wakesurf", "wakeskim"}:
             selected.add("wakesurf_skim")
         elif discipline == "wakeboard_boat":
-            selected.add("wakeboard")
+            selected.add("wakeboard_boat")
         elif discipline == "wakeboard_cable":
             selected.update(CABLE_SLUGS)
+            selected.add("wakeboard_cable")
         elif discipline in {"waterski_boat", "waterski_cable"}:
             selected.add("waterski")
         else:
             selected.add(discipline)
-    return selected
+    return expand_filter_selection(selected)
 
 
 def suppress_staging_near_verified(

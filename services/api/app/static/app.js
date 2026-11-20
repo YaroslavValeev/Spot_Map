@@ -13,32 +13,65 @@
   const insightStats = document.getElementById("insightStats");
   const insightSelected = document.getElementById("insightSelected");
   const weatherStrip = document.getElementById("weatherStrip");
+  const headerWeather = document.getElementById("headerWeather");
+  const windLayerToggle = document.getElementById("windLayerToggle");
   const EMBED_MODE = document.body?.dataset?.mode === "embed";
   const EMBED_HOST = document.body?.dataset?.host || "mywave";
 
+  function windDirLabel(deg) {
+    if (deg == null || Number.isNaN(Number(deg))) return "—";
+    const d = ((Number(deg) % 360) + 360) % 360;
+    const names = ["С", "СВ", "В", "ЮВ", "Ю", "ЮЗ", "З", "СЗ"];
+    return `${names[Math.round(d / 45) % 8]} ${Math.round(d)}°`;
+  }
+
   function formatWeatherStrip(weather) {
-    if (!weatherStrip) return;
     const air =
       weather && weather.status === "ok" && weather.air_c != null
         ? `${Math.round(weather.air_c)}°C`
         : "—";
-    const wind =
+    const windSpeed =
       weather && weather.status === "ok" && weather.wind_mps != null
         ? `${Number(weather.wind_mps).toFixed(1)} м/с`
+        : "—";
+    const windDir =
+      weather && weather.status === "ok" ? windDirLabel(weather.direction_from_deg) : "—";
+    const gust =
+      weather && weather.status === "ok" && weather.gust_mps != null
+        ? `${Number(weather.gust_mps).toFixed(1)} м/с`
         : "—";
     const water =
       weather && weather.water_status === "measured" && weather.water_c != null
         ? `${Math.round(weather.water_c)}°C`
-        : "нет измерений";
+        : "нет данных";
+    const attr = weather?.attribution || weather?.provider || "";
     const layer = weather?.wind_layer?.enabled
-      ? weather.wind_layer.label
+      ? weather.wind_layer.label || "Ветер — стрелки"
       : "Ветровой слой недоступен";
-    weatherStrip.innerHTML = `
+    const html = `
       <span>Воздух <b>${escapeHtml(air)}</b></span>
-      <span>Ветер <b>${escapeHtml(wind)}</b></span>
+      <span>Ветер <b>${escapeHtml(windSpeed)}</b> ${escapeHtml(windDir)}</span>
+      <span>Порывы <b>${escapeHtml(gust)}</b></span>
       <span>Вода <b>${escapeHtml(water)}</b></span>
       <span class="weather-layer">${escapeHtml(layer)}</span>
+      ${attr ? `<span class="wx-attr">${escapeHtml(attr)}</span>` : ""}
     `;
+    if (weatherStrip) weatherStrip.innerHTML = html;
+    if (headerWeather) {
+      headerWeather.innerHTML = `
+        <span>Воздух <b>${escapeHtml(air)}</b></span>
+        <span>Ветер <b>${escapeHtml(windSpeed)}</b> ${escapeHtml(windDir)}</span>
+        <span>Вода <b>${escapeHtml(water)}</b></span>
+      `;
+    }
+    if (windLayerToggle) {
+      const can = Boolean(weather?.wind_layer?.enabled);
+      windLayerToggle.disabled = !can;
+      if (!can) {
+        windLayerToggle.setAttribute("aria-pressed", "false");
+        windLayerOn = false;
+      }
+    }
   }
 
   const RUSSIA_BOUNDS = [
@@ -49,12 +82,15 @@
   const RUSSIA_ZOOM = 3;
 
   const FALLBACK_CATALOG = [
-    { slug: "waterski", label: "Водные лыжи", short: "Водные лыжи", symbol: "disc-waterski", color: "#7B5CFF" },
-    { slug: "wakesurf_skim", label: "Вейксерф / вейкским", short: "Вейксерф / вейкским", symbol: "disc-wakesurf", color: "#14B8A6" },
-    { slug: "wakeboard", label: "Вейкборд — катер", short: "Вейкборд — катер", symbol: "disc-wakeboat", color: "#1D4ED8" },
-    { slug: "cable_ring", label: "Кольцо — электротяга", short: "Кольцо — электротяга", symbol: "disc-cable-ring", color: "#22C55E" },
-    { slug: "cable_reverse", label: "Реверс — электротяга", short: "Реверс — электротяга", symbol: "disc-cable-reverse", color: "#EC4899" },
-    { slug: "cable_pool", label: "Бассейн — электротяга", short: "Бассейн — электротяга", symbol: "disc-cable-pool", color: "#38BDF8" },
+    { slug: "wakesurf", label: "Вейксерф", short: "Вейксерф", symbol: "disc-wakesurf", color: "#14B8A6", kind: "sport" },
+    { slug: "wakesurf_longboard", label: "Вейксерф-лонгборд", short: "Лонгборд", symbol: "disc-wakesurf", color: "#0D9488", kind: "sport" },
+    { slug: "wakefoil", label: "Вейкфойл", short: "Вейкфойл", symbol: "disc-wakesurf", color: "#0F766E", kind: "sport" },
+    { slug: "wakeboard_boat", label: "Вейкборд — катер", short: "Вейкборд", symbol: "disc-wakeboat", color: "#1D4ED8", kind: "sport" },
+    { slug: "wakeboard_cable", label: "Вейкборд — электротяга", short: "Кабель-вейк", symbol: "disc-cable-ring", color: "#059669", kind: "sport" },
+    { slug: "waterski_slalom", label: "Водные лыжи — слалом", short: "Слалом", symbol: "disc-waterski", color: "#7B5CFF", kind: "sport" },
+    { slug: "cable_ring", label: "Кольцо — электротяга", short: "Кольцо", symbol: "disc-cable-ring", color: "#22C55E", kind: "installation" },
+    { slug: "cable_reverse", label: "Реверс — электротяга", short: "Реверс", symbol: "disc-cable-reverse", color: "#EC4899", kind: "installation" },
+    { slug: "cable_pool", label: "Бассейн — электротяга", short: "Бассейн", symbol: "disc-cable-pool", color: "#38BDF8", kind: "installation" },
   ];
 
   /** Inline glyph paths (white on colored tile) — matches /static/icons/disciplines.svg */
@@ -85,6 +121,9 @@
   let selectedClusterKey = null;
   let clusterLayout = null;
   let searchQuery = "";
+  let windLayerOn = false;
+  let windCollection = null;
+  let windLoadTimer = null;
 
   function escapeHtml(value) {
     return String(value ?? "")
@@ -257,6 +296,71 @@
     });
   }
 
+  async function refreshWindLayer() {
+    if (!map || !window.ymaps || !windLayerOn) {
+      if (windCollection) windCollection.removeAll();
+      return;
+    }
+    const bounds = map.getBounds();
+    if (!bounds || bounds.length < 2) return;
+    const sw = bounds[0];
+    const ne = bounds[1];
+    const qs = new URLSearchParams({
+      min_lat: String(sw[0]),
+      min_lng: String(sw[1]),
+      max_lat: String(ne[0]),
+      max_lng: String(ne[1]),
+      step: "0.4",
+    });
+    try {
+      const res = await fetch(`/v1/weather/wind-grid?${qs.toString()}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!windCollection) {
+        windCollection = new window.ymaps.GeoObjectCollection();
+        map.geoObjects.add(windCollection);
+      }
+      windCollection.removeAll();
+      (data.points || []).forEach((p) => {
+        const from = Number(p.direction_from_deg);
+        const to = (from + 180) % 360;
+        const speed = Number(p.wind_mps) || 0;
+        const mark = new window.ymaps.Placemark(
+          [p.lat, p.lng],
+          {
+            hintContent: `${speed.toFixed(1)} м/с · от ${Math.round(from)}°`,
+          },
+          {
+            iconLayout: "default#image",
+            iconImageHref:
+              "data:image/svg+xml;charset=UTF-8," +
+              encodeURIComponent(
+                `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+                  <g transform="rotate(${to} 14 14)">
+                    <path d="M14 4 L18 16 L14 13 L10 16 Z" fill="#0b3d4a" opacity="0.85"/>
+                    <circle cx="14" cy="14" r="2" fill="#2a9d8f"/>
+                  </g>
+                </svg>`
+              ),
+            iconImageSize: [28, 28],
+            iconImageOffset: [-14, -14],
+            zIndex: 100,
+          }
+        );
+        windCollection.add(mark);
+      });
+    } catch (_err) {
+      /* keep map usable if wind grid fails */
+    }
+  }
+
+  function scheduleWindRefresh() {
+    clearTimeout(windLoadTimer);
+    windLoadTimer = setTimeout(() => {
+      refreshWindLayer().catch(() => {});
+    }, 350);
+  }
+
   function createMap(ymaps) {
     map = new ymaps.Map(
       "map",
@@ -273,6 +377,9 @@
     );
     placemarks = new ymaps.GeoObjectCollection();
     map.geoObjects.add(placemarks);
+    windCollection = new ymaps.GeoObjectCollection();
+    map.geoObjects.add(windCollection);
+    map.events.add("boundschange", scheduleWindRefresh);
 
     pinLayout = ymaps.templateLayoutFactory.createClass(
       `<div class="spot-pin {% if properties.isActive %}is-active{% endif %}" style="--disc-color: $[properties.disciplineColor]">
@@ -399,6 +506,16 @@
         <p class="score-value">${escapeHtml(ride.label || "Не оценено")}</p>
         <p class="meta">${escapeHtml(ride.reason || "Нужен утверждённый ветровой профиль")}</p>
       </div>`;
+    const hourly = Array.isArray(wx?.hourly) ? wx.hourly : [];
+    const hourBits = [0, 3, 6]
+      .map((idx) => hourly[idx])
+      .filter(Boolean)
+      .map((h) => {
+        const t = String(h.at || "").slice(11, 16) || "—";
+        const w = h.wind_mps != null ? `${Number(h.wind_mps).toFixed(1)}` : "—";
+        return `${t}: ${w} м/с`;
+      })
+      .join(" · ");
     const wxHtml =
       wx && wx.status === "ok"
         ? `<div class="score-block">
@@ -407,14 +524,16 @@
           wx.air_c != null ? `${Math.round(wx.air_c)}°C` : "—"
         )} · Ветер ${escapeHtml(
           wx.wind_mps != null ? `${Number(wx.wind_mps).toFixed(1)} м/с` : "—"
-        )} · Порывы ${escapeHtml(
+        )} ${escapeHtml(windDirLabel(wx.direction_from_deg))} · Порывы ${escapeHtml(
           wx.gust_mps != null ? `${Number(wx.gust_mps).toFixed(1)} м/с` : "—"
         )}</p>
         <p class="meta">Вода: ${escapeHtml(
           wx.water_status === "measured" && wx.water_c != null
             ? `${Math.round(wx.water_c)}°C`
-            : "нет измерений"
+            : "нет данных"
         )} · ${escapeHtml(wx.provider || "")}</p>
+        ${hourBits ? `<p class="meta">Часы: ${escapeHtml(hourBits)}</p>` : ""}
+        ${wx.attribution ? `<p class="meta">${escapeHtml(wx.attribution)}</p>` : ""}
       </div>`
         : `<div class="score-block"><p class="score-label">Погода</p><p class="meta">${escapeHtml(
             wx?.reason || "Нет данных"
@@ -706,6 +825,13 @@
   showStaging?.addEventListener("change", () => {
     loadMapData().catch((err) => setStatus(`ошибка карты: ${err.message}`, false));
   });
+  windLayerToggle?.addEventListener("click", () => {
+    if (windLayerToggle.disabled) return;
+    windLayerOn = !windLayerOn;
+    windLayerToggle.setAttribute("aria-pressed", windLayerOn ? "true" : "false");
+    if (!windLayerOn && windCollection) windCollection.removeAll();
+    else scheduleWindRefresh();
+  });
   let searchTimer = null;
   searchInput?.addEventListener("input", () => {
     clearTimeout(searchTimer);
@@ -743,9 +869,22 @@
       }
 
       mapKeyHint.hidden = true;
+      if (config.weather?.wind_layer) {
+        formatWeatherStrip({
+          status: "unavailable",
+          wind_layer: config.weather.wind_layer,
+          water_status: "no_measurement",
+        });
+      }
       const ymaps = await loadYmapsScript(apiKey);
       createMap(ymaps);
-      const jobs = [loadMapData()];
+      const jobs = [
+        loadMapData(),
+        fetch("/v1/weather/point?lat=55.75&lon=37.62")
+          .then((r) => r.json())
+          .then((wx) => formatWeatherStrip(wx))
+          .catch(() => {}),
+      ];
       if (!EMBED_MODE) jobs.push(loadQueue());
       await Promise.all(jobs);
     } catch (err) {
